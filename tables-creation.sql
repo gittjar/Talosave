@@ -1,5 +1,5 @@
 CREATE TABLE TS_Properties (
-    propertyid INT PRIMARY KEY,
+    propertyid INT IDENTITY(1,1) PRIMARY KEY,
     propertyname NVARCHAR(255),
     street_address NVARCHAR(255),
     post_number NVARCHAR(255),
@@ -30,7 +30,7 @@ CREATE TABLE TS_Properties (
 );
 
 CREATE TABLE TS_ElectricityConsumption (
-    id INT PRIMARY KEY,
+    id INT IDENTITY(1,1) PRIMARY KEY,
     propertyid INT,
     month INT,
     year INT,
@@ -40,7 +40,7 @@ CREATE TABLE TS_ElectricityConsumption (
 );
 
 CREATE TABLE TS_HeatingConsumption (
-    id INT PRIMARY KEY,
+    id INT IDENTITY(1,1) PRIMARY KEY,
     propertyid INT,
     month INT,
     year INT,
@@ -50,7 +50,7 @@ CREATE TABLE TS_HeatingConsumption (
 );
 
 CREATE TABLE TS_WaterConsumption (
-    id INT PRIMARY KEY,
+    id INT IDENTITY(1,1) PRIMARY KEY,
     propertyid INT,
     month INT,
     year INT,
@@ -60,7 +60,7 @@ CREATE TABLE TS_WaterConsumption (
 );
 
 CREATE TABLE TS_WasteConsumption (
-    id INT PRIMARY KEY,
+    id INT IDENTITY(1,1) PRIMARY KEY,
     propertyid INT,
     month INT,
     year INT,
@@ -70,7 +70,7 @@ CREATE TABLE TS_WasteConsumption (
 );
 
 CREATE TABLE TS_PropertyExpenses (
-    id INT PRIMARY KEY,
+    id INT IDENTITY(1,1) PRIMARY KEY,
     propertyid INT,
     month INT,
     year INT,
@@ -80,7 +80,7 @@ CREATE TABLE TS_PropertyExpenses (
 );
 
 CREATE TABLE TS_OtherExpenses (
-    id INT PRIMARY KEY,
+    id INT IDENTITY(1,1) PRIMARY KEY,
     expensesid INT,
     description NVARCHAR(255),
     amount FLOAT,
@@ -88,7 +88,7 @@ CREATE TABLE TS_OtherExpenses (
 );
 
 CREATE TABLE TS_Renovations (
-    id INT PRIMARY KEY,
+    id INT IDENTITY(1,1) PRIMARY KEY,
     propertyid INT,
     construction_company NVARCHAR(255),
     renovation NVARCHAR(255),
@@ -97,21 +97,21 @@ CREATE TABLE TS_Renovations (
 );
 
 CREATE TABLE TS_RenovationDetails (
-    id INT PRIMARY KEY,
+    id INT IDENTITY(1,1) PRIMARY KEY,
     renovationid INT,
     detail NVARCHAR(255),
     FOREIGN KEY (renovationid) REFERENCES TS_Renovations(id)
 );
 
 CREATE TABLE TS_Images (
-    id INT PRIMARY KEY,
+    id INT IDENTITY(1,1) PRIMARY KEY,
     propertyid INT,
     image_url NVARCHAR(255),
     FOREIGN KEY (propertyid) REFERENCES TS_Properties(propertyid)
 );
 
 CREATE TABLE TS_Tutkimukset (
-    id INT PRIMARY KEY,
+    id INT IDENTITY(1,1) PRIMARY KEY,
     propertyid INT,
     kuntotutkimus_company NVARCHAR(255),
     kuntotutkimus NVARCHAR(255),
@@ -122,15 +122,16 @@ CREATE TABLE TS_Tutkimukset (
 );
 
 CREATE TABLE TS_Notes (
-    id INT PRIMARY KEY,
+    id INT IDENTITY(1,1) PRIMARY KEY,
     propertyid INT,
     note NVARCHAR(MAX),
     FOREIGN KEY (propertyid) REFERENCES TS_Properties(propertyid)
 );
 
 CREATE TABLE TS_PropertyUsers (
-    userid INT PRIMARY KEY,
+    userid INT IDENTITY(1,1) PRIMARY KEY,
     username NVARCHAR(255),
+    fullname NVARCHAR(255),
     password NVARCHAR(255),
     email NVARCHAR(255),
     phone NVARCHAR(255),
@@ -144,4 +145,3 @@ CREATE TABLE TS_UserProperties (
     FOREIGN KEY (userid) REFERENCES TS_PropertyUsers(userid),
     FOREIGN KEY (propertyid) REFERENCES TS_Properties(propertyid)
 );
-
