@@ -1,9 +1,16 @@
 const express = require('express');
 require('dotenv').config();
 const sql = require('mssql');
-const propertiesRouter = require('./routes/properties');
-
 const app = express();
+const cors = require('cors');
+const propertiesRouter = require('./routes/properties');
+const loginRouter = require('./routes/login');
+const createUserRouter = require('./routes/users');
+
+app.use(express.json());
+app.use(cors());
+
+
 const port = process.env.PORT || 3000;
 
 const config = {
@@ -26,5 +33,7 @@ sql.connect(config).then(pool => {
 
 // Use our routes.
 app.use('/properties', propertiesRouter);
+app.use('/login', loginRouter);
+app.use('/create', createUserRouter);
 
 app.listen(port, () => console.log(`Server is running on port ${port}`));
