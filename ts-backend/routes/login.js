@@ -19,38 +19,35 @@ const config = {
 router.post('/', async (req, res) => {
   const { username, password } = req.body;
 
-  router.post('/', async (req, res) => {
-    const { username, password } = req.body;
-  
-    // Fetch the user from the database
-    let pool = await sql.connect(config);
-    let result = await pool.request()
-      .input('username', sql.NVarChar, username)
-      .query('SELECT * FROM TS_PropertyUsers WHERE username = @username');
-    const user = result.recordset[0];
-  
-    // Check if the password is correct
-    const hashDigest = sha256(password);
-    const hashedPassword = Base64.stringify(hmacSHA512(password + hashDigest, password));
-    const passwordCorrect = user === null
-      ? false
-      : user.password === hashedPassword;
-  
-    if (!(user && passwordCorrect)) {
-      return res.status(401).json({
-        error: 'invalid username or password'
-      });
-    }
-  
-    // Create a token
-    const userForToken = {
-      username: user.username,
-      id: user.userid, // Changed from user.id to user.userid to match your table structure
-    };
-  
-    const token = jwt.sign(userForToken, process.env.SECRET);
-  
-    res.status(200).send({ token, username: user.username, id: user.userid }); // Changed from user.id to user.userid to match your table structure
-  });});
+  // Fetch the user from the database
+  let pool = await sql.connect(config);
+  let result = await pool.request()
+    .input('username', sql.NVarChar, username)
+    .query('SELECT * FROM TS_PropertyUsers WHERE username = @username');
+  const user = result.recordset[0];
+
+  // Check if the password is correct
+  const hashDigest = sha256(password);
+  const hashedPassword = Base64.stringify(hmacSHA512(password + hashDigest, password));
+  const passwordCorrect = user === null
+    ? false
+    : user.password === hashedPassword;
+
+  if (!(user && passwordCorrect)) {
+    return res.status(401).json({
+      error: 'invalid username or password'
+    });
+  }
+
+  // Create a token
+  const userForToken = {
+    username: user.username,
+    id: user.userid, // Changed from user.id to user.userid to match your table structure
+  };
+
+  const token = jwt.sign(userForToken, process.env.SECRET);
+
+  res.status(200).send({ token, username: user.username, id: user.userid }); // Changed from user.id to user.userid to match your table structure
+});
 
 module.exports = router;
