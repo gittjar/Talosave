@@ -1,5 +1,5 @@
 import LoginPage  from './components/LoginPage'
-import TestPage from './components/testpage';
+import TestPage from './components/TestPage';
 
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 

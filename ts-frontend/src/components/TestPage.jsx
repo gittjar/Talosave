@@ -1,16 +1,17 @@
-
-
+import { useHistory } from 'react-router-dom';
 
 const TestPage = () => {
   const token = localStorage.getItem('userToken');
+  const history = useHistory();
 
   if (!token) {
-    return <h2>Please log in to view this page.</h2>;
+    history.push('/login');
+    return null;
   }
 
   return (
     <div>
-      <h2>Welcome, youre logged in!</h2>
+      <h2>Welcome! logged in!</h2>
     </div>
   );
 };

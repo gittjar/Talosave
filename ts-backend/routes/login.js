@@ -45,7 +45,7 @@ router.post('/', async (req, res) => {
     id: user.userid, // Changed from user.id to user.userid to match your table structure
   };
 
-  const token = jwt.sign(userForToken, process.env.SECRET);
+  const token = jwt.sign(userForToken, process.env.SECRET, { expiresIn: '1d' }); // token expires in 1 day
 
   res.status(200).send({ token, username: user.username, id: user.userid }); // Changed from user.id to user.userid to match your table structure
 });
