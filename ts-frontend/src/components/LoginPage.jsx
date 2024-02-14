@@ -12,7 +12,7 @@ const LoginPage = () => {
     event.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:3000/login', {
+      const response = await axios.post('http://localhost:3000/api/login', {
         username,
         password,
       });
@@ -20,7 +20,7 @@ const LoginPage = () => {
       localStorage.setItem('userToken', response.data.token);
       localStorage.setItem('userId', response.data.id);
 
-      navigate('/test');
+      navigate('/mypage');
     } catch (error) {
       setError('Invalid username or password');
     }

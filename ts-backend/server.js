@@ -32,8 +32,8 @@ sql.connect(config).then(pool => {
 }).catch(err => console.error('Could not connect to the database. ', err));
 
 // Use our routes.
-app.use('/properties', propertiesRouter);
-app.use('/login', loginRouter);
-app.use('/create', createUserRouter);
+app.use('/api/properties', propertiesRouter);
+app.use('/api/login', loginRouter);
+app.use('/api/create', createUserRouter);
 
 app.listen(port, () => console.log(`Server is running on port ${port}`));
