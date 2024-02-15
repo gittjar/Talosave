@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-
+const sql = require('mssql');
 
 // This is a middleware that verifies the JWT
 const verifyToken = (req, res, next) => {
@@ -34,17 +34,20 @@ router.get('/', async (req, res) => {
     }
 });
 
+
 router.post('/', verifyToken, async (req, res) => {
     const { propertyname } = req.body;
     const userid = req.user.id; // Get userid from the token
-
+    console.log('userid:',userid, 'propertyname:',propertyname);
     try {
       const sqlQuery = `
-        INSERT INTO TS_Properties (propertyname, userid)
-        VALUES (@propertyname, @userid)
+      INSERT INTO TS_Properties (propertyname, userid)
+      OUTPUT INSERTED.propertyid
+      VALUES (@propertyname, @userid)
       `;
-  
-      await req.app.locals.sqlRequest
+
+      const sqlRequest = new sql.Request();
+      await sqlRequest
         .input('propertyname', propertyname)
         .input('userid', userid)
         .query(sqlQuery);
@@ -54,5 +57,4 @@ router.post('/', verifyToken, async (req, res) => {
       res.status(500).send(err.message);
     }
 });
-
 module.exports = router;

@@ -1,42 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+// MyPage.jsx
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; 
+import { useProperties } from '../hooks/PropertyProvider.jsx';
+import { createContext } from 'react';
+
+export const PropertyContext = createContext();
 
 const MyPage = () => {
-    const [properties, setProperties] = useState([]);
-    const navigate = useNavigate(); // Initialize navigate
+    const { properties, fetchProperties } = useProperties();
+    const navigate = useNavigate(); 
 
     useEffect(() => {
-        const fetchProperties = async () => {
-            const token = localStorage.getItem('userToken'); 
-
-            const response = await axios.get('http://localhost:3000/api/properties', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
-            setProperties(response.data);
-        };
-
-        fetchProperties();
-    }, []);
+      fetchProperties();
+    }, [fetchProperties]);
 
     const handleAddProperty = () => {
-        navigate('/add-property'); // Navigate to AddPropertyForm when button is clicked
+        navigate('/add-property'); 
     };
 
     return (
+      <div>
+        <h1>My Properties</h1>
+    
+        {properties.map(property => (
+            <div className="card" style={{width: "18rem"}} key={property.id}>
+          <img src="image.jpg" className="card-img-top" alt="..." />
+            <div className="card-body">
+              <h5 className="card-title">{property.propertyname}</h5>
+              {/* Display other property details as needed */}
+              <p className="card-text">{property.description}</p>
+              <a href="#" className="btn btn-primary">Go somewhere</a>
+            </div>
+          </div>
+        ))}
+
         <div>
-            <h1>My Properties</h1>
-            {properties.map(property => (
-                <div key={property.id}>
-                    <h2>{property.propertyname}</h2>
-                    {/* Display other property details as needed */}
-                </div>
-            ))}
-            <button onClick={handleAddProperty}>+ Add Property</button>
+          <button onClick={handleAddProperty} className="addbutton">Add Property</button>
         </div>
+      </div>
     );
 };
 
