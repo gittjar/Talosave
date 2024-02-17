@@ -8,9 +8,7 @@ const AddPropertyForm = () => {
     const { fetchProperties } = useProperties();
     const [propertyname, setPropertyname] = useState('');
     const navigate = useNavigate();
-    const [userid, setUserid] = useState(null); // Add this line
-
-
+    const [userid, setUserid] = useState(null);
 
     // When the component mounts, get the userid from local storage
     useEffect(() => {
@@ -25,7 +23,7 @@ const AddPropertyForm = () => {
     
         const data = {
             propertyname,
-            userid // Add userid to the data object
+            userid 
         };
     
         const token = localStorage.getItem('userToken'); 
