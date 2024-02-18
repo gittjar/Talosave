@@ -12,6 +12,9 @@ const PropertyDetails = () => {
   const { properties, fetchProperties } = useProperties();
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [newPropertyName, setNewPropertyName] = useState('');
+  const [refreshKey, setRefreshKey] = useState(0);
 
 
   useEffect(() => {
@@ -32,7 +35,7 @@ const PropertyDetails = () => {
       .catch(error => {
         console.error('Error fetching property details:', error);
       });
-  }, [id]);
+  }, [id, refreshKey]);
 
   if (!property) {
     return <div>Loading...</div>;
@@ -58,17 +61,59 @@ const PropertyDetails = () => {
     }
   };
 
+  const handleUpdateProperty = async () => {
+    try {
+      const token = localStorage.getItem('userToken'); 
+      await axios.put(`http://localhost:3000/api/properties/${id}`, {
+        propertyname: newPropertyName,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      fetchProperties(); // Fetch properties again after a property is updated
+      setIsEditing(false); // Switch back to the normal mode
+      setRefreshKey(oldKey => oldKey + 1); // Trigger a refresh of the property details
+    } catch (error) {
+      console.error('Failed to update property:', error);
+    }
+  };
+
+  const handleEditClick = () => {
+    setNewPropertyName(property.propertyname); // Initialize the form with the current property name
+    setIsEditing(true);
+  };
+
+  const handleCancelClick = () => {
+    setIsEditing(false);
+  };
+
   return (
     <div>
-      <h1>{property.propertyname}</h1>
-      {/* Display other property details as needed */}
-      <p>{property.description}</p>
-      <button onClick={() => setShowDeleteConfirm(true)} className="btn btn-danger">Delete</button> {/* Show the confirmation notification when "Delete" is clicked */}
-      <button className="btn btn-primary" onClick={goBack}>Back</button>
+      {isEditing ? (
+        <div>
+          <input
+            type="text"
+            value={newPropertyName}
+            onChange={(e) => setNewPropertyName(e.target.value)}
+          />
+          <button onClick={handleUpdateProperty} className="btn btn-success">Save</button>
+          <button onClick={handleCancelClick} className="btn btn-danger">Cancel</button>
+        </div>
+      ) : (
+        <div>
+          <h1>{property.propertyname}</h1>
+          {/* Display other property details as needed */}
+          <p>{property.description}</p>
+          <button onClick={handleEditClick} className="btn btn-primary">Update</button>
+          <button onClick={() => setShowDeleteConfirm(true)} className="btn btn-danger">Delete</button>
+          <button className="btn btn-primary" onClick={goBack}>Back</button>
+        </div>
+      )}
       {showDeleteConfirm && (
         <div>
           <p>Are you sure you want to delete this property?</p>
-          <button onClick={handleDeleteProperty} className='btn btn-success'>Yes</button> {/* Call handleDeleteProperty when "Yes" is clicked */}
+          <button onClick={handleDeleteProperty} className='btn btn-success'>Yes</button>
           <button onClick={() => setShowDeleteConfirm(false)} className='btn btn-danger'>No</button>
         </div>
       )}
