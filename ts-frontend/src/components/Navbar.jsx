@@ -20,7 +20,7 @@ const NavBar = () => {
       <ul>
         <li><Link to="/home">Home</Link></li>
         {isLoggedIn ? (
-          <li><Link to="/login" onClick={handleLogout}>Logout</Link></li>
+          <><li><Link to="/login" onClick={handleLogout}>Logout</Link></li><li><Link to="/mypage">My Page</Link></li></>
         ) : (
           <li><Link to="/login">Login</Link></li>
         )}

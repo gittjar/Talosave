@@ -41,14 +41,22 @@ const AddPropertyForm = () => {
         }
     };
 
+    const goBack = () => {
+        navigate(-1); // Go back to the previous page
+      };
+
     return (
         <form onSubmit={handleSubmit}>
             <label>
-                Property Name:
+                Property Name:<br></br>
                 <input type="text" value={propertyname} onChange={(e) => setPropertyname(e.target.value)} />
             </label>
+            <br></br>
             {/* Add other fields as needed */}
-            <button type="submit" className='addbutton'>Add Property</button>
+            <button type="submit" className='btn btn-primary'>Add Property</button>
+            <br></br>
+            <button type="button" onClick={goBack} className='btn btn-secondary'>Back</button> {/* Add a "Back" button */}
+
         </form>
     );
 };

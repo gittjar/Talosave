@@ -24,11 +24,30 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-
 router.get('/', async (req, res) => {
     try {
         const result = await req.app.locals.sqlRequest.query('SELECT * FROM TS_Properties');
         res.json(result.recordset);
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
+router.get('/:id', verifyToken, async (req, res) => {
+    const id = parseInt(req.params.id, 10);
+    const userid = req.user.id; // Get userid from the token
+    console.log('property id:' + id); // Log the id value
+    try {
+        const sqlRequest = new sql.Request();
+        const result = await sqlRequest
+            .input('id', sql.Int, id)
+            .input('userid', sql.Int, userid)
+            .query('SELECT * FROM TS_Properties WHERE propertyid = @id AND userid = @userid');
+        if (result.recordset.length > 0) {
+            res.json(result.recordset[0]);
+        } else {
+            res.status(404).send('Property not found');
+        }
     } catch (err) {
         res.status(500).send(err.message);
     }
@@ -57,4 +76,25 @@ router.post('/', verifyToken, async (req, res) => {
       res.status(500).send(err.message);
     }
 });
+
+router.delete('/:id', verifyToken, async (req, res) => {
+    const id = parseInt(req.params.id, 10);
+    const userid = req.user.id; // Get userid from the token
+    console.log('delete property id:' + id); // Log the id value
+    try {
+        const sqlRequest = new sql.Request();
+        const result = await sqlRequest
+            .input('id', sql.Int, id)
+            .input('userid', sql.Int, userid)
+            .query('DELETE FROM TS_Properties WHERE propertyid = @id AND userid = @userid');
+        if (result.rowsAffected[0] > 0) {
+            res.status(200).send('Property deleted');
+        } else {
+            res.status(404).send('Property not found');
+        }
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
 module.exports = router;

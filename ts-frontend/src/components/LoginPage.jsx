@@ -8,19 +8,24 @@ const LoginPage = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
     try {
       const response = await axios.post('http://localhost:3000/api/login', {
         username,
         password,
       });
-
-      localStorage.setItem('userToken', response.data.token);
-      localStorage.setItem('userId', response.data.id);
-
-      navigate('/mypage');
+  
+      if (response.status === 404) {
+        setError('User not found');
+      } else {
+        localStorage.setItem('userToken', response.data.token);
+        localStorage.setItem('userId', response.data.id);
+  
+        navigate('/mypage');
+      }
     } catch (error) {
       setError('Invalid username or password');
     }
@@ -51,7 +56,7 @@ const LoginPage = () => {
             />
           </label>
         </div>
-        <button type="submit">Login</button>
+        <button className="btn btn-success" type="submit">Login</button>
       </form>
     </div>
   );

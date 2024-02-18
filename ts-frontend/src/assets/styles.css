@@ -1,5 +1,15 @@
 
+.main {
+    background-color: #fafafa;
+    margin-left: 1rem;
+}
 
+.thinline {
+    border: 1px solid #5876fc;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    width: 50%;
+}
 
 .addbutton {
     background-color: rgb(8, 101, 232);
@@ -14,4 +24,10 @@
 
 .addbutton:hover {
     background-color: rgb(7, 88, 200);
+}
+
+.card-grid {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    gap: 0.4rem;
 }
