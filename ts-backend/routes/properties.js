@@ -6,29 +6,37 @@ const sql = require('mssql');
 
 // This is a middleware that verifies the JWT
 const verifyToken = (req, res, next) => {
-  const authHeader = req.headers.authorization;
+    const authHeader = req.headers.authorization;
+  
+    if (authHeader) {
+      const token = authHeader.split(' ')[1];
+      console.log('Token:', token); // Log the token
+  
+      jwt.verify(token, process.env.SECRET, (err, user) => {
+        if (err) {
+          console.error('Token verification error:', err); // Log the error
+          return res.sendStatus(403);
+        }
+  
+        req.user = user;
+        next();
+      });
+    } else {
+      res.sendStatus(401);
+    }
+  };
 
-  if (authHeader) {
-    const token = authHeader.split(' ')[1];
-
-    jwt.verify(token, process.env.SECRET, (err, user) => {
-      if (err) {
-        return res.sendStatus(403);
-      }
-
-      req.user = user;
-      next();
-    });
-  } else {
-    res.sendStatus(401);
-  }
-};
-
-router.get('/', async (req, res) => {
+  router.get('/', verifyToken, async (req, res) => {
+    const userid = req.user.id; // Get userid from the token
     try {
-        const result = await req.app.locals.sqlRequest.query('SELECT * FROM TS_Properties');
+        const sqlRequest = new sql.Request();
+        const result = await sqlRequest
+            .input('userid', sql.Int, userid)
+            .query('SELECT * FROM TS_Properties WHERE userid = @userid');
+        console.log('Query result:', result); // Log the query result
         res.json(result.recordset);
     } catch (err) {
+        console.error('Error executing query:', err); // Log the error
         res.status(500).send(err.message);
     }
 });
@@ -65,10 +73,10 @@ router.post('/', verifyToken, async (req, res) => {
       VALUES (@propertyname, @userid)
       `;
 
-      const sqlRequest = new sql.Request();
+      const sqlRequest = req.app.locals.sqlRequest;
       await sqlRequest
-        .input('propertyname', propertyname)
-        .input('userid', userid)
+        .input('propertyname', sql.NVarChar, propertyname) // Specify the type of the propertyname parameter
+        .input('userid', sql.Int, userid)
         .query(sqlQuery);
   
       res.status(201).send();

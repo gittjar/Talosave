@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import config from '../configuration/config';
 
 const LoginPage = () => {
   const [username, setUsername] = useState('');
@@ -13,7 +14,7 @@ const LoginPage = () => {
     event.preventDefault();
   
     try {
-      const response = await axios.post('http://localhost:3000/api/login', {
+      const response = await axios.post(`${config.baseURL}/api/login`, {
         username,
         password,
       });
@@ -56,7 +57,7 @@ const LoginPage = () => {
             />
           </label>
         </div>
-        <button className="btn btn-success" type="submit">Login</button>
+        <button className="primary-button" type="submit">Login</button>
       </form>
     </div>
   );

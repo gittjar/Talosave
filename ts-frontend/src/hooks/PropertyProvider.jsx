@@ -1,6 +1,7 @@
 // hooks/PropertyProvider.jsx
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+import config from '../configuration/config';
 
 const PropertyContext = createContext();
 
@@ -14,7 +15,7 @@ export const PropertyProvider = ({ children }) => {
     const token = localStorage.getItem('userToken'); 
   
     try {
-      const response = await axios.get('http://localhost:3000/api/properties', {
+      const response = await axios.get(`${config.baseURL}/api/properties`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

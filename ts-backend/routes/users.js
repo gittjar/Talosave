@@ -18,7 +18,7 @@ const config = {
     };
 
     router.post('/', async (req, res) => {
-        const { username, password, email, phone, role } = req.body;
+        const { username, fullname, password, email, phone, role } = req.body;
       
         // Hash the password
         const hashDigest = sha256(password);
@@ -38,14 +38,16 @@ const config = {
             // Insert the new user into the database
             let result = await pool.request()
                 .input('username', sql.NVarChar, username)
+                .input('fullname', sql.NVarChar, fullname)
                 .input('password', sql.NVarChar, hashedPassword)
                 .input('email', sql.NVarChar, email)
                 .input('phone', sql.NVarChar, phone)
                 .input('role', sql.NVarChar, role)
-                .query('INSERT INTO TS_PropertyUsers (username, password, email, phone, role) VALUES (@username, @password, @email, @phone, @role)');
+                .query('INSERT INTO TS_PropertyUsers (username, fullname, password, email, phone, role) VALUES (@username, @fullname, @password, @email, @phone, @role)');
     
             if (result.rowsAffected[0] > 0) {
                 res.status(201).send('User added');
+                console.log('User added: ' + username + ' * ' + fullname + ' * ' + email + ' * ' + phone + ' * ' + role);
             } else {
                 res.status(500).send('Error executing query');
             }

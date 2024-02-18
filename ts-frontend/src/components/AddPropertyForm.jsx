@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom'; 
 import { useProperties } from '../hooks/PropertyProvider.jsx';
+import config from '../configuration/config.js';
 
 const AddPropertyForm = () => {
     const { fetchProperties } = useProperties();
@@ -29,14 +30,15 @@ const AddPropertyForm = () => {
         const token = localStorage.getItem('userToken'); 
     
         try {
-            await axios.post('http://localhost:3000/api/properties', data, {
+            await axios.post(`${config.baseURL}/api/properties`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             });
+            fetchProperties(); // Fetch properties again after a property is added
             navigate('/MyPage'); // Navigate to MyPage after form is submitted
         } catch (error) {
-            console.error('Error adding property:', error);
+            console.error('Error adding property:', error.response.data);
             // Handle error as needed
         }
     };
@@ -53,9 +55,9 @@ const AddPropertyForm = () => {
             </label>
             <br></br>
             {/* Add other fields as needed */}
-            <button type="submit" className='btn btn-primary'>Add Property</button>
+            <button type="submit" className='primary-button'>Add Property</button>
             <br></br>
-            <button type="button" onClick={goBack} className='btn btn-secondary'>Back</button> {/* Add a "Back" button */}
+            <button type="button" onClick={goBack} className='secondary-button'>Back</button> {/* Add a "Back" button */}
 
         </form>
     );

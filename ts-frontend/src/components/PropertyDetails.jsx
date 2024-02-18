@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useProperties } from '../hooks/PropertyProvider.jsx';
 import { createContext } from 'react';
 import axios from 'axios';
+import config from '../configuration/config.js';
 
 export const PropertyContext = createContext();
 
@@ -16,11 +17,11 @@ const PropertyDetails = () => {
   const [newPropertyName, setNewPropertyName] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
-
   useEffect(() => {
     const token = localStorage.getItem('userToken');
 
-    fetch(`http://localhost:3000/api/properties/${id}`, {
+    
+    fetch(`${config.baseURL}/api/properties/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -48,7 +49,7 @@ const PropertyDetails = () => {
   const handleDeleteProperty = async () => {
     try {
       const token = localStorage.getItem('userToken'); 
-      await axios.delete(`http://localhost:3000/api/properties/${id}`, {
+      await axios.delete(`${config.baseURL}/api/properties/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -64,7 +65,7 @@ const PropertyDetails = () => {
   const handleUpdateProperty = async () => {
     try {
       const token = localStorage.getItem('userToken'); 
-      await axios.put(`http://localhost:3000/api/properties/${id}`, {
+      await axios.put(`${config.baseURL}/api/properties/${id}`, {
         propertyname: newPropertyName,
       }, {
         headers: {
@@ -97,7 +98,7 @@ const PropertyDetails = () => {
             value={newPropertyName}
             onChange={(e) => setNewPropertyName(e.target.value)}
           />
-          <button onClick={handleUpdateProperty} className="btn btn-success">Save</button>
+          <button onClick={handleUpdateProperty} className="primary-button">Save</button>
           <button onClick={handleCancelClick} className="btn btn-danger">Cancel</button>
         </div>
       ) : (
@@ -105,9 +106,9 @@ const PropertyDetails = () => {
           <h1>{property.propertyname}</h1>
           {/* Display other property details as needed */}
           <p>{property.description}</p>
-          <button onClick={handleEditClick} className="btn btn-primary">Update</button>
-          <button onClick={() => setShowDeleteConfirm(true)} className="btn btn-danger">Delete</button>
-          <button className="btn btn-primary" onClick={goBack}>Back</button>
+          <button onClick={handleEditClick} className="primary-button">Update</button>
+          <button onClick={() => setShowDeleteConfirm(true)} className="danger-button">Delete</button>
+          <button className="secondary-button" onClick={goBack}>Back</button>
         </div>
       )}
       {showDeleteConfirm && (

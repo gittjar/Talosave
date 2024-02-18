@@ -23,7 +23,7 @@ const MyPage = () => {
 
     return (
       <div>
-        <h1>My Properties</h1>
+        <h1>My Page</h1>
       <section className='card-grid'>
         {properties.map(property => (
             <div className="card" style={{width: "18rem"}} key={property.id}>
@@ -32,7 +32,7 @@ const MyPage = () => {
               <h5 className="card-title">{property.propertyname}</h5>
               {/* Display other property details as needed */}
               <p className="card-text">{property.description}</p>
-              <Link to={`/properties/${property.propertyid}`} className="btn btn-primary">View Details</Link>
+              <Link to={`/properties/${property.propertyid}`}>View Details</Link>
             </div>
           </div>
         ))}
@@ -41,7 +41,7 @@ const MyPage = () => {
         </section>
         <article className='thinline'></article>
         <div>
-          <button onClick={handleAddProperty} className="addbutton">Add Property</button>
+          <button onClick={handleAddProperty} className="primary-button">Add Property</button>
         </div>
       </div>
     );

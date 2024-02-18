@@ -6,6 +6,7 @@ import HomePage from './components/HomePage';
 import AddPropertyForm from './components/AddPropertyForm';
 import PrivateRoute from './components/PrivateRoute.jsx';
 import PropertyDetails from './components/PropertyDetails';
+import CreateUser from './components/CreateUser'; // Import the CreateUser component
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/mypage" element={<PrivateRoute><MyPage /></PrivateRoute>} />
           <Route path="/home" element={<HomePage />} />
+          <Route path="/create-user" element={<CreateUser />} />
           <Route path="/add-property" element={<AddPropertyForm />} />
           <Route path="/properties/:id" element={<PropertyDetails />} />
           <Route path="/" element={<HomePage />} />
