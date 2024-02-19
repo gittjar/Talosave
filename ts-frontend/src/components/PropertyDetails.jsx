@@ -10,7 +10,7 @@ export const PropertyContext = createContext();
 const PropertyDetails = () => {
   const { id } = useParams();
   const [property, setProperty] = useState(null);
-  const { properties, fetchProperties } = useProperties();
+  const { fetchProperties } = useProperties();
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -20,7 +20,6 @@ const PropertyDetails = () => {
   useEffect(() => {
     const token = localStorage.getItem('userToken');
 
-    
     fetch(`${config.baseURL}/api/properties/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`

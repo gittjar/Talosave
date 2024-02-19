@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import config from '../configuration/config';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
+import { useNavigate } from 'react-router-dom';
 
 const CreateUser = () => {
   const [username, setUsername] = useState('');
@@ -11,6 +12,7 @@ const CreateUser = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -30,8 +32,11 @@ const CreateUser = () => {
         role: 'user'
       });
 
+
       if (response.status === 201) {
         alert('User added');
+        navigate('/login'); // Redirect to login page
+
       } else {
         alert('Error executing query');
       }
@@ -41,8 +46,9 @@ const CreateUser = () => {
   };
 
   return (
+    <section className='create-user-form'>
     <Form onSubmit={handleSubmit}>
-      <FloatingLabel controlId="floatingUsername" label="Username" className="mb-2">
+      <FloatingLabel controlId="floatingUsername" label="Username" className="mb-2 mt-2">
         <Form.Control type="text" value={username} onChange={e => setUsername(e.target.value)} required />
       </FloatingLabel>
       <FloatingLabel controlId="floatingFullname" label="Fullname" className="mb-2">
@@ -62,6 +68,7 @@ const CreateUser = () => {
       </FloatingLabel>
       <button className='primary-button' type="submit">Create User</button>
     </Form>
+    </section>
   );
 };
 

@@ -72,10 +72,24 @@ border-bottom: #5876fc 1px solid;
     color:  rgb(255, 255, 255);
 }
 
+.create-user-form, .login-form {
+   width: 50%;
+}
 
 
 .card-grid {
     display: grid;
     grid-template-columns: auto auto auto;
     gap: 0.4rem;
+}
+
+/*Tablet and mobile*/
+
+@media screen and (max-width: 768px) {
+    .card-grid {
+        grid-template-columns: auto auto;
+    }
+    .create-user-form, .login-form {
+        width: 100%;
+     }
 }

@@ -33,7 +33,7 @@ const verifyToken = (req, res, next) => {
         const result = await sqlRequest
             .input('userid', sql.Int, userid)
             .query('SELECT * FROM TS_Properties WHERE userid = @userid');
-        console.log('Query result:', result); // Log the query result
+       // console.log('Query result:', result); // Log the query result
         res.json(result.recordset);
     } catch (err) {
         console.error('Error executing query:', err); // Log the error
@@ -73,7 +73,7 @@ router.post('/', verifyToken, async (req, res) => {
       VALUES (@propertyname, @userid)
       `;
 
-      const sqlRequest = req.app.locals.sqlRequest;
+      const sqlRequest = new sql.Request(); // Create a new sql.Request instance
       await sqlRequest
         .input('propertyname', sql.NVarChar, propertyname) // Specify the type of the propertyname parameter
         .input('userid', sql.Int, userid)
