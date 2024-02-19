@@ -15,6 +15,7 @@ const PropertyDetails = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [newPropertyName, setNewPropertyName] = useState('');
+  const [newStreetAddress, setNewStreetAddress] = useState('');
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -64,8 +65,9 @@ const PropertyDetails = () => {
   const handleUpdateProperty = async () => {
     try {
       const token = localStorage.getItem('userToken'); 
-      await axios.put(`${config.baseURL}/api/properties/${id}`, {
+      await axios.put(`${config.baseURL}/api/put/${id}`, {
         propertyname: newPropertyName,
+        street_address: newStreetAddress
       }, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -91,19 +93,27 @@ const PropertyDetails = () => {
   return (
     <div>
       {isEditing ? (
-        <div>
-          <input
-            type="text"
-            value={newPropertyName}
-            onChange={(e) => setNewPropertyName(e.target.value)}
-          />
-          <button onClick={handleUpdateProperty} className="primary-button">Save</button>
-          <button onClick={handleCancelClick} className="btn btn-danger">Cancel</button>
-        </div>
+         <div>
+         <input
+           type="text"
+           value={newPropertyName}
+           onChange={(e) => setNewPropertyName(e.target.value)}
+         />
+         <input
+           type="text"
+           value={newStreetAddress}
+           onChange={(e) => setNewStreetAddress(e.target.value)}
+           placeholder="New Street Address"
+         />
+         <br />
+         
+         <button onClick={handleUpdateProperty} className="primary-button">Save</button>
+         <button onClick={handleCancelClick} className="danger-button">Cancel</button>
+       </div>
       ) : (
         <div>
           <h1>{property.propertyname}</h1>
-          {/* Display other property details as needed */}
+          <p>{property.street_address}</p>
           <p>{property.description}</p>
           <button onClick={handleEditClick} className="primary-button">Update</button>
           <button onClick={() => setShowDeleteConfirm(true)} className="danger-button">Delete</button>
@@ -111,10 +121,10 @@ const PropertyDetails = () => {
         </div>
       )}
       {showDeleteConfirm && (
-        <div>
-          <p>Are you sure you want to delete this property?</p>
-          <button onClick={handleDeleteProperty} className='btn btn-success'>Yes</button>
-          <button onClick={() => setShowDeleteConfirm(false)} className='btn btn-danger'>No</button>
+        <div className='confirmation'>
+          <p>Are you sure. You want to delete this property?</p>
+          <button onClick={handleDeleteProperty} className='primary-button'>Yes</button>
+          <button onClick={() => setShowDeleteConfirm(false)} className='danger-button'>No</button>
         </div>
       )}
     </div>

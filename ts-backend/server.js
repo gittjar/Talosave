@@ -5,6 +5,7 @@ const app = express();
 const cors = require('cors');
 const propertiesRouter = require('./routes/properties');
 const loginRouter = require('./routes/login');
+const putRoute = require('./routes/put');
 const createUserRouter = require('./routes/users');
 
 app.use(express.json());
@@ -35,6 +36,8 @@ sql.connect(config).then(pool => {
 app.use('/api/properties', propertiesRouter);
 app.use('/api/login', loginRouter);
 app.use('/api/create', createUserRouter);
+app.use('/api/put', putRoute);
+
 
 app.use((err, req, res, next) => {
     console.error(err.stack);

@@ -19,6 +19,16 @@ border-bottom: #5876fc 1px solid;
     width: 100%;
 }
 
+.confirmation {
+    background-color: #f0f0f0;
+    padding: 1rem;
+    border: #5876fc 1px solid;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    width: fit-content;
+
+}
+
 /* Button styles */
 
 .primary-button {

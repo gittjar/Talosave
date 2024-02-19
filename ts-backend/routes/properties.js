@@ -105,27 +105,6 @@ router.delete('/:id', verifyToken, async (req, res) => {
     }
 });
 
-router.put('/:id', verifyToken, async (req, res) => {
-    const id = parseInt(req.params.id, 10);
-    const userid = req.user.id; 
-    const { propertyname } = req.body;
-  
-    try {
-      const sqlRequest = new sql.Request();
-      const result = await sqlRequest
-        .input('id', sql.Int, id)
-        .input('userid', sql.Int, userid)
-        .input('propertyname', sql.NVarChar, propertyname)
-        .query('UPDATE TS_Properties SET propertyname = @propertyname WHERE propertyid = @id AND userid = @userid');
-  
-      if (result.rowsAffected[0] > 0) {
-        res.status(200).send('Property updated');
-      } else {
-        res.status(404).send('Property not found');
-      }
-    } catch (err) {
-      res.status(500).send(err.message);
-    }
-  });
+
 
 module.exports = router;
