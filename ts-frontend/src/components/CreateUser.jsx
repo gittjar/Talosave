@@ -47,18 +47,23 @@ const CreateUser = () => {
 
   return (
     <section className='create-user-form'>
-    <Form onSubmit={handleSubmit}>
-      <FloatingLabel controlId="floatingUsername" label="Username" className="mb-2 mt-2">
+    <Form onSubmit={handleSubmit} className="was-validated">
+  
+        <FloatingLabel controlId="floatingUsername" label="Username" className="mb-2 mt-2">
         <Form.Control type="text" value={username} onChange={e => setUsername(e.target.value)} required />
+        <div className="invalid-feedback">Please fill out this field.</div>
       </FloatingLabel>
       <FloatingLabel controlId="floatingFullname" label="Fullname" className="mb-2">
         <Form.Control type="text" value={fullname} onChange={e => setFullname(e.target.value)} required />
+        <div className="invalid-feedback">Please fill out this field.</div>
       </FloatingLabel>
       <FloatingLabel controlId="floatingPassword" label="Password" className="mb-2">
         <Form.Control type="password" value={password} onChange={e => setPassword(e.target.value)} required />
+        <div className="invalid-feedback">Please fill out this field. Atleast 6 character.</div>
       </FloatingLabel>
       <FloatingLabel controlId="floatingConfirmPassword" label="Confirm Password" className="mb-2">
         <Form.Control type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required />
+        <div className="invalid-feedback">Please fill out this field. Atleast 6 character.</div>
       </FloatingLabel>
       <FloatingLabel controlId="floatingEmail" label="Email" className="mb-2">
         <Form.Control type="email" value={email} onChange={e => setEmail(e.target.value)} />
@@ -67,7 +72,7 @@ const CreateUser = () => {
         <Form.Control type="tel" value={phone} onChange={e => setPhone(e.target.value)} />
       </FloatingLabel>
       <button className='primary-button' type="submit">Create User</button>
-    </Form>
+    </Form >
     </section>
   );
 };

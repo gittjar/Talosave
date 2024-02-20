@@ -30,7 +30,7 @@ const AddPropertyForm = () => {
         const token = localStorage.getItem('userToken'); 
     
         try {
-            await axios.post(`${config.baseURL}/api/properties`, data, {
+            await axios.post(`${config.baseURL}/api/post`, data, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }

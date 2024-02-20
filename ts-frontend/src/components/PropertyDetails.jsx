@@ -21,7 +21,7 @@ const PropertyDetails = () => {
   useEffect(() => {
     const token = localStorage.getItem('userToken');
 
-    fetch(`${config.baseURL}/api/properties/${id}`, {
+    fetch(`${config.baseURL}/api/get/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -49,7 +49,7 @@ const PropertyDetails = () => {
   const handleDeleteProperty = async () => {
     try {
       const token = localStorage.getItem('userToken'); 
-      await axios.delete(`${config.baseURL}/api/properties/${id}`, {
+      await axios.delete(`${config.baseURL}/api/delete/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

@@ -15,7 +15,7 @@ export const PropertyProvider = ({ children }) => {
     const token = localStorage.getItem('userToken'); 
   
     try {
-      const response = await axios.get(`${config.baseURL}/api/properties`, {
+      const response = await axios.get(`${config.baseURL}/api/get`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

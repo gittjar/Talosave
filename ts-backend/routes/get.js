@@ -10,7 +10,7 @@ const verifyToken = (req, res, next) => {
   
     if (authHeader) {
       const token = authHeader.split(' ')[1];
-      console.log('Token:', token); // Log the token
+      // console.log('Token:', token); 
   
       jwt.verify(token, process.env.SECRET, (err, user) => {
         if (err) {
@@ -44,7 +44,7 @@ const verifyToken = (req, res, next) => {
 router.get('/:id', verifyToken, async (req, res) => {
     const id = parseInt(req.params.id, 10);
     const userid = req.user.id; // Get userid from the token
-    console.log('property id:' + id); // Log the id value
+    // console.log('property id:' + id); // Log the id value
     try {
         const sqlRequest = new sql.Request();
         const result = await sqlRequest
@@ -60,51 +60,6 @@ router.get('/:id', verifyToken, async (req, res) => {
         res.status(500).send(err.message);
     }
 });
-
-
-router.post('/', verifyToken, async (req, res) => {
-    const { propertyname } = req.body;
-    const userid = req.user.id; // Get userid from the token
-    console.log('userid:',userid, 'propertyname:',propertyname);
-    try {
-      const sqlQuery = `
-      INSERT INTO TS_Properties (propertyname, userid)
-      OUTPUT INSERTED.propertyid
-      VALUES (@propertyname, @userid)
-      `;
-
-      const sqlRequest = new sql.Request(); // Create a new sql.Request instance
-      await sqlRequest
-        .input('propertyname', sql.NVarChar, propertyname) // Specify the type of the propertyname parameter
-        .input('userid', sql.Int, userid)
-        .query(sqlQuery);
-  
-      res.status(201).send();
-    } catch (err) {
-      res.status(500).send(err.message);
-    }
-});
-
-router.delete('/:id', verifyToken, async (req, res) => {
-    const id = parseInt(req.params.id, 10);
-    const userid = req.user.id; // Get userid from the token
-    console.log('delete property id:' + id); // Log the id value
-    try {
-        const sqlRequest = new sql.Request();
-        const result = await sqlRequest
-            .input('id', sql.Int, id)
-            .input('userid', sql.Int, userid)
-            .query('DELETE FROM TS_Properties WHERE propertyid = @id AND userid = @userid');
-        if (result.rowsAffected[0] > 0) {
-            res.status(200).send('Property deleted');
-        } else {
-            res.status(404).send('Property not found');
-        }
-    } catch (err) {
-        res.status(500).send(err.message);
-    }
-});
-
 
 
 module.exports = router;

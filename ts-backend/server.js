@@ -3,9 +3,12 @@ require('dotenv').config();
 const sql = require('mssql');
 const app = express();
 const cors = require('cors');
-const propertiesRouter = require('./routes/properties');
+const getRoute = require('./routes/get');
 const loginRouter = require('./routes/login');
 const putRoute = require('./routes/put');
+const deleteRoute = require('./routes/delete');
+const postRoute = require('./routes/post');
+
 const createUserRouter = require('./routes/users');
 
 app.use(express.json());
@@ -33,10 +36,13 @@ sql.connect(config).then(pool => {
 }).catch(err => console.error('Could not connect to the database. ', err));
 
 // Use our routes.
-app.use('/api/properties', propertiesRouter);
 app.use('/api/login', loginRouter);
 app.use('/api/create', createUserRouter);
+app.use('/api/get', getRoute);
 app.use('/api/put', putRoute);
+app.use('/api/delete', deleteRoute);
+app.use('/api/post', postRoute);
+
 
 
 app.use((err, req, res, next) => {
