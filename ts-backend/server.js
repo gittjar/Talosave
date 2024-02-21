@@ -3,11 +3,15 @@ require('dotenv').config();
 const sql = require('mssql');
 const app = express();
 const cors = require('cors');
+// routes
 const getRoute = require('./routes/get');
 const loginRouter = require('./routes/login');
 const putRoute = require('./routes/put');
 const deleteRoute = require('./routes/delete');
 const postRoute = require('./routes/post');
+// renervations
+const postRenovation = require('./routesrenovations/post');
+const getRenovation = require('./routesrenovations/get');
 
 const createUserRouter = require('./routes/users');
 
@@ -42,6 +46,10 @@ app.use('/api/get', getRoute);
 app.use('/api/put', putRoute);
 app.use('/api/delete', deleteRoute);
 app.use('/api/post', postRoute);
+
+// renovations
+app.use('/api', postRenovation);
+app.use('/api', getRenovation);
 
 
 

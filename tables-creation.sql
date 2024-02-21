@@ -93,6 +93,8 @@ CREATE TABLE TS_Renovations (
     construction_company NVARCHAR(255),
     renovation NVARCHAR(255),
     date DATE,
+    cost FLOAT,
+    userid INT,
     FOREIGN KEY (propertyid) REFERENCES TS_Properties(propertyid)
 );
 
@@ -100,6 +102,7 @@ CREATE TABLE TS_RenovationDetails (
     id INT IDENTITY(1,1) PRIMARY KEY,
     renovationid INT,
     detail NVARCHAR(255),
+    userid INT,
     FOREIGN KEY (renovationid) REFERENCES TS_Renovations(id)
 );
 

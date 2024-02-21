@@ -3,7 +3,7 @@ import NavBar from './components/Navbar';
 import LoginPage  from './components/LoginPage'
 import MyPage from './components/MyPage';
 import HomePage from './components/HomePage';
-import AddPropertyForm from './components/AddPropertyForm';
+import AddPropertyForm from './forms/AddPropertyForm.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
 import PropertyDetails from './components/PropertyDetails';
 import CreateUser from './components/CreateUser'; // Import the CreateUser component
