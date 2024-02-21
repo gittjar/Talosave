@@ -28,41 +28,41 @@ const verifyToken = (req, res, next) => {
   };
 
 // GET endpoint for TS_Renovations
-router.get('/renovations', verifyToken, async (req, res) => {
-    const userid = req.user.id; // Get userid from the token
-    try {
-      const sqlQuery = `
-      SELECT * FROM TS_Renovations WHERE userid = @userid
-      `;
-  
-      const sqlRequest = new sql.Request(); // Create a new sql.Request instance
-      const result = await sqlRequest
-        .input('userid', sql.Int, userid)
-        .query(sqlQuery);
-  
-      res.status(200).json(result.recordset);
-    } catch (err) {
-      res.status(500).send(err.message);
-    }
-  });
-  
-  // GET endpoint for TS_RenovationDetails
-  router.get('/renovationdetails', verifyToken, async (req, res) => {
-    const userid = req.user.id; // Get userid from the token
-    try {
-      const sqlQuery = `
-      SELECT * FROM TS_RenovationDetails WHERE userid = @userid
-      `;
-  
-      const sqlRequest = new sql.Request(); // Create a new sql.Request instance
-      const result = await sqlRequest
-        .input('userid', sql.Int, userid)
-        .query(sqlQuery);
-  
-      res.status(200).json(result.recordset);
-    } catch (err) {
-      res.status(500).send(err.message);
-    }
-  });
+router.get('/renovations/:propertyId', verifyToken, async (req, res) => {
+  const propertyId = req.params.propertyId; // Get propertyId from the route parameters
+  try {
+    const sqlQuery = `
+    SELECT * FROM TS_Renovations WHERE propertyId = @propertyId
+    `;
+
+    const sqlRequest = new sql.Request(); // Create a new sql.Request instance
+    const result = await sqlRequest
+      .input('propertyId', sql.Int, propertyId)
+      .query(sqlQuery);
+
+    res.status(200).json(result.recordset);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
+// GET endpoint for TS_RenovationDetails
+router.get('/renovationdetails/:renovationId', verifyToken, async (req, res) => {
+  const renovationId = req.params.renovationId; // Get renovationId from the route parameters
+  try {
+    const sqlQuery = `
+    SELECT * FROM TS_RenovationDetails WHERE renovationid = @renovationId
+    `;
+
+    const sqlRequest = new sql.Request(); // Create a new sql.Request instance
+    const result = await sqlRequest
+      .input('renovationId', sql.Int, renovationId)
+      .query(sqlQuery);
+
+    res.status(200).json(result.recordset);
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
 
   module.exports = router;

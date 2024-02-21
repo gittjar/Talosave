@@ -19,6 +19,13 @@ border-bottom: #5876fc 1px solid;
     width: 100%;
 }
 
+.property-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    padding-top: 1rem;
+}
+
 .confirmation {
     background-color: #f0f0f0;
     padding: 1rem;

@@ -5,6 +5,9 @@ import { createContext } from 'react';
 import axios from 'axios';
 import config from '../configuration/config.js';
 import AddRenovationForm from '../forms/AddRenovationForm.jsx';
+import PropertyEditForm from '../forms/PropertyEditForm.jsx';
+import DeleteConfirmation from '../notifications/DeleteConfirmation.jsx';
+import PropertyRenovations from './PropertyRenovations.jsx';
 
 export const PropertyContext = createContext();
 
@@ -119,69 +122,32 @@ const PropertyDetails = () => {
   return (
     <div>
       {isEditing ? (
-         <div>
-         <input
-           type="text"
-           value={newPropertyName}
-           onChange={(e) => setNewPropertyName(e.target.value)}
-         />
-         <input
-           type="text"
-           value={newStreetAddress}
-           onChange={(e) => setNewStreetAddress(e.target.value)}
-           placeholder="New Street Address"
-         />
-         <input
-           type="text"
-           value={newPostNumber}
-           onChange={(e) => setNewPostNumber(e.target.value)}
-           placeholder="New Post Number"
-         />
-         <input
-           type="text"
-           value={newCity}
-           onChange={(e) => setNewCity(e.target.value)}
-           placeholder="New City"
-         />
-         <input
-           type="text"
-           value={newLand}
-           onChange={(e) => setNewLand(e.target.value)}
-           placeholder="New Land"
-         />
-         <input
-           type="text"
-           value={newHouseType}
-           onChange={(e) => setNewHouseType(e.target.value)}
-           placeholder="New House Type"
-         />
-         <input
-           type="text"
-           value={newBuildingYear}
-           onChange={(e) => setNewBuildingYear(e.target.value)}
-           placeholder="New Building Year"
-         />
-         <input
-           type="text"
-           value={newTotalSqm}
-           onChange={(e) => setNewTotalSqm(e.target.value)}
-           placeholder="New Total Sqm"
-         />
-         <input
-           type="text"
-           value={newLivingSqm}
-           onChange={(e) => setNewLivingSqm(e.target.value)}
-           placeholder="New Living Sqm"
-         />
-         <br />
-         
-         <button onClick={handleUpdateProperty} className="primary-button">Save</button>
-         <button onClick={handleCancelClick} className="danger-button">Cancel</button>
-       </div>
+         <PropertyEditForm
+         handleUpdateProperty={handleUpdateProperty}
+         handleCancelClick={handleCancelClick}
+         setNewPropertyName={setNewPropertyName}
+         setNewStreetAddress={setNewStreetAddress}
+         setNewPostNumber={setNewPostNumber}
+         setNewCity={setNewCity}
+         setNewLand={setNewLand}
+         setNewHouseType={setNewHouseType}
+         setNewBuildingYear={setNewBuildingYear}
+         setNewTotalSqm={setNewTotalSqm}
+         setNewLivingSqm={setNewLivingSqm}
+         newPropertyName={newPropertyName}
+         newStreetAddress={newStreetAddress}
+         newPostNumber={newPostNumber}
+         newCity={newCity}
+         newLand={newLand}
+         newHouseType={newHouseType}
+         newBuildingYear={newBuildingYear}
+         newTotalSqm={newTotalSqm}
+         newLivingSqm={newLivingSqm}
+       />
       ) : (
-        <div>
+        <section className='property-details'>
+          <article>
           <h1>{property.propertyname}</h1>
-          
           {property.street_address ? <p>Street Address: {property.street_address}</p> : null}
           {property.post_number ? <p>Post Number: {property.post_number}</p> : null}
           {property.city ? <p>City: {property.city}</p> : null}
@@ -197,17 +163,25 @@ const PropertyDetails = () => {
           <button className="secondary-button" onClick={goBack}>Back</button>
           <article className='thinline'></article>
           <button onClick={() => setShowAddRenovationForm(!showAddRenovationForm)} className='primary-button'>+ Add Renovation</button>
-        </div>
-      )}
-      {showDeleteConfirm && (
-        <div className='confirmation'>
-          <p>Are you sure you want to delete this property?</p>
-          <button onClick={handleDeleteProperty} className="danger-button">Yes, delete</button>
-          <button onClick={() => setShowDeleteConfirm(false)} className="secondary-button">No, cancel</button>
-        </div>
-      )}
-
           {showAddRenovationForm && <AddRenovationForm propertyId={id}/>}    
+
+          
+          </article>
+
+          <article>   
+          <PropertyRenovations propertyId={id} />
+
+          </article>
+
+        </section>
+      )}
+  {showDeleteConfirm && (
+  <DeleteConfirmation 
+    handleDeleteProperty={handleDeleteProperty} 
+    setShowDeleteConfirm={setShowDeleteConfirm} 
+  />
+)}
+
     </div>
   );
 };

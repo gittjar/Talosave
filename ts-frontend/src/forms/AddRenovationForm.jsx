@@ -1,6 +1,8 @@
 // Import useEffect and useState hooks from React
 import { useState, useEffect } from 'react';
 import config from '../configuration/config.js';
+import Toast from 'react-bootstrap/Toast';
+
 
 
 // Define your AddRenovationForm component
@@ -11,6 +13,8 @@ const AddRenovationForm = ({ propertyId }) => {
   const [renovation, setRenovation] = useState('');
   const [date, setDate] = useState('');
   const [userid, setUserid] = useState(null);
+  const [showToast, setShowToast] = useState(false); 
+
 
 
   // Define your form submission handler
@@ -49,6 +53,9 @@ const AddRenovationForm = ({ propertyId }) => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+       // Show the Toast
+       setShowToast(true);
+
       // Clear the form fields
       setPropertyid('');
       setConstructionCompany('');
@@ -62,6 +69,7 @@ const AddRenovationForm = ({ propertyId }) => {
 
   // Define your form
   return (
+    <>
 <form onSubmit={handleSubmit}>
   <div>
     <label htmlFor="propertyid">Property ID:</label>
@@ -105,6 +113,23 @@ const AddRenovationForm = ({ propertyId }) => {
 
   <button type="submit">Submit</button>
 </form>
+
+
+<div style={{
+        position: 'fixed',
+        top: 0,
+        left: '50%',
+        transform: 'translate(-50%, 0)',
+        
+      }}>
+        <Toast onClose={() => setShowToast(false)} show={showToast} delay={5000} autohide>
+          <Toast.Header>
+            <strong className="me-auto">Huomio!</strong>
+          </Toast.Header>
+          <Toast.Body>Remontti tallennettu onnistuneesti!</Toast.Body>
+        </Toast>
+      </div>
+ </>
   );
 };
 
