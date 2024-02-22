@@ -32,6 +32,9 @@ const PropertyDetails = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [showAddRenovationForm, setShowAddRenovationForm] = useState(false);
 
+  const [showRenovations, setShowRenovations] = useState(false);
+
+
   useEffect(() => {
     const token = localStorage.getItem('userToken');
 
@@ -162,14 +165,15 @@ const PropertyDetails = () => {
           <button onClick={() => setShowDeleteConfirm(true)} className="danger-button">Delete</button>
           <button className="secondary-button" onClick={goBack}>Back</button>
           <article className='thinline'></article>
+          <button onClick={() => setShowRenovations(!showRenovations)} className='primary-button'>Renovations</button>
           <button onClick={() => setShowAddRenovationForm(!showAddRenovationForm)} className='primary-button'>+ Add Renovation</button>
           {showAddRenovationForm && <AddRenovationForm propertyId={id}/>}    
 
           
           </article>
 
-          <article>   
-          <PropertyRenovations propertyId={id} />
+          <article>
+            {showRenovations && <PropertyRenovations propertyId={id} />}
 
           </article>
 

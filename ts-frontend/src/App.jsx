@@ -11,10 +11,12 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
   return (
-    <section className='main'>
+   
+ 
 
     <Router>
-      <NavBar />
+    <NavBar />
+    <section className="main">
       <PropertyProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
@@ -27,8 +29,9 @@ function App() {
           <Route path="*" element={<LoginPage />} />
         </Routes>
       </PropertyProvider>
-    </Router>
     </section>
+    </Router>
+   
   );
 }
 

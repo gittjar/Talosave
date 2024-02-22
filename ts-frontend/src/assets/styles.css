@@ -1,16 +1,24 @@
 
 .main {
     background-color: #fafafa;
+    margin-top: 2rem;
     margin-left: 2rem;
     margin-right: 2rem;
     border: #5876fc 1px solid;
     padding: 1rem;
 }
 
-.navibar {
-border-bottom: #5876fc 1px solid;
+/*NAVBAR*/
 
+.navibar {
+    position: fixed;
+    top: 0; /* stick to the top of the page */
+    z-index: 999; /* ensure it's on top of other elements */
+    border-bottom: rgba(9,9,121,1) 1px solid;
+    background: linear-gradient(10deg, transparent 10%, rgba(9,9,121,1) 170%, rgba(7,60,155,1) 10%) !important;
 }
+
+
 
 .thinline {
     border: 1px solid #e0e1e3;
@@ -21,10 +29,12 @@ border-bottom: #5876fc 1px solid;
 
 .property-details {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 2fr;
     gap: 0.4rem;
     padding-top: 1rem;
 }
+
+
 
 .confirmation {
     background-color: #f0f0f0;
@@ -35,6 +45,45 @@ border-bottom: #5876fc 1px solid;
     width: fit-content;
 
 }
+
+/* renovation cards */
+
+.card {
+    max-width: 32rem;
+    border: 3px solid rgba(69,60,223,1); /* primary color */
+    color: #f8f9fa; /* light color */
+    border-radius: 3px; /* rounded corners */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.3); /* shadow effect */
+    transition: 0.3s; /* animation to hover over the card */
+  }
+  
+  .card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.6); /* shadow effect when hover over the card */
+  }
+  
+  .card-header {
+    border-bottom: 1px solid #f8f9fa; /* light color */
+    padding: 10px;
+    text-align: center;
+    font-size: 1.25rem; /* h4 size */
+    font-weight: 600; /* h4 weight */
+    color: #f8f9fa !important; /* light color */
+    background: linear-gradient(90deg, rgba(69,60,223,1) 0%, rgba(9,9,121,1) 100%, rgba(7,60,155,1) 100%, rgba(0,212,255,1) 100%) !important;
+  }
+  
+  .list-group-item {
+    border: none;
+    padding: 20px;
+  }
+  
+  .list-group-item h5 {
+    margin-bottom: 10px;
+  }
+  
+  .thinline2 {
+    border-bottom: 1px solid rgba(69,60,223,1); /* light color */
+    margin-bottom: 10px;
+  }
 
 /* Button styles */
 

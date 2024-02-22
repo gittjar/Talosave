@@ -117,7 +117,8 @@ const AddRenovationForm = ({ propertyId }) => {
 
 <div style={{
         position: 'fixed',
-        top: 0,
+        zIndex: 1000,
+        top: 40,
         left: '50%',
         transform: 'translate(-50%, 0)',
         

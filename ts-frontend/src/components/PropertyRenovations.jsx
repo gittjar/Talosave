@@ -24,14 +24,17 @@ const PropertyRenovations = ({ propertyId }) => {
     <div>
       
       {renovations.length > 0 ? (
-  <Card style={{ maxwidth: '25rem', backgroundColor: '#5876fc' }}>
-    <Card.Header>      <h2>Remontit ja muutostyöt</h2></Card.Header>
+  <Card className="card">
+    <Card.Header className="card-header">
+      <h4>Remontit ja muutostyöt</h4>
+    </Card.Header>
     <ListGroup variant="flush">
       {renovations.map((renovation, index) => (
-        <ListGroup.Item key={index}>
-            <h5>
-          {renovation.construction_company} | {renovation.renovation} on {renovation.date}
+        <ListGroup.Item key={index} className="list-group-item">
+          <h5>
+            {renovation.construction_company} | {renovation.renovation} on {renovation.date}
           </h5>
+          <div className='thinline2'></div>
           <RenovationDetails renovationId={renovation.id} />
         </ListGroup.Item>
       ))}
