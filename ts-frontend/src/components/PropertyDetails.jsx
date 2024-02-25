@@ -33,6 +33,8 @@ const PropertyDetails = () => {
   const [showAddRenovationForm, setShowAddRenovationForm] = useState(false);
 
   const [showRenovations, setShowRenovations] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // Add this line
+
 
 
   useEffect(() => {
@@ -166,8 +168,10 @@ const PropertyDetails = () => {
           <button className="secondary-button" onClick={goBack}>Back</button>
           <article className='thinline'></article>
           <button onClick={() => setShowRenovations(!showRenovations)} className='primary-button'>Renovations</button>
-          <button onClick={() => setShowAddRenovationForm(!showAddRenovationForm)} className='primary-button'>+ Add Renovation</button>
-          {showAddRenovationForm && <AddRenovationForm propertyId={id}/>}    
+          <button onClick={() => setIsOpen(!isOpen)} className='primary-button'>
+        {isOpen ? 'Sulje remontin lisäys' : 'Avaa remontin lisäys'}
+         </button>
+          {isOpen && <AddRenovationForm propertyId={id}/>}  
 
           
           </article>

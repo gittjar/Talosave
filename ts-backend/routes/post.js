@@ -1,4 +1,4 @@
-const e = require('express');
+// Initilize the express router
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');

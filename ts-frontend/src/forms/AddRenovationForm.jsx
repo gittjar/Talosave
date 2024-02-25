@@ -14,6 +14,8 @@ const AddRenovationForm = ({ propertyId }) => {
   const [date, setDate] = useState('');
   const [userid, setUserid] = useState(null);
   const [showToast, setShowToast] = useState(false); 
+  const [cost, setCost] = useState('');
+
 
 
 
@@ -44,7 +46,8 @@ const AddRenovationForm = ({ propertyId }) => {
           propertyid,
           construction_company,
           renovation,
-          date
+          date,
+          cost
          
         })
       });
@@ -61,6 +64,8 @@ const AddRenovationForm = ({ propertyId }) => {
       setConstructionCompany('');
       setRenovation('');
       setDate('');
+      setCost('');
+
 
     } catch (error) {
       console.error('Error:', error);
@@ -71,18 +76,13 @@ const AddRenovationForm = ({ propertyId }) => {
   return (
     <>
 <form onSubmit={handleSubmit}>
-  <div>
-    <label htmlFor="propertyid">Property ID:</label>
-    <input
-      type="number"
-      id="propertyid"
-      value={propertyid}
-      onChange={e => setPropertyid(e.target.value)}
-    />
+<div>
+    <label htmlFor="propertyid">Kiinteistö ID: </label>
+    <span id="propertyid"> {propertyid}</span>
   </div>
 
   <div>
-    <label htmlFor="construction_company">Construction Company:</label>
+    <label htmlFor="construction_company">Remontin tekijä</label>
     <input
       type="text"
       id="construction_company"
@@ -92,7 +92,7 @@ const AddRenovationForm = ({ propertyId }) => {
   </div>
 
   <div>
-    <label htmlFor="renovation">Renovation:</label>
+    <label htmlFor="renovation">Remontti</label>
     <input
       type="text"
       id="renovation"
@@ -102,7 +102,7 @@ const AddRenovationForm = ({ propertyId }) => {
   </div>
 
   <div>
-    <label htmlFor="date">Date:</label>
+    <label htmlFor="date">Päivämäärä</label>
     <input
       type="date"
       id="date"
@@ -110,8 +110,17 @@ const AddRenovationForm = ({ propertyId }) => {
       onChange={e => setDate(e.target.value)}
     />
   </div>
+  <div>
+    <label htmlFor="cost">Remontin arvo (€)</label>
+    <input
+      type="number"
+      id="cost"
+      value={cost}
+      onChange={e => setCost(e.target.value)}
+    />
+  </div>
 
-  <button type="submit">Submit</button>
+  <button type="submit" className='primary-button'>Tallenna</button>
 </form>
 
 

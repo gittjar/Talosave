@@ -32,6 +32,7 @@
     grid-template-columns: 1fr 2fr;
     gap: 0.4rem;
     padding-top: 1rem;
+    padding-bottom: 1rem;
 }
 
 
@@ -49,12 +50,14 @@
 /* renovation cards */
 
 .card {
-    max-width: 32rem;
+    max-width: 48rem;
     border: 3px solid rgba(69,60,223,1); /* primary color */
     color: #f8f9fa; /* light color */
     border-radius: 3px; /* rounded corners */
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.3); /* shadow effect */
     transition: 0.3s; /* animation to hover over the card */
+    margin-left: 1rem;
+    margin-right: 1rem;
   }
   
   .card:hover {
@@ -83,6 +86,17 @@
   .thinline2 {
     border-bottom: 1px solid rgba(69,60,223,1); /* light color */
     margin-bottom: 10px;
+  }
+
+  input {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+
   }
 
 /* Button styles */
@@ -137,6 +151,14 @@
     background-color: rgb(255, 0, 0);
     color:  rgb(255, 255, 255);
 }
+
+/* Table styles */
+
+th, td {
+    padding: 8px;
+    text-align: left;
+}
+
 
 /* Form styles */
 
