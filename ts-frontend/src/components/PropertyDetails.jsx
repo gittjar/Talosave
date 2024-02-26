@@ -30,7 +30,6 @@ const PropertyDetails = () => {
   const [newLivingSqm, setNewLivingSqm] = useState('');
   
   const [refreshKey, setRefreshKey] = useState(0);
-  const [showAddRenovationForm, setShowAddRenovationForm] = useState(false);
 
   const [showRenovations, setShowRenovations] = useState(false);
   const [isOpen, setIsOpen] = useState(false); // Add this line
@@ -124,6 +123,27 @@ const PropertyDetails = () => {
     setIsEditing(false);
   };
 
+  // refreshData function
+  const refreshData = () => {
+    const token = localStorage.getItem('userToken');
+  
+    fetch(`${config.baseURL}/api/get/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => setProperty(data))
+      .catch(error => {
+        console.error('Error refreshing property details:', error);
+      });
+  };
+
   return (
     <div>
       {isEditing ? (
@@ -171,8 +191,7 @@ const PropertyDetails = () => {
           <button onClick={() => setIsOpen(!isOpen)} className='primary-button'>
         {isOpen ? 'Sulje remontin lisäys' : 'Avaa remontin lisäys'}
          </button>
-          {isOpen && <AddRenovationForm propertyId={id}/>}  
-
+         {isOpen && <AddRenovationForm propertyId={id} refreshData={refreshData} />}
           
           </article>
 

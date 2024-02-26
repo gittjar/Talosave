@@ -26,7 +26,7 @@ const MyPage = () => {
         <h1>My Page</h1>
       <section className='card-grid'>
         {properties.map(property => (
-            <div className="card" style={{width: "18rem"}} key={property.id}>
+            <div className="card" style={{maxWidthwidth: "32rem"}} key={property.id}>
           <img src="src/assets/images/house-1.jpeg" className="card-img-top" />
             <div className="card-body">
               <h5 className="card-title">{property.propertyname}</h5>

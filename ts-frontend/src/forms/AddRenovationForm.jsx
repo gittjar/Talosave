@@ -6,7 +6,7 @@ import Toast from 'react-bootstrap/Toast';
 
 
 // Define your AddRenovationForm component
-const AddRenovationForm = ({ propertyId }) => {
+const AddRenovationForm = ({ propertyId, refreshData }) => {
   // Define state variables for your form fields
   const [propertyid, setPropertyid] = useState(propertyId);
   const [construction_company, setConstructionCompany] = useState('');
@@ -55,6 +55,8 @@ const AddRenovationForm = ({ propertyId }) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      refreshData();
 
        // Show the Toast
        setShowToast(true);

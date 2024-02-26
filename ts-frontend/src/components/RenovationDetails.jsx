@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import config from '../configuration/config.js';
+import DeleteConfirmation from '../notifications/DeleteConfirmation.jsx';
 import Toast from 'react-bootstrap/Toast';
 
 const RenovationDetails = ({ renovationId }) => {
@@ -8,6 +9,9 @@ const RenovationDetails = ({ renovationId }) => {
   const [editingText, setEditingText] = useState('');
   const [newDetail, setNewDetail] = useState(''); // State for the new detail input
   const [showToast, setShowToast] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteId, setDeleteId] = useState(null); // Add this line
+
 
   const showToastWithMessage = (message) => {
     setShowToast(true);
@@ -142,6 +146,16 @@ const RenovationDetails = ({ renovationId }) => {
       .catch(error => console.error('Error:', error));
   };
 
+  const handleDeleteConfirmation = (id) => {
+    setShowDeleteConfirm(true);
+    setDeleteId(id); // Set the id of the detail to be deleted
+  };
+  
+  const handleDeleteProperty = () => {
+    handleDelete(deleteId); // Delete the detail
+    setShowDeleteConfirm(false); // Close the confirmation dialog
+  };
+
   return (
     <div>
       <form onSubmit={handleNewDetail}>
@@ -184,7 +198,8 @@ const RenovationDetails = ({ renovationId }) => {
             ) : (
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <button className='primary-button' onClick={() => handleEdit(detail.id, detail.detail)}>Muokkaa</button>
-                <button className='danger-button' onClick={() => handleDelete(detail.id)}>Poista</button>
+                <button className='danger-button' onClick={() => handleDeleteConfirmation(detail.id)}>Poista</button>
+
               </div>
             )}
           </td>
@@ -210,6 +225,14 @@ const RenovationDetails = ({ renovationId }) => {
     <Toast.Body>Tiedot tallennettu onnistuneesti!</Toast.Body>
   </Toast>
 </div>
+
+{showDeleteConfirm && (
+  <DeleteConfirmation 
+    handleDeleteProperty={handleDeleteProperty} 
+    setShowDeleteConfirm={setShowDeleteConfirm} 
+  />
+)}
+
     </div>
   );
 };
