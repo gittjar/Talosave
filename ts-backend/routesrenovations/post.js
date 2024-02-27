@@ -49,8 +49,13 @@ const verifyToken = (req, res, next) => {
         .input('cost', sql.Float, cost)
         .input('userid', sql.Int, userid)
         .query(sqlQuery);
-  
       console.log('Insert successful'); // Log successful insert
+
+          // After the first query has completed, perform another query
+        const anotherSqlQuery = `SELECT * from TS_Renovations`; 
+        const result = await sqlRequest.query(anotherSqlQuery);
+        console.log('Second query result:', result);
+
       res.status(201).send();
     } catch (err) {
       console.error('Error:', err.message); // Log any errors
