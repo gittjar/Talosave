@@ -102,54 +102,54 @@
 /* Button styles */
 
 .primary-button {
-    background-color: rgb(255, 255, 255);
-    color: rgb(7, 7, 7);
-    padding: 6px 16px;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 1rem;
-    border: 2px solid rgb(7, 88, 200);
-    margin: 0.1rem;
+    background-color: rgb(255, 255, 255) !important;
+    color: rgb(7, 7, 7) !important;
+    padding: 6px 16px !important;
+    border-radius: 3px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    font-size: 1rem !important;
+    border: 2px solid rgb(7, 88, 200) !important;
+    margin: 0.1rem !important;
 }
 
 .primary-button:hover {
-    background-color: rgb(7, 88, 200);
-    color:  rgb(255, 255, 255);
+    background-color: rgb(7, 88, 200) !important;
+    color:  rgb(255, 255, 255) !important;
 }
 
 .secondary-button {
-    background-color: rgb(255, 255, 255);
-    color: rgb(7, 7, 7);
-    padding: 6px 16px;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 1rem;
-    border: 2px solid rgb(36, 102, 109);
-    margin: 0.1rem;
+    background-color: rgb(255, 255, 255) !important;
+    color: rgb(7, 7, 7) !important;
+    padding: 6px 16px !important;
+    border-radius: 3px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    font-size: 1rem !important;
+    border: 2px solid rgb(36, 102, 109) !important;
+    margin: 0.1rem !important;
 }
 
 .secondary-button:hover {
-    background-color: rgb(36, 102, 109);
-    color:  rgb(255, 255, 255);
+    background-color: rgb(36, 102, 109) !important;
+    color:  rgb(255, 255, 255) !important;
 }
 
 .danger-button {
-    background-color: rgb(255, 255, 255);
-    color: rgb(7, 7, 7);
-    padding: 6px 16px;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 1rem;
-    border: 2px solid rgb(255, 0, 0);
-    margin: 0.1rem;
+    background-color: rgb(255, 255, 255) !important;
+    color: rgb(7, 7, 7) !important;
+    padding: 6px 16px !important;
+    border-radius: 3px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    font-size: 1rem !important;
+    border: 2px solid rgb(255, 0, 0) !important;
+    margin: 0.1rem !important;
 }
 
 .danger-button:hover {
-    background-color: rgb(255, 0, 0);
-    color:  rgb(255, 255, 255);
+    background-color: rgb(255, 0, 0) !important;
+    color:  rgb(255, 255, 255) !important;
 }
 
 /* Table styles */

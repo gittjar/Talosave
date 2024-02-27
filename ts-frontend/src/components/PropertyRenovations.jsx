@@ -27,10 +27,21 @@ const PropertyRenovations = ({ propertyId }) => {
   }, [propertyId]);
 
   const handleDeleteDetails = () => {
-    // Implement the logic to delete the renovation details here
-    // For example, you might want to call a function like deleteRenovationDetails(renovationToDelete.id)
+    const token = localStorage.getItem('userToken');
+
+    fetch(`${config.baseURL}/api/renovationdetails/${renovationToDelete.id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then(() => {
+        deleteRenovation(renovationToDelete.id);
+      })
+      .catch(error => console.error('Error:', error));
   };
 
+  
   const handleDeleteProperty = () => {
     const token = localStorage.getItem('userToken');
 
@@ -78,12 +89,13 @@ const PropertyRenovations = ({ propertyId }) => {
           <ListGroup variant="flush">
             {renovations.map((renovation, index) => (
               <ListGroup.Item key={index} className="list-group-item">
-                <Button variant="danger" onClick={() => { setRenovationToDelete(renovation); setShowDeleteConfirm(true); }}>X</Button>
                 <h5>
                   {renovation.construction_company} | {renovation.renovation} on {renovation.date}
                 </h5>
                 <div className='thinline2'></div>
                 <RenovationDetails renovationId={renovation.id} />
+                <Button className='danger-button' onClick={() => { setRenovationToDelete(renovation); setShowDeleteConfirm(true); }}>Poista tämä remontti</Button>
+
               </ListGroup.Item>
             ))}
           </ListGroup>

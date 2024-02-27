@@ -1,23 +1,17 @@
 // Import useEffect and useState hooks from React
 import { useState, useEffect } from 'react';
 import config from '../configuration/config.js';
-import Toast from 'react-bootstrap/Toast';
-
-
+import { toast } from 'react-toastify';
 
 // Define your AddRenovationForm component
-const AddRenovationForm = ({ propertyId, refreshData }) => {
+const AddRenovationForm = ({ propertyId, refreshData, closeForm }) => {
   // Define state variables for your form fields
   const [propertyid, setPropertyid] = useState(propertyId);
   const [construction_company, setConstructionCompany] = useState('');
   const [renovation, setRenovation] = useState('');
   const [date, setDate] = useState('');
   const [userid, setUserid] = useState(null);
-  const [showToast, setShowToast] = useState(false); 
   const [cost, setCost] = useState('');
-
-
-
 
   // Define your form submission handler
   // When the component mounts, get the userid from local storage
@@ -57,9 +51,12 @@ const AddRenovationForm = ({ propertyId, refreshData }) => {
       }
 
       refreshData();
+      closeForm();
 
        // Show the Toast
-       setShowToast(true);
+       console.log('Show the Toast');
+       toast.success('Uusi remontti lisätty onnistuneesti!');
+
 
       // Clear the form fields
       setPropertyid('');
@@ -126,21 +123,6 @@ const AddRenovationForm = ({ propertyId, refreshData }) => {
 </form>
 
 
-<div style={{
-        position: 'fixed',
-        zIndex: 1000,
-        top: 40,
-        left: '50%',
-        transform: 'translate(-50%, 0)',
-        
-      }}>
-        <Toast onClose={() => setShowToast(false)} show={showToast} delay={5000} autohide>
-          <Toast.Header>
-            <strong className="me-auto">Huomio!</strong>
-          </Toast.Header>
-          <Toast.Body>Remontti tallennettu onnistuneesti!</Toast.Body>
-        </Toast>
-      </div>
  </>
   );
 };

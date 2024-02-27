@@ -32,7 +32,10 @@ const PropertyDetails = () => {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const [showRenovations, setShowRenovations] = useState(false);
-  const [isOpen, setIsOpen] = useState(false); // Add this line
+  const [isOpen, setIsOpen] = useState(false); 
+
+  const [isAddRenovationFormOpen, setIsAddRenovationFormOpen] = useState(false);
+
 
 
 
@@ -62,6 +65,10 @@ const PropertyDetails = () => {
 
   const goBack = () => {
     navigate(-1);
+  };
+
+  const closeForm = () => {
+    setIsAddRenovationFormOpen(false);
   };
 
   const handleDeleteProperty = async () => {
@@ -188,10 +195,10 @@ const PropertyDetails = () => {
           <button className="secondary-button" onClick={goBack}>Back</button>
           <article className='thinline'></article>
           <button onClick={() => setShowRenovations(!showRenovations)} className='primary-button'>Renovations</button>
-          <button onClick={() => setIsOpen(!isOpen)} className='primary-button'>
-        {isOpen ? 'Sulje remontin lisäys' : 'Avaa remontin lisäys'}
-         </button>
-         {isOpen && <AddRenovationForm propertyId={id} refreshData={refreshData} />}
+          <button onClick={() => setIsAddRenovationFormOpen(!isAddRenovationFormOpen)} className='primary-button'>
+        {isAddRenovationFormOpen ? 'Sulje remontin lisäys' : 'Avaa remontin lisäys'}
+      </button>
+      {isAddRenovationFormOpen && <AddRenovationForm propertyId={id} refreshData={refreshData} closeForm={closeForm} />}
           
           </article>
 

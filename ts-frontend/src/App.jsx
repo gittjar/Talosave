@@ -8,12 +8,13 @@ import PrivateRoute from './components/PrivateRoute.jsx';
 import PropertyDetails from './components/PropertyDetails';
 import CreateUser from './components/CreateUser'; // Import the CreateUser component
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Toast from './notifications/Toast.jsx';
 
 function App() {
   return (
    
- 
-
+ <>
+    <Toast />
     <Router>
     <NavBar />
     <section className="main">
@@ -31,7 +32,7 @@ function App() {
       </PropertyProvider>
     </section>
     </Router>
-   
+   </>
   );
 }
 
