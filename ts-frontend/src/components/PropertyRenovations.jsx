@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import config from '../configuration/config.js';
 import RenovationDetails from './RenovationDetails';
 import Card from 'react-bootstrap/Card';
-import ListGroup from 'react-bootstrap/ListGroup';
 import Button from 'react-bootstrap/Button';
 import DeleteConfirmation from '../notifications/DeleteConfirmation';
 import DeleteDetailsConfirmation from '../notifications/DeleteDetailsConfirmation';
@@ -108,8 +107,6 @@ const handleCloseForm = () => setShowFormId(null);
       .catch(error => console.error('Error:', error));
   };
 
-
-
   return (
     <div>
       {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={handleDeleteProperty} setShowDeleteConfirm={setShowDeleteConfirm} />}
@@ -124,8 +121,7 @@ const handleCloseForm = () => setShowFormId(null);
             {renovations.map((renovation, index) => (
               <Accordion.Item eventKey={index.toString()} key={index}>
                 <Accordion.Header>
-                  {renovation.construction_company} | {renovation.renovation} on {renovation.date}
-                  <Button className='edit-link' onClick={() => handleShowForm(renovation.id)}>
+                {renovation.construction_company} | {renovation.renovation} - {new Date(renovation.date).toLocaleDateString('fi-FI')}                  <Button className='edit-link' onClick={() => handleShowForm(renovation.id)}>
                     Muokkaa
                   </Button>
                   <Button className='delete-link' onClick={() => { setRenovationToDelete(renovation); setShowDeleteConfirm(true); }}>Poista</Button>
@@ -150,50 +146,3 @@ const handleCloseForm = () => setShowFormId(null);
 };
   
   export default PropertyRenovations;
-
-
-
-/*
-  return (
-    <div>
-      {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={handleDeleteProperty} setShowDeleteConfirm={setShowDeleteConfirm} />}
-      {showDeleteDetailsConfirm && <DeleteDetailsConfirmation handleDeleteDetails={handleDeleteDetails} setShowDeleteDetailsConfirm={setShowDeleteDetailsConfirm} />}
-      
-      {renovations.length > 0 ? (
-        <Card className="card">
-          <Card.Header className="card-header">
-            <h4>Remontit ja muutostyöt</h4>
-            
-          </Card.Header>
-          <ListGroup variant="flush">
-            {renovations.map((renovation, index) => (
-              <ListGroup.Item key={index} className="list-group-item">
-                <h5>
-                  {renovation.construction_company} | {renovation.renovation} on {renovation.date}
-                  <br></br>
-                  <Button className='edit-link' onClick={() => handleShowForm(renovation.id)}>
-                    Muokkaa
-                  </Button>
-                  <Button className='delete-link' onClick={() => { setRenovationToDelete(renovation); setShowDeleteConfirm(true); }}>Poista</Button>
-
-
-    {showFormId === renovation.id && (
-      <EditRenovationForm renovation={renovation} handleEditRenovation={handleEditRenovation} />
-    )}               </h5>
-                {(renovation.cost !== 0 && renovation.cost !== null) && <p className="cost">Kustannukset: {renovation.cost} €</p>}
-                <div className='thinline2'></div>
-                <RenovationDetails renovationId={renovation.id} />
-
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-        </Card>
-      ) : (
-        <p>No renovations found for this property.</p>
-      )}
-    </div>
-  );
-};
-
-export default PropertyRenovations;
-*/

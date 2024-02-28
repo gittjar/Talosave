@@ -258,5 +258,13 @@ th, td {
     padding: 0.1rem  !important;
     font-size: x-small  !important;
   }
+
+  p, table, th, td, label, input, select, option, a, button{
+      font-size: 0.7rem !important;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+      font-size: 0.9rem !important;
+  }
     
 }

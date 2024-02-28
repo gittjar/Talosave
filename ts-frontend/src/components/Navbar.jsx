@@ -22,7 +22,7 @@ const NavBar = () => {
   return (
     <Navbar expand="lg" className="bg-body-tertiary navibar">
       <Container>
-        <Navbar.Brand as={Link} to="/home">My WebApp name</Navbar.Brand>
+        <Navbar.Brand as={Link} to="/home">TaloSave v. 1.0</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">

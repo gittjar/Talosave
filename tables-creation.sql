@@ -131,6 +131,17 @@ CREATE TABLE TS_Notes (
     FOREIGN KEY (propertyid) REFERENCES TS_Properties(propertyid)
 );
 
+CREATE TABLE TS_Todo (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    action NVARCHAR(255),
+    isCompleted BIT,
+    date DATE,
+    cost DECIMAL(10, 2),
+    propertyid INT,
+    userid INT,
+    FOREIGN KEY (propertyid) REFERENCES TS_Properties(propertyid)
+);
+
 CREATE TABLE TS_PropertyUsers (
     userid INT IDENTITY(1,1) PRIMARY KEY,
     username NVARCHAR(255),
