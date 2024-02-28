@@ -13,6 +13,7 @@ const postRoute = require('./routes/post');
 const postRenovation = require('./routesrenovations/post');
 const getRenovation = require('./routesrenovations/get');
 const deleteRenovation = require('./routesrenovations/delete');
+const putRenovation = require('./routesrenovations/put');
 
 const createUserRouter = require('./routes/users');
 
@@ -52,6 +53,7 @@ app.use('/api/post', postRoute);
 app.use('/api', postRenovation);
 app.use('/api', getRenovation);
 app.use('/api', deleteRenovation);
+app.use('/api', putRenovation);
 
 
 

@@ -6,12 +6,23 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Button from 'react-bootstrap/Button';
 import DeleteConfirmation from '../notifications/DeleteConfirmation';
 import DeleteDetailsConfirmation from '../notifications/DeleteDetailsConfirmation';
+import EditRenovationForm from '../forms/EditRenovationForm.jsx';
+import Accordion from 'react-bootstrap/Accordion';
+
+
 
 const PropertyRenovations = ({ propertyId }) => {
   const [renovations, setRenovations] = useState([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDeleteDetailsConfirm, setShowDeleteDetailsConfirm] = useState(false);
   const [renovationToDelete, setRenovationToDelete] = useState(null);
+  //const [showForm, setShowForm] = useState(false);
+  //const [renovation, setRenovation] = useState(null); // Assume this is your renovation data
+  const [showFormId, setShowFormId] = useState(null);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const handleShowForm = (id) => setShowFormId(id);
+const handleCloseForm = () => setShowFormId(null);
+
 
   useEffect(() => {
     const token = localStorage.getItem('userToken'); // Assuming you store your token in localStorage
@@ -77,24 +88,101 @@ const PropertyRenovations = ({ propertyId }) => {
       .catch(error => console.error('Error:', error));
   };
 
+  const handleEditRenovation = (updatedRenovation) => {
+    const token = localStorage.getItem('userToken');
+  
+    fetch(`${config.baseURL}/api/renovations/${updatedRenovation.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(updatedRenovation)
+    })
+      .then(() => {
+        // Update the renovation in the state
+        setRenovations(renovations.map(renovation => renovation.id === updatedRenovation.id ? updatedRenovation : renovation));
+        setShowEditForm(false);
+        handleCloseForm();
+      })
+      .catch(error => console.error('Error:', error));
+  };
+
+
+
   return (
     <div>
       {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={handleDeleteProperty} setShowDeleteConfirm={setShowDeleteConfirm} />}
       {showDeleteDetailsConfirm && <DeleteDetailsConfirmation handleDeleteDetails={handleDeleteDetails} setShowDeleteDetailsConfirm={setShowDeleteDetailsConfirm} />}
+      
       {renovations.length > 0 ? (
         <Card className="card">
           <Card.Header className="card-header">
             <h4>Remontit ja muutostyöt</h4>
+          </Card.Header>
+          <Accordion>
+            {renovations.map((renovation, index) => (
+              <Accordion.Item eventKey={index.toString()} key={index}>
+                <Accordion.Header>
+                  {renovation.construction_company} | {renovation.renovation} on {renovation.date}
+                  <Button className='edit-link' onClick={() => handleShowForm(renovation.id)}>
+                    Muokkaa
+                  </Button>
+                  <Button className='delete-link' onClick={() => { setRenovationToDelete(renovation); setShowDeleteConfirm(true); }}>Poista</Button>
+                </Accordion.Header>
+                <Accordion.Body>
+                  {showFormId === renovation.id && (
+                    <EditRenovationForm renovation={renovation} handleEditRenovation={handleEditRenovation} />
+                  )}
+                  {(renovation.cost !== 0 && renovation.cost !== null) && <p className="cost">Kustannukset: {renovation.cost} €</p>}
+                  <RenovationDetails renovationId={renovation.id} />
+                </Accordion.Body>
+              </Accordion.Item>
+            ))}
+          </Accordion>
+        </Card>
+      ) : (
+        <p>No renovations found for this property.</p>
+      )}
+    </div>
+  );
+
+};
+  
+  export default PropertyRenovations;
+
+
+
+/*
+  return (
+    <div>
+      {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={handleDeleteProperty} setShowDeleteConfirm={setShowDeleteConfirm} />}
+      {showDeleteDetailsConfirm && <DeleteDetailsConfirmation handleDeleteDetails={handleDeleteDetails} setShowDeleteDetailsConfirm={setShowDeleteDetailsConfirm} />}
+      
+      {renovations.length > 0 ? (
+        <Card className="card">
+          <Card.Header className="card-header">
+            <h4>Remontit ja muutostyöt</h4>
+            
           </Card.Header>
           <ListGroup variant="flush">
             {renovations.map((renovation, index) => (
               <ListGroup.Item key={index} className="list-group-item">
                 <h5>
                   {renovation.construction_company} | {renovation.renovation} on {renovation.date}
-                </h5>
+                  <br></br>
+                  <Button className='edit-link' onClick={() => handleShowForm(renovation.id)}>
+                    Muokkaa
+                  </Button>
+                  <Button className='delete-link' onClick={() => { setRenovationToDelete(renovation); setShowDeleteConfirm(true); }}>Poista</Button>
+
+
+    {showFormId === renovation.id && (
+      <EditRenovationForm renovation={renovation} handleEditRenovation={handleEditRenovation} />
+    )}               </h5>
+                {(renovation.cost !== 0 && renovation.cost !== null) && <p className="cost">Kustannukset: {renovation.cost} €</p>}
                 <div className='thinline2'></div>
                 <RenovationDetails renovationId={renovation.id} />
-                <Button className='danger-button' onClick={() => { setRenovationToDelete(renovation); setShowDeleteConfirm(true); }}>Poista tämä remontti</Button>
 
               </ListGroup.Item>
             ))}
@@ -108,3 +196,4 @@ const PropertyRenovations = ({ propertyId }) => {
 };
 
 export default PropertyRenovations;
+*/

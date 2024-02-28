@@ -175,7 +175,7 @@ const RenovationDetails = ({ renovationId }) => {
     <thead>
       <tr>
         <th style={{ width: '80%' }}>Remontin tietoja</th>
-        <th style={{ width: '20%' }}>Muokkaa</th>
+        <th style={{ width: '20%' }}>Toiminnot</th>
       </tr>
     </thead>
     <tbody>
@@ -197,8 +197,8 @@ const RenovationDetails = ({ renovationId }) => {
               <button className='secondary-button' onClick={() => handleSave(detail.id)}>Save</button>
             ) : (
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <button className='primary-button' onClick={() => handleEdit(detail.id, detail.detail)}>Muokkaa</button>
-                <button className='danger-button' onClick={() => handleDeleteConfirmation(detail.id)}>Poista</button>
+                <button className='edit-link' onClick={() => handleEdit(detail.id, detail.detail)}>Muokkaa</button>
+                <button className='delete-link' onClick={() => handleDeleteConfirmation(detail.id)}>Poista</button>
 
               </div>
             )}
