@@ -50,7 +50,7 @@
 /* renovation cards */
 
 .card {
-    max-width: 48rem;
+    max-width: 32rem;
     border: 3px solid rgba(69,60,223,1); /* primary color */
     color: #f8f9fa; /* light color */
     border-radius: 3px; /* rounded corners */
@@ -62,7 +62,8 @@
   }
   
   .card:hover {
-    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.6); /* shadow effect when hover over the card */
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.6); 
+    
   }
   
   .card-header {

@@ -14,8 +14,10 @@ const postRenovation = require('./routesrenovations/post');
 const getRenovation = require('./routesrenovations/get');
 const deleteRenovation = require('./routesrenovations/delete');
 const putRenovation = require('./routesrenovations/put');
-
+// users
 const createUserRouter = require('./routes/users');
+// todo
+const todoRouter = require('./todoroutes/rodocrud');
 
 app.use(express.json());
 app.use(cors());
@@ -54,6 +56,8 @@ app.use('/api', postRenovation);
 app.use('/api', getRenovation);
 app.use('/api', deleteRenovation);
 app.use('/api', putRenovation);
+// todo
+app.use('/api', todoRouter);
 
 
 

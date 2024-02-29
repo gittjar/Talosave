@@ -26,11 +26,15 @@ const MyPage = () => {
         <h1>My Page</h1>
       <section className='card-grid'>
         {properties.map(property => (
-            <div className="card" style={{maxWidthwidth: "32rem"}} key={property.id}>
+            <div className="card bg-light text-muted" key={property.id}>
+ 
           <img src="src/assets/images/house-1.jpeg" className="card-img-top" />
+          <div className="card-header">
+            {property.propertyname}
+  </div>
             <div className="card-body">
-              <h5 className="card-title">{property.propertyname}</h5>
-              {/* Display other property details as needed */}
+              <h5 className="card-title">{property.street_address}</h5>
+              <p className="card-text">{property.post_number} {property.city}</p>
               <p className="card-text">{property.description}</p>
               <Link to={`/properties/${property.propertyid}`}>View Details</Link>
             </div>
