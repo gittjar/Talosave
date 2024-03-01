@@ -29,7 +29,7 @@
 
 .property-details {
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: 1fr 2fr 1.2fr;
     gap: 0.4rem;
     padding-top: 1rem;
     padding-bottom: 1rem;
@@ -50,7 +50,7 @@
 /* renovation cards */
 
 .card {
-    max-width: 32rem;
+    max-width: 48rem;
     border: 3px solid rgba(69,60,223,1); /* primary color */
     color: #f8f9fa; /* light color */
     border-radius: 3px; /* rounded corners */
@@ -100,6 +100,8 @@
     box-sizing: border-box;
 
   }
+
+
 
 /* Button styles */
 
@@ -181,6 +183,26 @@
 }
 
 /* Table styles */
+  .todo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.7rem;
+    border: #0e70da 1px solid;
+    padding: 0.2rem;
+    margin-top: 1rem;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.25);
+  }
+
+    .todo-table th {
+        background-color: rgba(7,60,155,1) !important;
+        color: #f8f9fa;
+        padding: 0.5rem;
+        text-align: left;
+    }
+
+    .todo-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
 
 th, td {
     padding: 8px;

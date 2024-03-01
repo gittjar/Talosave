@@ -69,12 +69,14 @@ const Todos = ({ propertyId }) => {
 
     return (
         <div>
-        <h2>Todos</h2>
-        <table>
+        <h5>Todos</h5>
+        <table className='todo-table'>
             <thead>
                 <tr>
                     <th>Todo</th>
-                    <th>Status</th>
+                    <th>Tehty</th>
+                    <th>Hinta</th>
+                    <th>Päiväys</th>
                     <th>Muokkaa</th>
                 </tr>
             </thead>
@@ -83,9 +85,12 @@ const Todos = ({ propertyId }) => {
                     <tr key={todo.id} className={`panel ${todo.isCompleted ? 'panel-success' : 'panel-danger'}`}>
                         <td>{todo.action}</td>
                         <td>{todo.isCompleted ? 'Kyllä' : 'Ei'}</td>
+                        <td>{todo.cost} €</td>
+                        <td>{`${new Date(todo.date).getMonth() + 1}/${new Date(todo.date).getFullYear()}`}</td>
+                        
                         <td>
-                            <button onClick={() => handleEditTodo(todo.id)}>Edit</button>
-                            <button onClick={() => handleShowDeleteConfirm(todo)}>Delete</button>
+                            <button className='edit-link' onClick={() => handleEditTodo(todo.id)}>Edit</button>
+                            <button className='delete-link' onClick={() => handleShowDeleteConfirm(todo)}>Delete</button>
                         </td>
                     </tr>
                 ))}

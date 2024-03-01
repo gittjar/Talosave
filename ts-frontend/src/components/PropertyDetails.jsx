@@ -37,7 +37,7 @@ const PropertyDetails = () => {
   const [isOpen, setIsOpen] = useState(false); 
 
   const [isAddRenovationFormOpen, setIsAddRenovationFormOpen] = useState(false);
-  const [isFormVisible, setIsFormVisible] = useState(true);
+  const [isFormVisible, setIsFormVisible] = useState(false); 
 
 
 
@@ -73,7 +73,7 @@ const PropertyDetails = () => {
 
   const closeForm = () => {
     setIsAddRenovationFormOpen(false);
-    setIsFormVisible(false);
+    setIsFormVisible(false); // Hide the form after it's submitted
   };
 
   const handleDeleteProperty = async () => {
@@ -197,6 +197,8 @@ const PropertyDetails = () => {
           {property.living_sqm ? <p>Living Sqm: {property.living_sqm}</p> : null}
           {property.created_at ? <p>Created At: {property.created_at}</p> : null}
           {property.description ? <p>Description: {property.description}</p> : null}
+
+          
           <button onClick={handleEditClick} className="primary-button">Edit</button>
           <button onClick={() => setShowDeleteConfirm(true)} className="danger-button">Delete</button>
           <button className="secondary-button" onClick={goBack}>Back</button>
@@ -206,7 +208,7 @@ const PropertyDetails = () => {
           <button onClick={() => setIsAddRenovationFormOpen(!isAddRenovationFormOpen)} className='primary-button'>
         {isAddRenovationFormOpen ? 'Sulje remontin lisäys' : 'Avaa remontin lisäys'}
       </button>
-      <button onClick={() => {setIsOpen(!isOpen); setIsFormVisible(!isFormVisible);}} className='primary-button'>{isOpen ? 'Avaa todo-lisäys' : 'Sulje todo-lisäys'}</button>
+      <button onClick={() => {setIsOpen(!isOpen); setIsFormVisible(!isFormVisible);}} className='primary-button'>{isOpen ? 'Sulje tehtävän lisäys' : 'Avaa tehtävän lisäys'}</button>
       {isAddRenovationFormOpen && <AddRenovationForm propertyId={id} refreshData={refreshData} closeForm={closeForm} />}
       {isFormVisible && <AddTodoForm propertyId={id} refreshData={refreshData} closeForm={closeForm}/>}
 
