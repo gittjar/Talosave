@@ -50,19 +50,19 @@ router.post('/todo', verifyToken, async (req, res) => {
     } catch (err) {
       res.status(500).send(err.message);
     }
-  });
+});
   
-  // GET endpoint for fetching a todo by id
-  router.get('/todo/:id', verifyToken, async (req, res) => {
-    const id = req.params.id;
+// GET endpoint for fetching a todo by propertyId
+router.get('/todo/:propertyId', verifyToken, async (req, res) => {
+    const propertyId = req.params.propertyId; // Changed from id to propertyId
     try {
       const sqlQuery = `
-      SELECT * FROM TS_Todo WHERE id = @id
+      SELECT * FROM TS_Todo WHERE propertyId = @propertyId
       `;
   
-      const sqlRequest = new sql.Request();
+      const sqlRequest = new sql.Request(); // Create a new sql.Request instance
       const result = await sqlRequest
-        .input('id', sql.Int, id)
+        .input('propertyId', sql.Int, propertyId)
         .query(sqlQuery);
   
       res.status(200).json(result.recordset);

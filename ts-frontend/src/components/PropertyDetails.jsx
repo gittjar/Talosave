@@ -8,6 +8,8 @@ import AddRenovationForm from '../forms/AddRenovationForm.jsx';
 import PropertyEditForm from '../forms/PropertyEditForm.jsx';
 import DeleteConfirmation from '../notifications/DeleteConfirmation.jsx';
 import PropertyRenovations from './PropertyRenovations.jsx';
+import AddTodoForm from '../forms/AddTodoForm.jsx';
+import Todos from './Todos.jsx';
 
 export const PropertyContext = createContext();
 
@@ -35,6 +37,8 @@ const PropertyDetails = () => {
   const [isOpen, setIsOpen] = useState(false); 
 
   const [isAddRenovationFormOpen, setIsAddRenovationFormOpen] = useState(false);
+  const [isFormVisible, setIsFormVisible] = useState(true);
+
 
 
 
@@ -69,6 +73,7 @@ const PropertyDetails = () => {
 
   const closeForm = () => {
     setIsAddRenovationFormOpen(false);
+    setIsFormVisible(false);
   };
 
   const handleDeleteProperty = async () => {
@@ -151,6 +156,8 @@ const PropertyDetails = () => {
       });
   };
 
+
+
   return (
     <div>
       {isEditing ? (
@@ -194,18 +201,23 @@ const PropertyDetails = () => {
           <button onClick={() => setShowDeleteConfirm(true)} className="danger-button">Delete</button>
           <button className="secondary-button" onClick={goBack}>Back</button>
           <article className='thinline'></article>
+          
           <button onClick={() => setShowRenovations(!showRenovations)} className='primary-button'>Renovations</button>
           <button onClick={() => setIsAddRenovationFormOpen(!isAddRenovationFormOpen)} className='primary-button'>
         {isAddRenovationFormOpen ? 'Sulje remontin lisäys' : 'Avaa remontin lisäys'}
       </button>
+      <button onClick={() => {setIsOpen(!isOpen); setIsFormVisible(!isFormVisible);}} className='primary-button'>{isOpen ? 'Avaa todo-lisäys' : 'Sulje todo-lisäys'}</button>
       {isAddRenovationFormOpen && <AddRenovationForm propertyId={id} refreshData={refreshData} closeForm={closeForm} />}
-          
+      {isFormVisible && <AddTodoForm propertyId={id} refreshData={refreshData} closeForm={closeForm}/>}
+
           </article>
 
           <article>
             {showRenovations && <PropertyRenovations propertyId={id} />}
-
           </article>
+          <article>
+            <Todos propertyId={id} />
+        </article>
 
         </section>
       )}
