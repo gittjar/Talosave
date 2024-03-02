@@ -23,55 +23,64 @@ const PropertyEditForm = ({
     newLivingSqm
 }) => {
     return (
-        <div>
+        <div className='property-edit-form'>
+            <label className="mb-1">New Property Name</label>
             <input
                 type="text"
                 value={newPropertyName}
                 onChange={(e) => setNewPropertyName(e.target.value)}
                 placeholder="New Property Name"
             />
+            <label className="mb-1">New Street Address</label>
             <input
                 type="text"
                 value={newStreetAddress}
                 onChange={(e) => setNewStreetAddress(e.target.value)}
                 placeholder="New Street Address"
             />
+            <label className="mb-1">New Post Number</label>
             <input
                 type="text"
                 value={newPostNumber}
                 onChange={(e) => setNewPostNumber(e.target.value)}
                 placeholder="New Post Number"
             />
+            <label className="mb-1">New City</label>
             <input
                 type="text"
                 value={newCity}
                 onChange={(e) => setNewCity(e.target.value)}
                 placeholder="New City"
             />
+            <label className="mb-1">New Land</label>
             <input
                 type="text"
                 value={newLand}
                 onChange={(e) => setNewLand(e.target.value)}
                 placeholder="New Land"
             />
+            <label className="mb-1">New House Type</label>
             <input
                 type="text"
                 value={newHouseType}
                 onChange={(e) => setNewHouseType(e.target.value)}
                 placeholder="New House Type"
             />
+            <label className="mb-1">New Building Year</label>
             <input
                 type="text"
                 value={newBuildingYear}
                 onChange={(e) => setNewBuildingYear(e.target.value)}
                 placeholder="New Building Year"
             />
+            <label className="mb-1">New Total Sqm</label>
             <input
                 type="text"
                 value={newTotalSqm}
                 onChange={(e) => setNewTotalSqm(e.target.value)}
                 placeholder="New Total Sqm"
             />
+            <label className="mb-1">New Living Sqm</label>
             <input
                 type="text"
                 value={newLivingSqm}

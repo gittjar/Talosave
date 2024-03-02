@@ -69,7 +69,7 @@ const Todos = ({ propertyId }) => {
 
     return (
         <div>
-        <h5>Todos</h5>
+        <h5>Tehtäviä</h5>
         <table className='todo-table'>
             <thead>
                 <tr>

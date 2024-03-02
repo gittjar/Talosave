@@ -20,7 +20,8 @@ const NavBar = () => {
   };
 
   return (
-    <Navbar expand="lg" className="bg-body-tertiary navibar">
+    <nav className='navibar'>
+    <Navbar expand="lg" className="bg-body-tertiary navibar-color">
       <Container>
         <Navbar.Brand as={Link} to="/home">TaloSave v. 1.0</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -49,6 +50,7 @@ const NavBar = () => {
       </Container>
 
     </Navbar>
+    </nav>
   );
 };
 

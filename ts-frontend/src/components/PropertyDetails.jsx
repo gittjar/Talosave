@@ -10,6 +10,7 @@ import DeleteConfirmation from '../notifications/DeleteConfirmation.jsx';
 import PropertyRenovations from './PropertyRenovations.jsx';
 import AddTodoForm from '../forms/AddTodoForm.jsx';
 import Todos from './Todos.jsx';
+import HouseBasicInformation from './HouseBasicInformation.jsx';
 
 export const PropertyContext = createContext();
 
@@ -20,7 +21,6 @@ const PropertyDetails = () => {
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  
   const [newPropertyName, setNewPropertyName] = useState('');
   const [newStreetAddress, setNewStreetAddress] = useState('');
   const [newPostNumber, setNewPostNumber] = useState('');
@@ -30,14 +30,13 @@ const PropertyDetails = () => {
   const [newBuildingYear, setNewBuildingYear] = useState('');
   const [newTotalSqm, setNewTotalSqm] = useState('');
   const [newLivingSqm, setNewLivingSqm] = useState('');
-  
   const [refreshKey, setRefreshKey] = useState(0);
-
   const [showRenovations, setShowRenovations] = useState(false);
   const [isOpen, setIsOpen] = useState(false); 
-
   const [isAddRenovationFormOpen, setIsAddRenovationFormOpen] = useState(false);
-  const [isFormVisible, setIsFormVisible] = useState(false); 
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [showTodos, setShowTodos] = useState(false);
+
 
 
 
@@ -74,6 +73,7 @@ const PropertyDetails = () => {
   const closeForm = () => {
     setIsAddRenovationFormOpen(false);
     setIsFormVisible(false); // Hide the form after it's submitted
+    
   };
 
   const handleDeleteProperty = async () => {
@@ -186,25 +186,17 @@ const PropertyDetails = () => {
       ) : (
         <section className='property-details'>
           <article>
-          <h1>{property.propertyname}</h1>
-          {property.street_address ? <p>Street Address: {property.street_address}</p> : null}
-          {property.post_number ? <p>Post Number: {property.post_number}</p> : null}
-          {property.city ? <p>City: {property.city}</p> : null}
-          {property.land ? <p>Land: {property.land}</p> : null}
-          {property.house_type ? <p>House Type: {property.house_type}</p> : null}
-          {property.building_year ? <p>Building Year: {property.building_year}</p> : null}
-          {property.total_sqm ? <p>Total Sqm: {property.total_sqm}</p> : null}
-          {property.living_sqm ? <p>Living Sqm: {property.living_sqm}</p> : null}
-          {property.created_at ? <p>Created At: {property.created_at}</p> : null}
-          {property.description ? <p>Description: {property.description}</p> : null}
+          <HouseBasicInformation property={property} />
 
-          
+
+
           <button onClick={handleEditClick} className="primary-button">Edit</button>
           <button onClick={() => setShowDeleteConfirm(true)} className="danger-button">Delete</button>
           <button className="secondary-button" onClick={goBack}>Back</button>
           <article className='thinline'></article>
           
-          <button onClick={() => setShowRenovations(!showRenovations)} className='primary-button'>Renovations</button>
+          <button onClick={() => setShowRenovations(!showRenovations)} className='primary-button'>Remontit</button>
+          <button onClick={() => setShowTodos(!showTodos)} className='primary-button'>Tehtävät</button>
           <button onClick={() => setIsAddRenovationFormOpen(!isAddRenovationFormOpen)} className='primary-button'>
         {isAddRenovationFormOpen ? 'Sulje remontin lisäys' : 'Avaa remontin lisäys'}
       </button>
@@ -218,7 +210,7 @@ const PropertyDetails = () => {
             {showRenovations && <PropertyRenovations propertyId={id} />}
           </article>
           <article>
-            <Todos propertyId={id} />
+  {showTodos && <Todos propertyId={id} />}
         </article>
 
         </section>
