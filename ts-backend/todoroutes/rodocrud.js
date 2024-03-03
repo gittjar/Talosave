@@ -71,8 +71,8 @@ router.get('/todo/:propertyId', verifyToken, async (req, res) => {
     }
   });
   
-  // PUT endpoint for updating a todo by id
-  router.put('/todo/:id', verifyToken, async (req, res) => {
+// PUT endpoint for updating a todo by id
+router.put('/todo/:id', verifyToken, async (req, res) => {
     const id = req.params.id;
     const { action, isCompleted, date, cost, propertyid, userid } = req.body;
     try {
@@ -93,9 +93,9 @@ router.get('/todo/:propertyId', verifyToken, async (req, res) => {
         .input('id', sql.Int, id)
         .query(sqlQuery);
   
-      res.status(200).send('Todo updated successfully');
+      res.status(200).json({ message: 'Todo updated successfully' });
     } catch (err) {
-      res.status(500).send(err.message);
+      res.status(500).json({ error: err.message });
     }
   });
   

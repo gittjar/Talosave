@@ -73,6 +73,8 @@ const PropertyDetails = () => {
   const closeForm = () => {
     setIsAddRenovationFormOpen(false);
     setIsFormVisible(false); // Hide the form after it's submitted
+    setIsOpen(false); // Reset the state of the "Avaa tehtävän lisäys" button
+    
     
   };
 

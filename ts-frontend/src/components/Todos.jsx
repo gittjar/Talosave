@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import config from '../configuration/config.js';
 import DeleteConfirmation from '../notifications/DeleteConfirmation.jsx';
+import EditTodoForm from '../forms/EditTodoForm.jsx';
 
 const Todos = ({ propertyId }) => {
     const [todos, setTodos] = useState([]);
@@ -52,6 +53,28 @@ const Todos = ({ propertyId }) => {
         setTodos(newTodos);
       }
 
+      const handleUpdateTodo = (id, updatedTodo) => {
+        const token = localStorage.getItem('userToken');
+    
+        fetch(`${config.baseURL}/api/todo/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(updatedTodo)
+        })
+          .then(response => response.json())
+          .then(data => {
+            const updatedTodos = todos.map(todo => 
+              todo.id === id ? data : todo
+            );
+            setTodos(updatedTodos);
+            handleCloseForm();
+          })
+          .catch(error => console.error('Error:', error));
+      }
+
     const handleEditTodo = (id) => {
         setShowEditForm(true);
         setShowFormId(id);
@@ -96,6 +119,13 @@ const Todos = ({ propertyId }) => {
                 ))}
             </tbody>
         </table>
+        {showEditForm && (
+      <EditTodoForm 
+        todo={todos.find(todo => todo.id === showFormId)} 
+        handleUpdateTodo={handleUpdateTodo} 
+        handleCloseForm={handleCloseForm}
+      />
+    )}
             {showDeleteConfirm && (
                 <DeleteConfirmation 
                     handleDeleteProperty={handleDeleteTodo} 
