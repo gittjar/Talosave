@@ -36,7 +36,12 @@ const MyPage = () => {
               <h5 className="card-title">{property.street_address}</h5>
               <p className="card-text">{property.post_number} {property.city}</p>
               <p className="card-text">{property.description}</p>
-              <Link to={`/properties/${property.propertyid}`}>View Details</Link>
+          
+            
+              <Link to={`/properties/${property.propertyid}`}>Remontit ja tehtävät</Link>
+              <br />
+              <Link to={`/consumptions/${property.propertyid}`}>Kulutus</Link>
+              
             </div>
           </div>
         ))}

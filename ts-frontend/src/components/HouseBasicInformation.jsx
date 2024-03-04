@@ -1,21 +1,32 @@
-
 import PropTypes from 'prop-types';
+import React, { useState } from 'react';
 
-const HouseBasicInformation = ({ property }) => (
-    <div>
-        <h1>{property.propertyname}</h1>
-        {property.street_address ? <p>Street Address: {property.street_address}</p> : null}
-        {property.post_number ? <p>Post Number: {property.post_number}</p> : null}
-        {property.city ? <p>City: {property.city}</p> : null}
-        {property.land ? <p>Land: {property.land}</p> : null}
-        {property.house_type ? <p>House Type: {property.house_type}</p> : null}
-        {property.building_year ? <p>Building Year: {property.building_year}</p> : null}
-        {property.total_sqm ? <p>Total Sqm: {property.total_sqm}</p> : null}
-        {property.living_sqm ? <p>Living Sqm: {property.living_sqm}</p> : null}
-        {property.created_at ? <p>Created At: {property.created_at}</p> : null}
-        {property.description ? <p>Description: {property.description}</p> : null}
-    </div>
-);
+const HouseBasicInformation = ({ property }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+
+    return (
+        <div>
+            <h4 className='text-body-tertiary'>{property.propertyname}</h4>
+            <p>{property.street_address}, {property.post_number}, {property.city}</p>
+            <button className='edit-link' onClick={() => setIsExpanded(!isExpanded)}>
+                {isExpanded ? 'Sulje perustiedot' : 'Näytä perustiedot'}
+            </button>
+            {isExpanded && (
+                <table className="table table-bordered border-secondary-subtle table-sm">
+                    <tbody>
+                        {property.land && <tr><td>Land</td><td>{property.land}</td></tr>}
+                        {property.house_type && <tr><td>House Type</td><td>{property.house_type}</td></tr>}
+                        {property.building_year && <tr><td>Building Year</td><td>{property.building_year}</td></tr>}
+                        {property.total_sqm && <tr><td>Total Sqm</td><td>{property.total_sqm}</td></tr>}
+                        {property.living_sqm && <tr><td>Living Sqm</td><td>{property.living_sqm}</td></tr>}
+                        {property.created_at && <tr><td>Created At</td><td>{property.created_at}</td></tr>}
+                        {property.description && <tr><td>Description</td><td>{property.description}</td></tr>}
+                    </tbody>
+                </table>
+            )}
+        </div>
+    );
+};
 
 HouseBasicInformation.propTypes = {
     property: PropTypes.shape({
@@ -23,15 +34,14 @@ HouseBasicInformation.propTypes = {
         street_address: PropTypes.string,
         post_number: PropTypes.string,
         city: PropTypes.string,
-        land: PropTypes.string, // Add prop validation for 'property.land'
+        land: PropTypes.string,
         house_type: PropTypes.string,
-        building_year: PropTypes.string,
-        total_sqm: PropTypes.string,
-        living_sqm: PropTypes.string,
+        building_year: PropTypes.number,
+        total_sqm: PropTypes.number,
+        living_sqm: PropTypes.number,
         created_at: PropTypes.string,
         description: PropTypes.string,
     }).isRequired,
 };
-
 
 export default HouseBasicInformation;

@@ -28,12 +28,15 @@ export const PropertyProvider = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    fetchProperties();
-  }, []);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    fetchProperties().then(() => setLoading(false));
+  }, []);
+  
   const value = {
     properties,
+    loading,
     fetchProperties
   };
 

@@ -120,17 +120,33 @@ const handleCloseForm = () => setShowFormId(null);
           <Accordion>
             {renovations.map((renovation, index) => (
               <Accordion.Item eventKey={index.toString()} key={index}>
-                <Accordion.Header>
-                {renovation.construction_company} | {renovation.renovation} - {new Date(renovation.date).toLocaleDateString('fi-FI')}                  <Button className='edit-link' onClick={() => handleShowForm(renovation.id)}>
+           
+                  <Accordion.Header>
+       
+                    <section className="header-accordion">
+                <div className='otsikko'>
+                  {renovation.construction_company} | {renovation.renovation} - {new Date(renovation.date).toLocaleDateString('fi-FI')}
+                </div>
+              
+                <span className="cost">
+                  {renovation.cost !== 0 && renovation.cost !== null ? `${renovation.cost} €` : null}
+                </span>
+              
+   
+                <div>
+                  <Button className='edit-link' onClick={() => handleShowForm(renovation.id)}>
                     Muokkaa
                   </Button>
-                  <Button className='delete-link' onClick={() => { setRenovationToDelete(renovation); setShowDeleteConfirm(true); }}>Poista</Button>
-                </Accordion.Header>
+                  <Button className='delete-link' onClick={() => { setRenovationToDelete(renovation); setShowDeleteConfirm(true); }}>
+                    Poista
+                  </Button>
+                </div>
+                </section>
+              </Accordion.Header>
                 <Accordion.Body>
                   {showFormId === renovation.id && (
                     <EditRenovationForm renovation={renovation} handleEditRenovation={handleEditRenovation} />
                   )}
-                  {(renovation.cost !== 0 && renovation.cost !== null) && <p className="cost">Kustannukset: {renovation.cost} €</p>}
                   <RenovationDetails renovationId={renovation.id} />
                 </Accordion.Body>
               </Accordion.Item>

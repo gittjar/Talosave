@@ -9,6 +9,8 @@ const Todos = ({ propertyId }) => {
     const [todoToDelete, setTodoToDelete] = useState(null);
     const [showEditForm, setShowEditForm] = useState(false);
     const [showFormId, setShowFormId] = useState(null);
+    const [refreshTodos, setRefreshTodos] = useState(false); // Add this line
+
 
     const handleShowForm = (id) => {
         setShowFormId(id);
@@ -31,7 +33,7 @@ const Todos = ({ propertyId }) => {
           .then(response => response.json())
           .then(data => setTodos(data))
           .catch(error => console.error('Error:', error));
-      }, [propertyId]);
+      }, [propertyId, refreshTodos]);
 
     const handleDeleteTodo = () => {
         const token = localStorage.getItem('userToken');
@@ -71,6 +73,7 @@ const Todos = ({ propertyId }) => {
             );
             setTodos(updatedTodos);
             handleCloseForm();
+            setRefreshTodos(!refreshTodos); 
           })
           .catch(error => console.error('Error:', error));
       }
