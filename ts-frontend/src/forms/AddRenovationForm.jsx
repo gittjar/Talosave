@@ -59,7 +59,7 @@ const AddRenovationForm = ({ propertyId, refreshData, closeForm }) => {
 
 
       // Clear the form fields
-      setPropertyid('');
+      // setPropertyid('');
       setConstructionCompany('');
       setRenovation('');
       setDate('');

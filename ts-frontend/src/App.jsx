@@ -1,5 +1,4 @@
 import { PropertyProvider } from './hooks/PropertyProvider.jsx';
-import { ElectricityConsumptionProvider } from './hooks/ElectricityConsumptionProvider.jsx';
 import NavBar from './components/Navbar';
 import LoginPage  from './components/LoginPage'
 import MyPage from './components/MyPage';
@@ -24,7 +23,6 @@ function App() {
         <NavBar />
         <section className="main">
         <PropertyProvider>
-              <ElectricityConsumptionProvider>
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
                   <Route path="/mypage" element={<PrivateRoute><MyPage /></PrivateRoute>} />
@@ -37,7 +35,6 @@ function App() {
                   <Route path="/" element={<HomePage />} />
                   <Route path="*" element={<LoginPage />} />
                 </Routes>
-              </ElectricityConsumptionProvider>
             </PropertyProvider>
         </section>
       </Router>

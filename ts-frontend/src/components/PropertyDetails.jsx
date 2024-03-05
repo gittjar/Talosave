@@ -196,9 +196,9 @@ const PropertyDetails = () => {
 
         <section className='property-details'>
             <Tab.Container id="left-tabs-example" defaultActiveKey="first">
-    <Nav variant="pills" className="flex-column">
+    <Nav variant="pills" className="flex-column nav-propertydetails">
       <Nav.Item>
-        <Nav.Link eventKey="1" >Talon tiedot</Nav.Link>
+        <Nav.Link eventKey="1" >Talo</Nav.Link>
       </Nav.Item>
       <Nav.Item>
         <Nav.Link eventKey="2">Remontit</Nav.Link>
@@ -212,9 +212,8 @@ const PropertyDetails = () => {
     </Nav>
     <Tab.Content>
       <Tab.Pane eventKey="1">
-      <button className="secondary-button" onClick={goBack} title="Takaisin"><ArrowLeft /> </button>
-          <button onClick={handleEditClick} className="primary-button" title="Muokkaa tietoja"><PencilSquare /></button>
-          <button onClick={() => setShowDeleteConfirm(true)} className="danger-button" title="Poista kohde"><XLg /></button>
+          <button onClick={handleEditClick} className="edit-link" title="Muokkaa tietoja"><PencilSquare /></button>
+          <button onClick={() => setShowDeleteConfirm(true)} className="delete-link" title="Poista kohde"><XLg /></button>
         <HouseBasicInformation property={property} />
       </Tab.Pane>
       <Tab.Pane eventKey="2">
@@ -235,40 +234,7 @@ const PropertyDetails = () => {
     </Tab.Content>
   </Tab.Container>
 
-          <article className='property-details-and-buttons'>
-
-
-          <button className="secondary-button" onClick={goBack} title="Takaisin"><ArrowLeft /> </button>
-          <button onClick={handleEditClick} className="primary-button" title="Muokkaa tietoja"><PencilSquare /></button>
-          <button onClick={() => setShowDeleteConfirm(true)} className="danger-button" title="Poista kohde"><XLg /></button>
-
-          <article className='thinline'></article>
-          <HouseBasicInformation property={property} />
-
-          
-          <div className="btn-group-vertical" role="group" aria-label="Vertical button group">
-  <button onClick={() => setShowRenovations(!showRenovations)} className='btn btn-outline-dark'>Remontit</button>
-  <button onClick={() => setShowTodos(!showTodos)} className='btn btn-outline-dark'>Tehtävät</button>
-  <button onClick={() => setIsAddRenovationFormOpen(!isAddRenovationFormOpen)} className='btn btn-outline-dark'>
-    {isAddRenovationFormOpen ? 'Sulje remontin lisäys' : 'Avaa remontin lisäys'}
-  </button>
-  <button onClick={() => {setIsOpen(!isOpen); setIsFormVisible(!isFormVisible);}} className='btn btn-outline-dark'>{isOpen ? 'Sulje tehtävän lisäys' : 'Avaa tehtävän lisäys'}</button>
-
-      <button className='btn btn-outline-dark'>
-      <Link to={`/consumptions/${id}`}>Kulutus</Link>
-      </button>
-      </div>
-          </article>
-
-          <article>
-          {isAddRenovationFormOpen && <AddRenovationForm propertyId={id} refreshData={refreshData} closeForm={closeForm} />}
-            {showRenovations && <PropertyRenovations propertyId={id} />}
-          </article>
-          <article>
-          {isFormVisible && <AddTodoForm propertyId={id} refreshData={refreshData} closeForm={closeForm}/>}
-          {showTodos && <Todos propertyId={id} />}
-        </article>
-
+         
         </section>
       )}
   {showDeleteConfirm && (

@@ -38,10 +38,7 @@ const MyPage = () => {
               <p className="card-text">{property.description}</p>
           
             
-              <Link to={`/properties/${property.propertyid}`}>Remontit ja tehtävät</Link>
-              <br />
-              <Link to={`/consumptions/${property.propertyid}`}>Kulutus</Link>
-              
+              <Link to={`/properties/${property.propertyid}`}>Talon tiedot</Link>              
             </div>
           </div>
         ))}

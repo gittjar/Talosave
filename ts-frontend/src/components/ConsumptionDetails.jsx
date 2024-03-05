@@ -1,5 +1,8 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { Tab, Nav } from 'react-bootstrap';
+import ShowElectricityConsumption from '../consumptions/ShowElectricityConsumption';
+import { BarChart } from 'react-bootstrap-icons';
 
 const ConsumptionDetails = () => {
   const { id } = useParams();
@@ -7,24 +10,46 @@ const ConsumptionDetails = () => {
   
   return (
     <div>
-    <ul className="nav nav-tabs">
-        <li className="nav-item">
-            <Link className="nav-link" to="/mypage">Minun kohteet</Link>
-        </li>
-        <li className="nav-item">
-            <Link className="nav-link" to={`/properties/${id}`}>Kohdetiedot ja remontit</Link>
-        </li>
-        <li className="nav-item">
-            <a className="nav-link active" href="#">Aktiivinen</a>
-        </li>
-        <li className="nav-item">
-            <Link className="nav-link" to={`/electricity/${id}`}>Sähkön kulutus</Link>
-        </li>
-        <li className="nav-item">
-            <a className="nav-link disabled" aria-disabled="true">Disabled</a>
-        </li>
-    </ul>
+
+
+<Tab.Container id="left-tabs-example" defaultActiveKey="first">
+  <Nav variant="tabs" className="nav-propertydetails">
+  <Nav.Item>
+    <Nav.Link eventKey="1" className='navlinks'>Sähkö <BarChart /></Nav.Link>
+  </Nav.Item>
+  <Nav.Item>
+    <Nav.Link eventKey="2" className='navlinks'>Lämmitys <BarChart /></Nav.Link>
+  </Nav.Item>
+  <Nav.Item>
+    <Nav.Link eventKey="3" className='navlinks'>Vesi <BarChart /></Nav.Link>
+  </Nav.Item>
+  <Nav.Item>
+    <Nav.Link eventKey="4" className='navlinks'>Jätehuolto <BarChart /></Nav.Link>
+  </Nav.Item>
+</Nav>
+<Tab.Content>
+  <Tab.Pane eventKey="1">
+    {/* SÄHKÖ */}
+  <ShowElectricityConsumption /> 
+  </Tab.Pane>
+  <Tab.Pane eventKey="2">
+  <div className='d-flex'>
+  2
   </div>
+  </Tab.Pane>
+  <Tab.Pane eventKey="3">
+    <section className='todos'>
+3.
+  </section>
+  </Tab.Pane>
+  <Tab.Pane eventKey="4">
+  <p>4.</p>
+  </Tab.Pane>
+</Tab.Content>
+</Tab.Container>
+
+</div>
+
   );
 };
 
