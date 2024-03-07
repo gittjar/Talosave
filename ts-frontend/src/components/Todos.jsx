@@ -94,8 +94,8 @@ const Todos = ({ propertyId }) => {
       }
 
     return (
-        <div>
-        <h5>Tehtäviä</h5>
+        <div className='todopage'> 
+        <h4>Tehtäviä</h4>
         <table className='todo-table'>
             <thead>
                 <tr>

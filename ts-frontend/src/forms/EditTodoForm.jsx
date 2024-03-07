@@ -19,7 +19,7 @@ const EditTodoForm = ({ todo, handleUpdateTodo, handleCloseForm }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <h4>Muokkaa tehtävää</h4>
+      <h4 className='mt-3'>Muokkaa tehtävää</h4>
       <div className="form-group">
         <label htmlFor="action">Tehtävä tai tarkistus</label>
         <input

@@ -7,7 +7,7 @@ import { VictoryBar, VictoryChart, VictoryAxis, VictoryLabel, VictoryTooltip, Vi
 const ShowElectricityConsumption = () => {
   const { id } = useParams(); // Get the property ID from the URL
   const [electricityConsumptions, setElectricityConsumptions] = useState([]);
-  const [selectedYears, setSelectedYears] = useState([2022, 2023]); // Initial selected years
+  const [selectedYears, setSelectedYears] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [years, setYears] = useState([]);
 
@@ -16,7 +16,7 @@ const ShowElectricityConsumption = () => {
       const token = localStorage.getItem('userToken'); 
   
       try {
-        const response = await axios.get(`${config.baseURL}/api/electricconsumptions`, {
+        const response = await axios.get(`${config.baseURL}/api/electricconsumptions/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -53,7 +53,11 @@ const ShowElectricityConsumption = () => {
   );
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Ladataan...</div>;
+  }
+
+if (years.length === 0) {
+    return <div>Ei kulutusdataa saatavilla.</div>;
   }
 
   const getRandomColor = () => {
@@ -88,17 +92,18 @@ const ShowElectricityConsumption = () => {
     <div>
     <h3>Electricity Consumption Details</h3>
 <div>
-<div>
+<div className='kwh-labels-year'>
   {years.map(year => (
-    <label key={year} style={{ backgroundColor: colorMap.getColor(year), padding: '5px', margin: '5px' }}>
-              <input
+    <article key={year} style={{ backgroundColor: colorMap.getColor(year), padding: '5px', margin: '5px' }} className='kwh-box'>
+    <input
         type="checkbox"
         value={year}
         checked={selectedYears.includes(year)}
         onChange={handleYearChange}
+        className="year-checkbox"
       />
       {year}
-    </label>
+    </article>
   ))}
 </div>
 

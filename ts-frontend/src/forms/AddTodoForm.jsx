@@ -67,6 +67,7 @@ const response = await fetch(`${config.baseURL}/api/todo`, {
 // Define your form fields
 
 return (
+    <section className="add-todo-form">
     <form onSubmit={handleSubmit}>
 <h4>Lisää tehtävä</h4>
 <div className="form-group">
@@ -92,12 +93,10 @@ return (
     <label htmlFor="cost">Kulut</label>
     <input type="number" className="form-control" id="cost" value={cost} onChange={(event) => setCost(event.target.value)} required />
 </div>
-
-
-
 <button type="submit" className="primary-button">Tallenna</button>
-
+<button type="button" className="secondary-button" onClick={closeForm}>Peruuta</button>
 </form>
+</section>
 
 );
 

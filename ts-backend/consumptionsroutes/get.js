@@ -26,17 +26,19 @@ const verifyToken = (req, res, next) => {
     }
   };
 
-  router.get('/', verifyToken, async (req, res) => {
+  router.get('/:propertyid', verifyToken, async (req, res) => {
     const userid = req.user.id; // Get userid from the token
+    const propertyid = req.params.propertyid; // Get propertyid from the URL
     try {
       const sqlRequest = new sql.Request();
       const result = await sqlRequest
         .input('userid', sql.Int, userid)
+        .input('propertyid', sql.Int, propertyid)
         .query(`
           SELECT E.*, P.propertyname 
           FROM TS_ElectricityConsumption E
           INNER JOIN TS_Properties P ON E.propertyid = P.propertyid
-          WHERE P.userid = @userid
+          WHERE P.userid = @userid AND P.propertyid = @propertyid
         `);
       // console.log('Query result:', result); // Log the query result
       res.json(result.recordset);

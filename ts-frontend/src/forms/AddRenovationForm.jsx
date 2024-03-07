@@ -120,6 +120,7 @@ const AddRenovationForm = ({ propertyId, refreshData, closeForm }) => {
   </div>
 
   <button type="submit" className='primary-button mb-3'>Tallenna</button>
+  <button type="button" className='secondary-button' onClick={closeForm}>Peruuta</button>
 </form>
 
 

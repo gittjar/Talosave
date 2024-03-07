@@ -40,6 +40,7 @@ const PropertyDetails = () => {
   const [isAddRenovationFormOpen, setIsAddRenovationFormOpen] = useState(false);
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [showTodos, setShowTodos] = useState(false);
+  const [isAddTodoFormVisible, setIsAddTodoFormVisible] = useState(false);
 
 
 
@@ -78,8 +79,15 @@ const PropertyDetails = () => {
     setIsAddRenovationFormOpen(false);
     setIsFormVisible(false); // Hide the form after it's submitted
     setIsOpen(false); // Reset the state of the "Avaa tehtävän lisäys" button
+    setIsAddTodoFormVisible(false);
+  };
 
-    
+  const toggleAddTodoForm = () => {
+    setIsAddTodoFormVisible(!isAddTodoFormVisible);
+  };
+
+  const toggleAddRenovationForm = () => {
+    setIsAddRenovationFormOpen(!isAddRenovationFormOpen);
   };
 
   const handleDeleteProperty = async () => {
@@ -217,16 +225,24 @@ const PropertyDetails = () => {
         <HouseBasicInformation property={property} />
       </Tab.Pane>
       <Tab.Pane eventKey="2">
-      <div className='d-flex'>
+      <div>
+      {isAddRenovationFormOpen ? (
       <AddRenovationForm propertyId={id} refreshData={refreshData} closeForm={closeForm} />
+      ) : (
+        <button className='edit-link' onClick={toggleAddRenovationForm}>Lisää remontti</button>
+      )}
       <PropertyRenovations propertyId={id} />
       </div>
       </Tab.Pane>
       <Tab.Pane eventKey="3">
-        <section className='todos'>
-      <AddTodoForm propertyId={id} refreshData={refreshData} closeForm={closeForm}/>
-      <Todos propertyId={id} />
-      </section>
+      <section className='todos'>
+          {isAddTodoFormVisible ? (
+          <AddTodoForm propertyId={id} refreshData={refreshData} closeForm={closeForm}/>
+        ) : (
+          <button className='edit-link' onClick={toggleAddTodoForm}>Lisää tehtävä</button>
+        )}
+        <Todos propertyId={id} refreshData={refreshData} closeForm={closeForm}/>
+    </section>
       </Tab.Pane>
       <Tab.Pane eventKey="4">
       <ConsumptionDetails property={property}>Kulutus</ ConsumptionDetails>
