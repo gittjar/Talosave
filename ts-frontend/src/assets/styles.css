@@ -81,6 +81,25 @@
 
 }
 
+.card-property {
+    border: 1px solid rgba(69,60,223,1); /* primary color */
+    color: #f8f9fa; /* light color */
+    border-radius: 3px; /* rounded corners */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.3); /* shadow effect */
+    transition: 0.3s; /* animation to hover over the card */
+    margin-left: 1rem;
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+  }
+
+    .card-property:hover {
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.6); 
+        
+    }
+
+
+
 /* renovation cards */
 
 .card {
@@ -92,7 +111,7 @@
     margin-left: 1rem;
     margin-right: 1rem;
     margin-bottom: 1rem;
-    max-width: 52rem !important;
+    width: 60rem !important;
   }
   
   .card:hover {
@@ -137,18 +156,19 @@
 
   /*ACCORDION*/
   .header-accordion{
- 
-    align-items: center !important;
+    display: flex;
+  flex-direction: row;
+  align-items: center;
     cursor: pointer;
-    padding: 8px;
-    max-width: 100%;
+    padding: 3px;
     border: 1px solid #f8f9fa; /* light color */
-    text-align: left;
     outline: none;
     font-size: 0.8rem !important;
     transition: 0.4s;
-    margin-right: 2%;
+   
   }
+
+ 
 
     .header-accordion > .otsikko {
         margin-bottom: 4px;
@@ -157,8 +177,8 @@
 
   .cost {
     color: #f8f9fa !important;
-    padding: 0.2rem;
-    font-size: 0.9rem;
+    padding: 0.4rem;
+    font-size: 0.7rem;
     margin: 0.1rem;
     margin-right: 1rem;
     border-radius: 10px;
@@ -352,7 +372,7 @@ th, td {
 
 .card-grid {
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 0.3rem;
     row-gap: 1rem;
 }
@@ -373,7 +393,12 @@ th, td {
             gap: 0.4rem;
             padding-top: 1rem;
             padding-bottom: 1rem;
-}}
+}
+.card {
+    width: fit-content !important;
+}
+
+}
 
 /*Mobile*/
 

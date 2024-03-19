@@ -26,7 +26,7 @@ const MyPage = () => {
         <h1>Kohteet</h1>
       <section className='card-grid'>
         {properties.map(property => (
-            <div className="card bg-light text-muted" key={property.id}>
+            <div className="card-property bg-light text-muted" key={property.id}>
  
           <img src="src/assets/images/house-1.jpeg" className="card-img-top" />
           <div className="card-header">

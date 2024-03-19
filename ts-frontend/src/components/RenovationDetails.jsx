@@ -3,6 +3,7 @@ import config from '../configuration/config.js';
 import DeleteConfirmation from '../notifications/DeleteConfirmation.jsx';
 import Toast from 'react-bootstrap/Toast';
 
+
 const RenovationDetails = ({ renovationId }) => {
   const [renovationDetails, setRenovationDetails] = useState([]);
   const [editingId, setEditingId] = useState(null);

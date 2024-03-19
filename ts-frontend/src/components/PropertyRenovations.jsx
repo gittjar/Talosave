@@ -7,6 +7,8 @@ import DeleteConfirmation from '../notifications/DeleteConfirmation';
 import DeleteDetailsConfirmation from '../notifications/DeleteDetailsConfirmation';
 import EditRenovationForm from '../forms/EditRenovationForm.jsx';
 import Accordion from 'react-bootstrap/Accordion';
+import { XLg, PencilSquare } from 'react-bootstrap-icons';
+
 
 
 
@@ -108,7 +110,7 @@ const handleCloseForm = () => setShowFormId(null);
   };
 
   return (
-    <div>
+    <div className='renovations'>
       {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={handleDeleteProperty} setShowDeleteConfirm={setShowDeleteConfirm} />}
       {showDeleteDetailsConfirm && <DeleteDetailsConfirmation handleDeleteDetails={handleDeleteDetails} setShowDeleteDetailsConfirm={setShowDeleteDetailsConfirm} />}
       
@@ -121,28 +123,33 @@ const handleCloseForm = () => setShowFormId(null);
             {renovations.map((renovation, index) => (
               <Accordion.Item eventKey={index.toString()} key={index}>
            
-                  <Accordion.Header>
-       
-                    <section className="header-accordion">
+                    <Accordion.Header >
+                     <section className="header-accordion">
+                     
+             
                 <div className='otsikko'>
-                  {renovation.construction_company} | {renovation.renovation} - {new Date(renovation.date).toLocaleDateString('fi-FI')}
-                </div>
-              
+
                 <span className="cost">
                   {renovation.cost !== 0 && renovation.cost !== null ? `${renovation.cost} €` : null}
                 </span>
+
+                  {renovation.construction_company} | {renovation.renovation} - {new Date(renovation.date).toLocaleDateString('fi-FI')}
+                  
+                  </div>
+           
               
-   
-                <div>
-                  <Button className='edit-link' onClick={() => handleShowForm(renovation.id)}>
-                    Muokkaa
-                  </Button>
-                  <Button className='delete-link' onClick={() => { setRenovationToDelete(renovation); setShowDeleteConfirm(true); }}>
-                    Poista
-                  </Button>
+                <div className='edit-delete-icons'>
+                <span className='edit-link' onClick={() => handleShowForm(renovation.id)}>
+                  Muokkaa
+                </span>
+                <span className='delete-link' onClick={() => { setRenovationToDelete(renovation); setShowDeleteConfirm(true); }}>
+                  Poista
+                </span>
                 </div>
-                </section>
-              </Accordion.Header>
+            
+             
+           </section>
+          </Accordion.Header>
                 <Accordion.Body>
                   {showFormId === renovation.id && (
                     <EditRenovationForm renovation={renovation} handleEditRenovation={handleEditRenovation} />

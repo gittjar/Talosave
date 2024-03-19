@@ -11,7 +11,7 @@ import PropertyRenovations from './PropertyRenovations.jsx';
 import AddTodoForm from '../forms/AddTodoForm.jsx';
 import Todos from './Todos.jsx';
 import HouseBasicInformation from './HouseBasicInformation.jsx';
-import { XLg, PencilSquare, ArrowLeft } from 'react-bootstrap-icons';
+import { XLg, PencilSquare } from 'react-bootstrap-icons';
 import { Tab, Nav } from 'react-bootstrap';
 import ConsumptionDetails from './ConsumptionDetails.jsx';
 
@@ -217,6 +217,9 @@ const PropertyDetails = () => {
       <Nav.Item>
         <Nav.Link eventKey="4">Kulutus</Nav.Link>
       </Nav.Item>
+      <Nav.Item>
+        <Nav.Link eventKey="5">Tutkimukset</Nav.Link>
+      </Nav.Item>
     </Nav>
     <Tab.Content>
       <Tab.Pane eventKey="1">
@@ -246,6 +249,10 @@ const PropertyDetails = () => {
       </Tab.Pane>
       <Tab.Pane eventKey="4">
       <ConsumptionDetails property={property}>Kulutus</ ConsumptionDetails>
+      </Tab.Pane>
+      <Tab.Pane eventKey="5">
+      <h1>Tutkimukset</h1>
+      <p>Tähän tulee tutkimusten tiedot, oma komponentti</p>
       </Tab.Pane>
     </Tab.Content>
   </Tab.Container>
