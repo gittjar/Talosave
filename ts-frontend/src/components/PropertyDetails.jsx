@@ -34,6 +34,27 @@ const PropertyDetails = () => {
   const [newBuildingYear, setNewBuildingYear] = useState('');
   const [newTotalSqm, setNewTotalSqm] = useState('');
   const [newLivingSqm, setNewLivingSqm] = useState('');
+  const [newCreatedAt, setNewCreatedAt] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+  const [newRoomList, setNewRoomList] = useState('');
+  const [newFloors, setNewFloors] = useState('');
+  const [newDataconnection, setNewDataconnection] = useState('');
+  const [newTVSystem, setNewTVSystem] = useState('');
+  const [newDrain, setNewDrain] = useState('');
+  const [newWater, setNewWater] = useState('');
+  const [newElectricity, setNewElectricity] = useState('');
+  const [newMainHeatSystem, setNewMainHeatSystem] = useState('');
+  const [newSauna, setNewSauna] = useState('');
+  const [newPipes, setNewPipes] = useState('');
+  const [newRoofType, setNewRoofType] = useState('');
+  const [newGround, setNewGround] = useState('');
+  const [newPropertyId, setNewPropertyId] = useState('');
+  const [newRasite, setNewRasite] = useState('');
+  const [newRanta, setNewRanta] = useState('');
+  const [newUserid, setNewUserid] = useState('');
+  const [newLatitude, setNewLatitude] = useState('');
+  const [newLongitude, setNewLongitude] = useState('');
+
   const [refreshKey, setRefreshKey] = useState(0);
   const [showRenovations, setShowRenovations] = useState(false);
   const [isOpen, setIsOpen] = useState(false); 
@@ -118,7 +139,29 @@ const PropertyDetails = () => {
         house_type: newHouseType,
         building_year: newBuildingYear,
         total_sqm: newTotalSqm,
-        living_sqm: newLivingSqm
+        living_sqm: newLivingSqm,
+        created_at: newCreatedAt,
+        description: newDescription,
+        room_list: newRoomList,
+        floors: newFloors,
+        dataconnection: newDataconnection,
+        TV_system: newTVSystem,
+        drain: newDrain,
+        water: newWater,
+        electricity: newElectricity,
+        main_heat_system: newMainHeatSystem,
+        sauna: newSauna,
+        pipes: newPipes,
+        roof_type: newRoofType,
+        ground: newGround,
+        property_id: newPropertyId,
+        rasite: newRasite,
+        ranta: newRanta,
+        userid: newUserid,
+        latitude: newLatitude,
+        longitude: newLongitude,
+
+
       }, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -142,6 +185,26 @@ const PropertyDetails = () => {
     setNewBuildingYear(property.building_year);
     setNewTotalSqm(property.total_sqm);
     setNewLivingSqm(property.living_sqm);
+    setNewCreatedAt(property.created_at);
+    setNewDescription(property.description);
+    setNewRoomList(property.room_list);
+    setNewFloors(property.floors);
+    setNewDataconnection(property.dataconnection);
+    setNewTVSystem(property.TV_system);
+    setNewDrain(property.drain);
+    setNewWater(property.water);
+    setNewElectricity(property.electricity);
+    setNewMainHeatSystem(property.main_heat_system);
+    setNewSauna(property.sauna);
+    setNewPipes(property.pipes);
+    setNewRoofType(property.roof_type);
+    setNewGround(property.ground);
+    setNewPropertyId(property.property_id);
+    setNewRasite(property.rasite);
+    setNewRanta(property.ranta);
+    setNewUserid(property.userid);
+    setNewLatitude(property.latitude);
+    setNewLongitude(property.longitude);
     setIsEditing(true);
   };
 
@@ -196,6 +259,48 @@ const PropertyDetails = () => {
          newBuildingYear={newBuildingYear}
          newTotalSqm={newTotalSqm}
          newLivingSqm={newLivingSqm}
+          newCreatedAt={newCreatedAt}
+          setNewCreatedAt={setNewCreatedAt}
+          newDescription={newDescription}
+          setNewDescription={setNewDescription}
+          newRoomList={newRoomList}
+          setNewRoomList={setNewRoomList}
+          newFloors={newFloors}
+          setNewFloors={setNewFloors}
+          newDataconnection={newDataconnection}
+          setNewDataconnection={setNewDataconnection}
+          newTVSystem={newTVSystem}
+          setNewTVSystem={setNewTVSystem}
+          newDrain={newDrain}
+          setNewDrain={setNewDrain}
+          newWater={newWater}
+          setNewWater={setNewWater}
+          newElectricity={newElectricity}
+          setNewElectricity={setNewElectricity}
+          newMainHeatSystem={newMainHeatSystem}
+          setNewMainHeatSystem={setNewMainHeatSystem}
+          newSauna={newSauna}
+          setNewSauna={setNewSauna}
+          newPipes={newPipes}
+          setNewPipes={setNewPipes}
+          newRoofType={newRoofType}
+          setNewRoofType={setNewRoofType}
+          newGround={newGround}
+          setNewGround={setNewGround}
+          newPropertyId={newPropertyId}
+          setNewPropertyId={setNewPropertyId}
+          newRasite={newRasite}
+          setNewRasite={setNewRasite}
+          newRanta={newRanta}
+          setNewRanta={setNewRanta}
+          newUserid={newUserid}
+          setNewUserid={setNewUserid}
+          newLatitude={newLatitude}
+          setNewLatitude={setNewLatitude}
+          newLongitude={newLongitude}
+          setNewLongitude={setNewLongitude}
+          
+         
        />
       ) : (
 
@@ -206,19 +311,19 @@ const PropertyDetails = () => {
             <Tab.Container id="left-tabs-example" defaultActiveKey="first">
     <Nav variant="pills" className="flex-column nav-propertydetails">
       <Nav.Item>
-        <Nav.Link eventKey="1" >Talo</Nav.Link>
+        <Nav.Link eventKey="1" className='navlinkpills'>Talo</Nav.Link>
       </Nav.Item>
       <Nav.Item>
-        <Nav.Link eventKey="2">Remontit</Nav.Link>
+        <Nav.Link eventKey="2" className='navlinkpills'>Remontit</Nav.Link>
       </Nav.Item>
       <Nav.Item>
-        <Nav.Link eventKey="3">Tehtävät</Nav.Link>
+        <Nav.Link eventKey="3" className='navlinkpills'>Tehtävät</Nav.Link>
       </Nav.Item>
       <Nav.Item>
-        <Nav.Link eventKey="4">Kulutus</Nav.Link>
+        <Nav.Link eventKey="4" className='navlinkpills'>Kulutus</Nav.Link>
       </Nav.Item>
       <Nav.Item>
-        <Nav.Link eventKey="5">Tutkimukset</Nav.Link>
+        <Nav.Link eventKey="5" className='navlinkpills'>Tutkimukset</Nav.Link>
       </Nav.Item>
     </Nav>
     <Tab.Content>

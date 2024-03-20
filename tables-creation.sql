@@ -5,6 +5,7 @@ CREATE TABLE TS_Properties (
     post_number NVARCHAR(255),
     city NVARCHAR(255),
     land NVARCHAR(255),
+    description NVARCHAR(255),
     house_type NVARCHAR(255),
     building_year INT,
     total_sqm FLOAT,

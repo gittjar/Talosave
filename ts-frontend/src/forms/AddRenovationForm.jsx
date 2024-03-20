@@ -1,7 +1,17 @@
 // Import useEffect and useState hooks from React
 import { useState, useEffect } from 'react';
 import config from '../configuration/config.js';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+// Create a custom toast
+const BigToast = ({ closeToast, message }) => (
+  <div className="big-toast">
+    <h1>Error!</h1>
+    <p className="toast-message">{message}</p>
+    <button onClick={closeToast}>Close</button>
+  </div>
+)
 
 // Define your AddRenovationForm component
 const AddRenovationForm = ({ propertyId, refreshData, closeForm }) => {
@@ -47,6 +57,7 @@ const AddRenovationForm = ({ propertyId, refreshData, closeForm }) => {
       });
 
       if (!response.ok) {
+        const errorData = await response.json(); // Get the error message from the response
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -68,6 +79,8 @@ const AddRenovationForm = ({ propertyId, refreshData, closeForm }) => {
 
     } catch (error) {
       console.error('Error:', error);
+      toast.error(<BigToast message={error.message} />); // Display the custom toast
+
     }
   };
 
@@ -76,6 +89,8 @@ const AddRenovationForm = ({ propertyId, refreshData, closeForm }) => {
     <>
 <form onSubmit={handleSubmit}>
 <div>
+<ToastContainer />
+
     <label htmlFor="propertyid">Kiinteistö ID: </label>
     <span id="propertyid"> {propertyid}</span>
   </div>

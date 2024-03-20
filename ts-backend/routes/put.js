@@ -55,7 +55,8 @@ const verifyToken = (req, res, next) => {
       rasite, 
       ranta, 
       latitude, 
-      longitude 
+      longitude,
+      description
     } = req.body;
   
     try {
@@ -89,6 +90,7 @@ const verifyToken = (req, res, next) => {
         .input('ranta', sql.NVarChar, ranta)
         .input('latitude', sql.Float, latitude)
         .input('longitude', sql.Float, longitude)
+        .input ('description', sql.NVarChar, description)
         .query(`
           UPDATE TS_Properties 
           SET propertyname = @propertyname, 
@@ -116,7 +118,8 @@ const verifyToken = (req, res, next) => {
               rasite = @rasite, 
               ranta = @ranta, 
               latitude = @latitude, 
-              longitude = @longitude 
+              longitude = @longitude,
+              description = @description
           WHERE propertyid = @id AND userid = @userid
         `);
   

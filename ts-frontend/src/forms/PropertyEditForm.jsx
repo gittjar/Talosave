@@ -2,25 +2,63 @@ import PropTypes from 'prop-types';
 
 const PropertyEditForm = ({
     handleUpdateProperty,
-    handleCancelClick,
-    setNewPropertyName,
-    setNewStreetAddress,
-    setNewPostNumber,
-    setNewCity,
-    setNewLand,
-    setNewHouseType,
-    setNewBuildingYear,
-    setNewTotalSqm,
-    setNewLivingSqm,
-    newPropertyName,
-    newStreetAddress,
-    newPostNumber,
-    newCity,
-    newLand,
-    newHouseType,
-    newBuildingYear,
-    newTotalSqm,
-    newLivingSqm
+  handleCancelClick,
+  setNewPropertyName,
+  setNewStreetAddress,
+  setNewPostNumber,
+  setNewCity,
+  setNewLand,
+  setNewHouseType,
+  setNewBuildingYear,
+  setNewDescription,
+  setNewRoomList,
+  setNewFloors,
+  setNewDataconnection,
+  setNewTVSystem,
+  setNewDrain,
+  setNewWater,
+  setNewElectricity,
+  setNewMainHeatSystem,
+  setNewSauna,
+  setNewPipes,
+  setNewRoofType,
+  setNewGround,
+  setNewPropertyId,
+  setNewRasite,
+  setNewRanta,
+  setNewUserid,
+  setNewLatitude,
+  setNewLongitude,
+  setNewTotalSqm,
+  setNewLivingSqm,
+  newPropertyName,
+  newStreetAddress,
+  newPostNumber,
+  newCity,
+  newLand,
+  newHouseType,
+  newBuildingYear,
+  newDescription,
+  newRoomList,
+  newFloors,
+  newDataconnection,
+  newTVSystem,
+  newDrain,
+  newWater,
+  newElectricity,
+  newMainHeatSystem,
+  newSauna,
+  newPipes,
+  newRoofType,
+  newGround,
+  newPropertyId,
+  newRasite,
+  newRanta,
+  newUserid,
+  newLatitude,
+  newLongitude,
+  newTotalSqm,
+  newLivingSqm
 }) => {
     return (
         <div className='property-edit-form'>
@@ -88,6 +126,149 @@ const PropertyEditForm = ({
                 placeholder="New Living Sqm"
             />
             <br />
+    
+   
+            <label className="mb-1">New Room List</label>
+            <input
+                type="text"
+                value={newRoomList}
+                onChange={(e) => setNewRoomList(e.target.value)}
+                placeholder="New Room List"
+            />
+            <label className="mb-1">New Floors</label>
+            <input
+                type="text"
+                value={newFloors}
+                onChange={(e) => setNewFloors(e.target.value)}
+                placeholder="New Floors"
+            />
+            <label className="mb-1">New Data Connection</label>
+            <input
+                type="text"
+                value={newDataconnection}
+                onChange={(e) => setNewDataconnection(e.target.value)}
+                placeholder="New Data Connection"
+            />
+            <label className="mb-1">New TV System</label>
+            <input
+                type="text"
+                value={newTVSystem}
+                onChange={(e) => setNewTVSystem(e.target.value)}
+                placeholder="New TV System"
+            />
+            <label className="mb-1">New Drain</label>
+            <input
+                type="text"
+                value={newDrain}
+                onChange={(e) => setNewDrain(e.target.value)}
+                placeholder="New Drain"
+            />
+            <label className="mb-1">New Water</label>
+            <input
+                type="text"
+                value={newWater}
+                onChange={(e) => setNewWater(e.target.value)}
+                placeholder="New Water"
+            />
+            <label className="mb-1">New Electricity</label>
+            <input
+                type="text"
+                value={newElectricity}
+                onChange={(e) => setNewElectricity(e.target.value)}
+                placeholder="New Electricity"
+            />
+            <label className="mb-1">New Main Heat System</label>
+            <input
+                type="text"
+                value={newMainHeatSystem}
+                onChange={(e) => setNewMainHeatSystem(e.target.value)}
+                placeholder="New Main Heat System"
+            />
+            <label className="mb-1">New Sauna</label>
+            <input
+                type="text"
+                value={newSauna}
+                onChange={(e) => setNewSauna(e.target.value)}
+                placeholder="New Sauna"
+            />
+            <label className="mb-1">New Pipes</label>
+            <input
+                type="text"
+                value={newPipes}
+                onChange={(e) => setNewPipes(e.target.value)}
+                placeholder="New Pipes"
+            />
+            <label className="mb-1">New Roof Type</label>
+            <input
+                type="text"
+                value={newRoofType}
+                onChange={(e) => setNewRoofType(e.target.value)}
+                placeholder="New Roof Type"
+            />
+            <label className="mb-1">New Ground</label>
+            <input
+                type="text"
+                value={newGround}
+                onChange={(e) => setNewGround(e.target.value)}
+                placeholder="New Ground"
+            />
+            <label className="mb-1">New Property ID</label>
+            <input
+                type="text"
+                value={newPropertyId}
+                onChange={(e) => setNewPropertyId(e.target.value)}
+                placeholder="New Property ID"
+                disabled
+            />
+            <label className="mb-1">New Rasite</label>
+            <input
+                type="text"
+                value={newRasite}
+                onChange={(e) => setNewRasite(e.target.value)}
+                placeholder="New Rasite"
+            />
+            <label className="mb-1">New Ranta</label>
+            <input
+                type="text"
+                value={newRanta}
+                onChange={(e) => setNewRanta(e.target.value)}
+                placeholder="New Ranta"
+            />
+            <label className="mb-1">New User ID</label>
+            <input
+                type="text"
+                value={newUserid}
+                onChange={(e) => setNewUserid(e.target.value)}
+                placeholder="New User ID"
+                disabled
+            />
+            <label className="mb-1">New Latitude</label>
+            <input
+                type="text"
+                value={newLatitude}
+                onChange={(e) => setNewLatitude(e.target.value)}
+                placeholder="New Latitude"
+            />
+            <label className="mb-1">New Longitude</label>
+            <input
+
+                type="text"
+                value={newLongitude}
+                onChange={(e) => setNewLongitude(e.target.value)}
+                placeholder="New Longitude"
+            />
+
+            <label className="mb-1">New Description</label>
+            <input
+                type="text"
+                value={newDescription}
+                onChange={(e) => setNewDescription(e.target.value)}
+                placeholder="New Description"
+            />
+            <br />
+
+            <br />
+
             
             <button onClick={handleUpdateProperty} className="primary-button">Save</button>
             <button onClick={handleCancelClick} className="danger-button">Cancel</button>
@@ -105,6 +286,26 @@ PropertyEditForm.propTypes = {
     setNewLand: PropTypes.func.isRequired,
     setNewHouseType: PropTypes.func.isRequired,
     setNewBuildingYear: PropTypes.func.isRequired,
+    setNewCreatedAt: PropTypes.func.isRequired,
+    setNewDescription: PropTypes.func.isRequired,
+    setNewRoomList: PropTypes.func.isRequired,
+    setNewFloors: PropTypes.func.isRequired,
+    setNewDataconnection: PropTypes.func.isRequired,
+    setNewTVSystem: PropTypes.func.isRequired,
+    setNewDrain: PropTypes.func.isRequired,
+    setNewWater: PropTypes.func.isRequired,
+    setNewElectricity: PropTypes.func.isRequired,
+    setNewMainHeatSystem: PropTypes.func.isRequired,
+    setNewSauna: PropTypes.func.isRequired,
+    setNewPipes: PropTypes.func.isRequired,
+    setNewRoofType: PropTypes.func.isRequired,
+    setNewGround: PropTypes.func.isRequired,
+    setNewPropertyId: PropTypes.func.isRequired,
+    setNewRasite: PropTypes.func.isRequired,
+    setNewRanta: PropTypes.func.isRequired,
+    setNewUserid: PropTypes.func.isRequired,
+    setNewLatitude: PropTypes.func.isRequired,
+    setNewLongitude: PropTypes.func.isRequired,
     setNewTotalSqm: PropTypes.func.isRequired,
     setNewLivingSqm: PropTypes.func.isRequired,
     newPropertyName: PropTypes.string.isRequired,
@@ -114,6 +315,26 @@ PropertyEditForm.propTypes = {
     newLand: PropTypes.string.isRequired,
     newHouseType: PropTypes.string.isRequired,
     newBuildingYear: PropTypes.string.isRequired,
+    newCreatedAt: PropTypes.string.isRequired,
+    newDescription: PropTypes.string.isRequired,
+    newRoomList: PropTypes.string.isRequired,
+    newFloors: PropTypes.string.isRequired,
+    newDataconnection: PropTypes.string.isRequired,
+    newTVSystem: PropTypes.string.isRequired,
+    newDrain: PropTypes.string.isRequired,
+    newWater: PropTypes.string.isRequired,
+    newElectricity: PropTypes.string.isRequired,
+    newMainHeatSystem: PropTypes.string.isRequired,
+    newSauna: PropTypes.string.isRequired,
+    newPipes: PropTypes.string.isRequired,
+    newRoofType: PropTypes.string.isRequired,
+    newGround: PropTypes.string.isRequired,
+    newPropertyId: PropTypes.string.isRequired,
+    newRasite: PropTypes.string.isRequired,
+    newRanta: PropTypes.string.isRequired,
+    newUserid: PropTypes.string.isRequired,
+    newLatitude: PropTypes.string.isRequired,
+    newLongitude: PropTypes.string.isRequired,
     newTotalSqm: PropTypes.string.isRequired,
     newLivingSqm: PropTypes.string.isRequired
 };

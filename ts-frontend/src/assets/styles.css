@@ -46,6 +46,28 @@
 }
 
 
+.navlinkpills {
+    color: rgba(69,60,223,1) !important;
+    padding: 0.5rem 1rem 0.5rem 1rem !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    background-color: transparent !important;
+    border: 0 !important;
+}
+
+.navlinkpills:hover {
+    text-decoration: underline !important;
+}
+
+.navlinkpills.active {
+    color: #fbfbfc !important;
+    padding: 0.5rem 1rem 0.5rem 1rem !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    background-color: rgba(69,60,223,1) !important;
+}
+
+
 
 .thinline {
     border: 1px solid #e0e1e3;
@@ -68,7 +90,15 @@
 }
 
 
+/*INFORMATIONS*/
 
+.big-toast {
+    width: 500px; /* Or any other width you want */
+  }
+  
+  .toast-message {
+    word-wrap: break-word;
+  }
 
 
 .confirmation {
