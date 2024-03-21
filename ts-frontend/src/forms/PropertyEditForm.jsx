@@ -69,6 +69,7 @@ const PropertyEditForm = ({
                 onChange={(e) => setNewPropertyName(e.target.value)}
                 placeholder="New Property Name"
             />
+        
             <label className="mb-1">New Street Address</label>
             <input
                 type="text"
@@ -170,40 +171,40 @@ const PropertyEditForm = ({
                 onChange={(e) => setNewWater(e.target.value)}
                 placeholder="New Water"
             />
-            <label className="mb-1">New Electricity</label>
+            <label className="mb-1">Sähköt</label>
             <input
                 type="text"
                 value={newElectricity}
                 onChange={(e) => setNewElectricity(e.target.value)}
-                placeholder="New Electricity"
+                placeholder="Sähköt"
             />
-            <label className="mb-1">New Main Heat System</label>
+            <label className="mb-1">Pää-asiallinen lämmitysjärjestelmä</label>
             <input
                 type="text"
                 value={newMainHeatSystem}
                 onChange={(e) => setNewMainHeatSystem(e.target.value)}
-                placeholder="New Main Heat System"
+                placeholder="Pää-asiallinen lämmitysjärjestelmä"
             />
-            <label className="mb-1">New Sauna</label>
+            <label className="mb-1">Saunan tyyppi</label>
             <input
                 type="text"
                 value={newSauna}
                 onChange={(e) => setNewSauna(e.target.value)}
-                placeholder="New Sauna"
+                placeholder="Saunan tyyppi"
             />
-            <label className="mb-1">New Pipes</label>
+            <label className="mb-1">Hormit</label>
             <input
                 type="text"
                 value={newPipes}
                 onChange={(e) => setNewPipes(e.target.value)}
-                placeholder="New Pipes"
+                placeholder="Hormien määrä"
             />
-            <label className="mb-1">New Roof Type</label>
+            <label className="mb-1">Kattotyyppi</label>
             <input
                 type="text"
                 value={newRoofType}
                 onChange={(e) => setNewRoofType(e.target.value)}
-                placeholder="New Roof Type"
+                placeholder="Kattotyyppi"
             />
             <label className="mb-1">New Ground</label>
             <input
@@ -212,13 +213,12 @@ const PropertyEditForm = ({
                 onChange={(e) => setNewGround(e.target.value)}
                 placeholder="New Ground"
             />
-            <label className="mb-1">New Property ID</label>
+            <label className="mb-1">Uusi Kiinteistötunnus</label>
             <input
                 type="text"
                 value={newPropertyId}
                 onChange={(e) => setNewPropertyId(e.target.value)}
-                placeholder="New Property ID"
-                disabled
+                placeholder="Syötä kiinteistötunnus"
             />
             <label className="mb-1">New Rasite</label>
             <input
@@ -242,21 +242,28 @@ const PropertyEditForm = ({
                 placeholder="New User ID"
                 disabled
             />
-            <label className="mb-1">New Latitude</label>
-            <input
-                type="text"
-                value={newLatitude}
-                onChange={(e) => setNewLatitude(e.target.value)}
-                placeholder="New Latitude"
-            />
-            <label className="mb-1">New Longitude</label>
-            <input
-
-                type="text"
-                value={newLongitude}
-                onChange={(e) => setNewLongitude(e.target.value)}
-                placeholder="New Longitude"
-            />
+                    <label className="mb-1">New Latitude</label>
+                    <input
+                        type="text"
+                        value={newLatitude}
+                        onChange={(e) => {
+                            if (!isNaN(e.target.value)) {
+                                setNewLatitude(e.target.value);
+                            }
+                        }}
+                        placeholder="New Latitude"
+                    />
+                    <label className="mb-1">New Longitude</label>
+                    <input
+                        type="text"
+                        value={newLongitude}
+                        onChange={(e) => {
+                            if (!isNaN(e.target.value)) {
+                                setNewLongitude(e.target.value);
+                            }
+                        }}
+                        placeholder="New Longitude"
+                    />
 
             <label className="mb-1">New Description</label>
             <input

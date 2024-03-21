@@ -14,8 +14,10 @@ const HouseBasicInformation = ({ property }) => {
             {isExpanded && (
                 <table className="table table-bordered border-secondary-subtle table-sm">
                     <tbody>
-                        {property.land && <tr><td>Land</td><td>{property.land}</td></tr>}
-                        {property.house_type && <tr><td>House Type</td><td>{property.house_type}</td></tr>}
+                        {property.property_id && <tr><td>Kiinteistötunnus</td><td>{property.property_id}</td></tr>}
+                        {property.land && <tr><td>Maa</td><td>{property.land}</td></tr>}
+
+                        {property.house_type && <tr><td>Talotyyppi</td><td>{property.house_type}</td></tr>}
                         {property.building_year && <tr><td>Building Year</td><td>{property.building_year}</td></tr>}
                         {property.total_sqm && <tr><td>Total Sqm</td><td>{property.total_sqm}</td></tr>}
                         {property.living_sqm && <tr><td>Living Sqm</td><td>{property.living_sqm}</td></tr>}
@@ -32,7 +34,6 @@ const HouseBasicInformation = ({ property }) => {
                         {property.pipes && <tr><td>Pipes</td><td>{property.pipes}</td></tr>}
                         {property.roof_type && <tr><td>Roof Type</td><td>{property.roof_type}</td></tr>}
                         {property.ground && <tr><td>Ground</td><td>{property.ground}</td></tr>}
-                        {property.property_id && <tr><td>Property ID</td><td>{property.property_id}</td></tr>}
                         {property.rasite && <tr><td>Rasite</td><td>{property.rasite}</td></tr>}
                         {property.ranta && <tr><td>Ranta</td><td>{property.ranta}</td></tr>}
                         {property.userid && <tr><td>User ID</td><td>{property.userid}</td></tr>}
