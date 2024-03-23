@@ -62,114 +62,114 @@ const PropertyEditForm = ({
 }) => {
     return (
         <div className='property-edit-form'>
-            <label className="mb-1">New Property Name</label>
+            <label className="mb-1">Rakennuksen nimi</label>
             <input
                 type="text"
                 value={newPropertyName}
                 onChange={(e) => setNewPropertyName(e.target.value)}
-                placeholder="New Property Name"
+                placeholder="Rakennuksen nimi"
             />
         
-            <label className="mb-1">New Street Address</label>
+            <label className="mb-1">Katuosoite</label>
             <input
                 type="text"
                 value={newStreetAddress}
                 onChange={(e) => setNewStreetAddress(e.target.value)}
-                placeholder="New Street Address"
+                placeholder="Katuosoite"
             />
-            <label className="mb-1">New Post Number</label>
+            <label className="mb-1">Postinumero</label>
             <input
                 type="text"
                 value={newPostNumber}
                 onChange={(e) => setNewPostNumber(e.target.value)}
-                placeholder="New Post Number"
+                placeholder="Postinumero"
             />
-            <label className="mb-1">New City</label>
+            <label className="mb-1">Kaupunki</label>
             <input
                 type="text"
                 value={newCity}
                 onChange={(e) => setNewCity(e.target.value)}
-                placeholder="New City"
+                placeholder="Kaupunki"
             />
-            <label className="mb-1">New Land</label>
+            <label className="mb-1">Maa</label>
             <input
                 type="text"
                 value={newLand}
                 onChange={(e) => setNewLand(e.target.value)}
-                placeholder="New Land"
+                placeholder="Maa"
             />
-            <label className="mb-1">New House Type</label>
+            <label className="mb-1">Talotyyppi</label>
             <input
                 type="text"
                 value={newHouseType}
                 onChange={(e) => setNewHouseType(e.target.value)}
-                placeholder="New House Type"
+                placeholder="Talotyyppi"
             />
-            <label className="mb-1">New Building Year</label>
+            <label className="mb-1">Rakennusvuosi</label>
             <input
                 type="text"
                 value={newBuildingYear}
                 onChange={(e) => setNewBuildingYear(e.target.value)}
-                placeholder="New Building Year"
+                placeholder="Rakennusvuosi"
             />
-            <label className="mb-1">New Total Sqm</label>
+            <label className="mb-1">Kokonais pinta-ala m2</label>
             <input
                 type="text"
                 value={newTotalSqm}
                 onChange={(e) => setNewTotalSqm(e.target.value)}
-                placeholder="New Total Sqm"
+                placeholder="Kokonais pinta-ala m2"
             />
-            <label className="mb-1">New Living Sqm</label>
+            <label className="mb-1">Asuinpinta-ala m2</label>
             <input
                 type="text"
                 value={newLivingSqm}
                 onChange={(e) => setNewLivingSqm(e.target.value)}
-                placeholder="New Living Sqm"
+                placeholder="Asuinpinta-ala m2"
             />
             <br />
     
    
-            <label className="mb-1">New Room List</label>
+            <label className="mb-1">Huoneluettelo</label>
             <input
                 type="text"
                 value={newRoomList}
                 onChange={(e) => setNewRoomList(e.target.value)}
-                placeholder="New Room List"
+                placeholder="Huoneluettelo"
             />
-            <label className="mb-1">New Floors</label>
+            <label className="mb-1">Kerrokset</label>
             <input
                 type="text"
                 value={newFloors}
                 onChange={(e) => setNewFloors(e.target.value)}
-                placeholder="New Floors"
+                placeholder="Kerrokset"
             />
-            <label className="mb-1">New Data Connection</label>
+            <label className="mb-1">Tietoliikenne</label>
             <input
                 type="text"
                 value={newDataconnection}
                 onChange={(e) => setNewDataconnection(e.target.value)}
-                placeholder="New Data Connection"
+                placeholder="Tietoliikenne"
             />
-            <label className="mb-1">New TV System</label>
+            <label className="mb-1">TV yhteys</label>
             <input
                 type="text"
                 value={newTVSystem}
                 onChange={(e) => setNewTVSystem(e.target.value)}
-                placeholder="New TV System"
+                placeholder="TV yhteys"
             />
-            <label className="mb-1">New Drain</label>
+            <label className="mb-1">Viemäröinti</label>
             <input
                 type="text"
                 value={newDrain}
                 onChange={(e) => setNewDrain(e.target.value)}
-                placeholder="New Drain"
+                placeholder="Viemäröinti"
             />
-            <label className="mb-1">New Water</label>
+            <label className="mb-1">Vesi</label>
             <input
                 type="text"
                 value={newWater}
                 onChange={(e) => setNewWater(e.target.value)}
-                placeholder="New Water"
+                placeholder="Vesi"
             />
             <label className="mb-1">Sähköt</label>
             <input
@@ -206,33 +206,33 @@ const PropertyEditForm = ({
                 onChange={(e) => setNewRoofType(e.target.value)}
                 placeholder="Kattotyyppi"
             />
-            <label className="mb-1">New Ground</label>
+            <label className="mb-1">Tontti</label>
             <input
                 type="text"
                 value={newGround}
                 onChange={(e) => setNewGround(e.target.value)}
-                placeholder="New Ground"
+                placeholder="Tontti"
             />
-            <label className="mb-1">Uusi Kiinteistötunnus</label>
+            <label className="mb-1">Kiinteistötunnus</label>
             <input
                 type="text"
                 value={newPropertyId}
                 onChange={(e) => setNewPropertyId(e.target.value)}
                 placeholder="Syötä kiinteistötunnus"
             />
-            <label className="mb-1">New Rasite</label>
+            <label className="mb-1">Rasitteet</label>
             <input
                 type="text"
                 value={newRasite}
                 onChange={(e) => setNewRasite(e.target.value)}
-                placeholder="New Rasite"
+                placeholder="Rasitteet"
             />
-            <label className="mb-1">New Ranta</label>
+            <label className="mb-1">Ranta</label>
             <input
                 type="text"
                 value={newRanta}
                 onChange={(e) => setNewRanta(e.target.value)}
-                placeholder="New Ranta"
+                placeholder="Ranta"
             />
             <label className="mb-1">New User ID</label>
             <input
@@ -242,7 +242,7 @@ const PropertyEditForm = ({
                 placeholder="New User ID"
                 disabled
             />
-                    <label className="mb-1">New Latitude</label>
+                    <label className="mb-1">Latitude</label>
                     <input
                         type="text"
                         value={newLatitude}
@@ -251,9 +251,9 @@ const PropertyEditForm = ({
                                 setNewLatitude(e.target.value);
                             }
                         }}
-                        placeholder="New Latitude"
+                        placeholder="Latitude"
                     />
-                    <label className="mb-1">New Longitude</label>
+                    <label className="mb-1">Longitude</label>
                     <input
                         type="text"
                         value={newLongitude}
@@ -262,15 +262,15 @@ const PropertyEditForm = ({
                                 setNewLongitude(e.target.value);
                             }
                         }}
-                        placeholder="New Longitude"
+                        placeholder="Longitude"
                     />
 
-            <label className="mb-1">New Description</label>
+            <label className="mb-1">Kohdekuvaus</label>
             <input
                 type="text"
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
-                placeholder="New Description"
+                placeholder="Kohdekuvaus"
             />
             <br />
 

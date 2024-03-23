@@ -26,12 +26,31 @@ const verifyToken = (req, res, next) => {
     }
   };
 
-router.delete('/:id', verifyToken, async (req, res) => {
+  router.delete('/:id', verifyToken, async (req, res) => {
     const id = parseInt(req.params.id, 10);
     const userid = req.user.id; // Get userid from the token
     console.log('delete property id:' + id); // Log the id value
     try {
-        const sqlRequest = new sql.Request();
+        const tables = [
+            'TS_ElectricityConsumption',
+            'TS_HeatingConsumption',
+            'TS_WaterConsumption',
+            'TS_WasteConsumption',
+            'TS_PropertyExpenses',
+            'TS_Renovations',
+            'TS_Images',
+            'TS_Tutkimukset',
+            'TS_Notes',
+            'TS_Todo',
+            'TS_UserProperties'
+        ];
+        for (let table of tables) {
+            let sqlRequest = new sql.Request();
+            await sqlRequest
+                .input('id', sql.Int, id)
+                .query(`DELETE FROM ${table} WHERE propertyid = @id`);
+        }
+        let sqlRequest = new sql.Request();
         const result = await sqlRequest
             .input('id', sql.Int, id)
             .input('userid', sql.Int, userid)
