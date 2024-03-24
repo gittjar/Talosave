@@ -56,7 +56,7 @@
 }
 
 .navlinkpills:hover {
-    text-decoration: underline !important;
+    background-color: #eaedfa !important;
 }
 
 .navlinkpills.active {

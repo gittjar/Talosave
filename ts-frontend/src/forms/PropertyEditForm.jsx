@@ -1,6 +1,11 @@
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { toast } from 'react-toastify';
+
 
 const PropertyEditForm = ({
+
+
     handleUpdateProperty,
   handleCancelClick,
   setNewPropertyName,
@@ -58,8 +63,19 @@ const PropertyEditForm = ({
   newLatitude,
   newLongitude,
   newTotalSqm,
-  newLivingSqm
+  newLivingSqm,
 }) => {
+    const [submitSuccess, setSubmitSuccess] = useState(false);
+
+    const handleUpdatePropertySuccess = () => {
+        handleUpdateProperty();
+      setSubmitSuccess(true);
+      toast.success('Tiedot päivitetty onnistuneesti!');
+    };
+
+
+
+
     return (
         <div className='property-edit-form'>
             <label className="mb-1">Rakennuksen nimi</label>
@@ -265,19 +281,18 @@ const PropertyEditForm = ({
                         placeholder="Longitude"
                     />
 
-            <label className="mb-1">Kohdekuvaus</label>
-            <input
-                type="text"
-                value={newDescription}
-                onChange={(e) => setNewDescription(e.target.value)}
-                placeholder="Kohdekuvaus"
-            />
+                    <label className="mb-1">Kohdekuvaus</label><br></br>
+                    <textarea className="w-100 bg-white text-secondary"
+                        value={newDescription}
+                        onChange={(e) => setNewDescription(e.target.value)}
+                        placeholder="Kohdekuvaus"
+                    />
             <br />
 
             <br />
 
             
-            <button onClick={handleUpdateProperty} className="primary-button">Save</button>
+            <button onClick={handleUpdatePropertySuccess} className="primary-button">Save</button>
             <button onClick={handleCancelClick} className="danger-button">Cancel</button>
         </div>
     );

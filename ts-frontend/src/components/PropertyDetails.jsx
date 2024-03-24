@@ -14,6 +14,7 @@ import HouseBasicInformation from './HouseBasicInformation.jsx';
 import { XLg, PencilSquare } from 'react-bootstrap-icons';
 import { Tab, Nav } from 'react-bootstrap';
 import ConsumptionDetails from './ConsumptionDetails.jsx';
+import { HouseDoor, Tools, CardChecklist, BarChartFill, HouseCheck } from 'react-bootstrap-icons';
 
 
 export const PropertyContext = createContext();
@@ -311,25 +312,25 @@ const PropertyDetails = () => {
             <Tab.Container id="left-tabs-example" defaultActiveKey="first">
     <Nav variant="pills" className="flex-column nav-propertydetails">
       <Nav.Item>
-        <Nav.Link eventKey="1" className='navlinkpills'>Talo</Nav.Link>
+        <Nav.Link eventKey="1" className='navlinkpills'><HouseDoor></HouseDoor> Talo</Nav.Link>
       </Nav.Item>
       <Nav.Item>
-        <Nav.Link eventKey="2" className='navlinkpills'>Remontit</Nav.Link>
+        <Nav.Link eventKey="2" className='navlinkpills'><Tools></Tools> Remontit</Nav.Link>
       </Nav.Item>
       <Nav.Item>
-        <Nav.Link eventKey="3" className='navlinkpills'>Tehtävät</Nav.Link>
+        <Nav.Link eventKey="3" className='navlinkpills'><CardChecklist></CardChecklist> Tehtävät</Nav.Link>
       </Nav.Item>
       <Nav.Item>
-        <Nav.Link eventKey="4" className='navlinkpills'>Kulutus</Nav.Link>
+        <Nav.Link eventKey="4" className='navlinkpills'><BarChartFill></BarChartFill> Kulutus</Nav.Link>
       </Nav.Item>
       <Nav.Item>
-        <Nav.Link eventKey="5" className='navlinkpills'>Tutkimukset</Nav.Link>
+        <Nav.Link eventKey="5" className='navlinkpills'><HouseCheck></HouseCheck> Tutkimukset</Nav.Link>
       </Nav.Item>
     </Nav>
     <Tab.Content>
       <Tab.Pane eventKey="1">
-          <button onClick={handleEditClick} className="edit-link" title="Muokkaa tietoja"><PencilSquare /></button>
-          <button onClick={() => setShowDeleteConfirm(true)} className="delete-link" title="Poista kohde"><XLg /></button>
+          <button onClick={handleEditClick} className="edit-link" title="Muokkaa tietoja"><PencilSquare /> Muokkaa</button>
+          <button onClick={() => setShowDeleteConfirm(true)} className="delete-link" title="Poista kohde"><XLg /> Poista</button>
         <HouseBasicInformation property={property} />
       </Tab.Pane>
       <Tab.Pane eventKey="2">
