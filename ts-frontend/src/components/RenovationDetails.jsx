@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import config from '../configuration/config.js';
 import DeleteConfirmation from '../notifications/DeleteConfirmation.jsx';
 import Toast from 'react-bootstrap/Toast';
+import { XLg, PencilSquare } from 'react-bootstrap-icons';
+
 
 
 const RenovationDetails = ({ renovationId }) => {
@@ -11,7 +13,8 @@ const RenovationDetails = ({ renovationId }) => {
   const [newDetail, setNewDetail] = useState(''); // State for the new detail input
   const [showToast, setShowToast] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleteId, setDeleteId] = useState(null); // Add this line
+  const [deleteId, setDeleteId] = useState(null); 
+
 
 
   const showToastWithMessage = (message) => {
@@ -198,8 +201,8 @@ const RenovationDetails = ({ renovationId }) => {
               <button className='secondary-button' onClick={() => handleSave(detail.id)}>Save</button>
             ) : (
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <button className='edit-link' onClick={() => handleEdit(detail.id, detail.detail)}>Muokkaa</button>
-                <button className='delete-link' onClick={() => handleDeleteConfirmation(detail.id)}>Poista</button>
+                <button className='edit-link' onClick={() => handleEdit(detail.id, detail.detail)}><PencilSquare></PencilSquare>  Muokkaa</button>
+                <button className='delete-link' onClick={() => handleDeleteConfirmation(detail.id)}><XLg></XLg> Poista</button>
 
               </div>
             )}
