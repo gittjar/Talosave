@@ -30,6 +30,10 @@ const verifyToken = (req, res, next) => {
 router.put('/renovations/:id', verifyToken, async (req, res) => {
     const userid = req.user.id; // Get userid from the token
     const id = req.params.id; // Get the id from the URL parameters
+
+    const dateObj = new Date(date);
+    const formattedDate = date;
+    console.log('Formatted date:', formattedDate); 
   
     // Get the updated renovation information from the request body
     const { propertyid, construction_company, renovation, date, cost } = req.body;
@@ -48,7 +52,7 @@ router.put('/renovations/:id', verifyToken, async (req, res) => {
         .input('propertyid', sql.Int, propertyid)
         .input('construction_company', sql.NVarChar, construction_company)
         .input('renovation', sql.NVarChar, renovation)
-        .input('date', sql.Date, date)
+        .input('date', sql.DateTime, formattedDate)    
         .input('cost', sql.Float, cost)
         .query(sqlQuery);
   

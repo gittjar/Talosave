@@ -21,10 +21,14 @@ const PropertyRenovations = ({ propertyId }) => {
   const [showFormId, setShowFormId] = useState(null);
   const [showEditForm, setShowEditForm] = useState(false);
   const handleShowForm = (id) => setShowFormId(id);
-const handleCloseForm = () => setShowFormId(null);
+  const handleCloseForm = () => setShowFormId(null);
+
 
 
   useEffect(() => {
+
+  
+
     const token = localStorage.getItem('userToken'); // Assuming you store your token in localStorage
 
     fetch(`${config.baseURL}/api/renovations/${propertyId}`, {
@@ -37,7 +41,10 @@ const handleCloseForm = () => setShowFormId(null);
       .catch(error => console.error('Error:', error));
   }, [propertyId]);
 
+  
+
   const handleDeleteDetails = () => {
+
     const token = localStorage.getItem('userToken');
 
     fetch(`${config.baseURL}/api/renovationdetails/${renovationToDelete.id}`, {
@@ -108,6 +115,8 @@ const handleCloseForm = () => setShowFormId(null);
       .catch(error => console.error('Error:', error));
   };
 
+
+
   return (
     <div className='renovations'>
       {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={handleDeleteProperty} setShowDeleteConfirm={setShowDeleteConfirm} />}
@@ -119,52 +128,60 @@ const handleCloseForm = () => setShowFormId(null);
             <h4>Remontit ja muutostyöt</h4>
           </Card.Header>
           <Accordion>
-          {renovations
-            .sort((a, b) => new Date(b.date) - new Date(a.date))
-            .map((renovation, index) => (
-              <Accordion.Item eventKey={index.toString()} key={index}>
-           
-                    <Accordion.Header >
-                    
-                     <span className="cost">
-                  {renovation.cost !== 0 && renovation.cost !== null ? `${renovation.cost} €` : null}
-                </span>
-               
-             
-                <div className='otsikko'>
-
-           
-
-                <div>
-
-                  {renovation.construction_company} | {renovation.renovation} - {new Date(renovation.date).toLocaleDateString('fi-FI')}
-                  </div>
-
-                  <article className='edit-delete-icons'>
-                <span className='edit-link' onClick={() => handleShowForm(renovation.id)}>
-                <PencilSquare></PencilSquare>  Muokkaa
-                </span>
-                <span className='delete-link' onClick={() => { setRenovationToDelete(renovation); setShowDeleteConfirm(true); }}>
-                  <XLg></XLg> Poista
-                </span>
-                </article>
-
-                  </div>
-           
-              
-         
-            
-             
-         
-          </Accordion.Header>
-                <Accordion.Body>
-                  {showFormId === renovation.id && (
-                    <EditRenovationForm renovation={renovation} handleEditRenovation={handleEditRenovation} />
-                  )}
-                  <RenovationDetails renovationId={renovation.id} />
-                </Accordion.Body>
-              </Accordion.Item>
-            ))}
+            {
+              Object.entries(
+                renovations.reduce((groups, renovation) => {
+                  const year = new Date(renovation.date).getFullYear();
+                  if (!groups[year]) {
+                    groups[year] = [];
+                  }
+                  groups[year].push(renovation);
+                  return groups;
+                }, {})
+              )
+              .sort(([yearA], [yearB]) => yearB - yearA)
+              .map(([year, renovations], index) => (
+                <Accordion.Item eventKey={index.toString()} key={index}>
+                  <Accordion.Header>
+                  <h5 className='renovation-year'>
+                  {year} </h5> Remonttikulut yhteensä: {renovations.reduce((total, renovation) => total + (renovation.cost || 0), 0)} €
+                   
+                  </Accordion.Header>
+                  <Accordion.Body>
+                    <Accordion>
+                      {renovations.sort((a, b) => new Date(b.date) - new Date(a.date)).map((renovation, index) => (
+                        <Accordion.Item eventKey={index.toString()} key={index}>
+                          <Accordion.Header>
+                            <span className="cost">
+                              {renovation.cost !== 0 && renovation.cost !== null ? `${renovation.cost} €` : null}
+                            </span>
+                            <div className='otsikko'>
+                              <div>
+                                {renovation.construction_company} | {renovation.renovation} - {new Date(renovation.date).toLocaleDateString('fi-FI')}
+                              </div>
+                              <article className='edit-delete-icons'>
+                                <span className='edit-link' onClick={() => handleShowForm(renovation.id)}>
+                                  <PencilSquare></PencilSquare>  Muokkaa
+                                </span>
+                                <span className='delete-link' onClick={() => { setRenovationToDelete(renovation); setShowDeleteConfirm(true); }}>
+                                  <XLg></XLg> Poista
+                                </span>
+                              </article>
+                            </div>
+                          </Accordion.Header>
+                          <Accordion.Body>
+                            {showFormId === renovation.id && (
+                              <EditRenovationForm renovation={renovation} handleEditRenovation={handleEditRenovation} />
+                            )}
+                            <RenovationDetails renovationId={renovation.id} />
+                          </Accordion.Body>
+                        </Accordion.Item>
+                      ))}
+                    </Accordion>
+                  </Accordion.Body>
+                </Accordion.Item>
+              ))
+            }
           </Accordion>
         </Card>
       ) : (
@@ -172,7 +189,11 @@ const handleCloseForm = () => setShowFormId(null);
       )}
     </div>
   );
+}
 
-};
-  
-  export default PropertyRenovations;
+export default PropertyRenovations;
+
+
+
+
+

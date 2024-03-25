@@ -32,7 +32,12 @@ const verifyToken = (req, res, next) => {
   
     const { propertyid, construction_company, renovation, date, cost } = req.body;
     const userid = req.user.id; // Get userid from the token
-  
+
+      // Add this code to format the date
+  const dateObj = new Date(date);
+  const formattedDate = date;
+  console.log('Formatted date:', formattedDate); 
+
     try {
       const sqlQuery = `
       INSERT INTO TS_Renovations (propertyid, construction_company, renovation, date, cost, userid)
@@ -45,7 +50,7 @@ const verifyToken = (req, res, next) => {
         .input('propertyid', sql.Int, propertyid)
         .input('construction_company', sql.NVarChar, construction_company)
         .input('renovation', sql.NVarChar, renovation)
-        .input('date', sql.Date, date)
+        .input('date', sql.DateTime, formattedDate) // Use the formatted date here        
         .input('cost', sql.Float, cost)
         .input('userid', sql.Int, userid)
         .query(sqlQuery);

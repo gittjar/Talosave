@@ -38,6 +38,9 @@ const AddRenovationForm = ({ propertyId, refreshData, closeForm }) => {
 
     const token = localStorage.getItem('userToken');
 
+    const dateObj = new Date(date);
+
+
     try {
       // Make a POST request to the /renovations endpoint
       const response = await fetch(`${config.baseURL}/api/renovations`, {
@@ -50,7 +53,7 @@ const AddRenovationForm = ({ propertyId, refreshData, closeForm }) => {
           propertyid,
           construction_company,
           renovation,
-          date,
+          date : dateObj,
           cost
          
         })
