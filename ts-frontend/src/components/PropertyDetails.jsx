@@ -338,7 +338,7 @@ const PropertyDetails = () => {
       {isAddRenovationFormOpen ? (
       <AddRenovationForm propertyId={id} refreshData={refreshData} closeForm={closeForm} />
       ) : (
-        <button className='edit-link' onClick={toggleAddRenovationForm}>Lisää remontti</button>
+        <button className='edit-link mx-3 mb-3' onClick={toggleAddRenovationForm}><PencilSquare /> Lisää remontti</button>
       )}
       <PropertyRenovations propertyId={id} />
       </div>

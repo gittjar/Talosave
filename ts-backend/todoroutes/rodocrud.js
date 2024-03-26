@@ -29,7 +29,14 @@ const verifyToken = (req, res, next) => {
 
 // POST endpoint for creating a new todo
 router.post('/todo', verifyToken, async (req, res) => {
+  console.log('Request body:', req.body); // Log the request body
     const { action, isCompleted, date, cost, propertyid, userid } = req.body;
+
+          // Add this code to format the date
+          const dateObj = new Date(date);
+          const formattedDate = date;
+          console.log('Formatted date:', formattedDate); 
+
     try {
       const sqlQuery = `
       INSERT INTO TS_Todo (action, isCompleted, date, cost, propertyid, userid)
@@ -40,7 +47,7 @@ router.post('/todo', verifyToken, async (req, res) => {
       await sqlRequest
         .input('action', sql.NVarChar, action)
         .input('isCompleted', sql.Bit, isCompleted)
-        .input('date', sql.Date, date)
+        .input('date', sql.DateTime, formattedDate)        
         .input('cost', sql.Decimal(10, 2), cost)
         .input('propertyid', sql.Int, propertyid)
         .input('userid', sql.Int, userid)
@@ -49,6 +56,7 @@ router.post('/todo', verifyToken, async (req, res) => {
       res.status(201).send('Todo created successfully');
     } catch (err) {
       res.status(500).send(err.message);
+      
     }
 });
   
@@ -75,6 +83,13 @@ router.get('/todo/:propertyId', verifyToken, async (req, res) => {
 router.put('/todo/:id', verifyToken, async (req, res) => {
     const id = req.params.id;
     const { action, isCompleted, date, cost, propertyid, userid } = req.body;
+
+        // Add this code to format the date
+        const dateObj = new Date(date);
+        const formattedDate = date;
+        console.log('Formatted date:', formattedDate); 
+
+        
     try {
       const sqlQuery = `
       UPDATE TS_Todo
@@ -86,7 +101,7 @@ router.put('/todo/:id', verifyToken, async (req, res) => {
       await sqlRequest
         .input('action', sql.NVarChar, action)
         .input('isCompleted', sql.Bit, isCompleted)
-        .input('date', sql.Date, date)
+        .input('date', sql.DateTime, formattedDate)        
         .input('cost', sql.Decimal(10, 2), cost)
         .input('propertyid', sql.Int, propertyid)
         .input('userid', sql.Int, userid)
