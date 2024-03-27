@@ -47,7 +47,10 @@ const LoginPage = () => {
         </FloatingLabel>
         <button className="primary-button" type="submit">Login</button>
       </Form>
+      <hr></hr>
+      Ei tunnuksia? <a href="/create-user">Luo tunnus</a>
       </section>
+      
     </div>
   );
 };

@@ -4,6 +4,8 @@ import config from '../configuration/config';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
 
 const CreateUser = () => {
   const [username, setUsername] = useState('');
@@ -13,6 +15,7 @@ const CreateUser = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const navigate = useNavigate();
+  const [showToast, setShowToast] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -34,19 +37,21 @@ const CreateUser = () => {
 
 
       if (response.status === 201) {
-        alert('User added');
+        toast.success('Käyttäjä luotu onnistuneesti!');
         navigate('/login'); // Redirect to login page
 
       } else {
-        alert('Error executing query');
+       toast.error('Error executing query');
       }
     } catch (error) {
-      alert('User already exists');
+      toast.error('User already exists');
     }
   };
 
+
   return (
     <section className='create-user-form'>
+ 
     <Form onSubmit={handleSubmit} className="was-validated">
   
         <FloatingLabel controlId="floatingUsername" label="Username" className="mb-2 mt-2">
