@@ -19,7 +19,7 @@ const createUserRouter = require('./routes/users');
 // todo
 const todoRouter = require('./todoroutes/rodocrud');
 // consumption
-const getElectricConsumption = require('./consumptionsroutes/get');
+const getElectricConsumption = require('./consumptionsroutes/getElec');
 
 app.use(express.json());
 app.use(cors());

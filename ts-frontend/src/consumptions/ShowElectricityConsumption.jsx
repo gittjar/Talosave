@@ -4,6 +4,7 @@ import config from '../configuration/config';
 import { useParams } from 'react-router-dom';
 import Table from 'react-bootstrap/Table';
 import colorMap from '../components/colorMap';
+import { toast } from 'react-toastify';
 import { VictoryBar, VictoryChart, VictoryAxis, VictoryLabel, VictoryTooltip, VictoryGroup, VictoryArea } from 'victory';
 
 const ShowElectricityConsumption = () => {
@@ -46,6 +47,8 @@ const ShowElectricityConsumption = () => {
       setSelectedYears(selectedYears.filter(y => y !== year));
     } else if (selectedYears.length < 2) {
       setSelectedYears([...selectedYears, year]);
+    } else {
+      toast.error('Voit vertailla kahta eri vuotta kerrallaan!');
     }
   };
   
@@ -96,9 +99,12 @@ if (years.length === 0) {
 
   return (
     <div>
-    <h3>Electricity Consumption Details</h3>
+    <h3>Sähkönkulutus</h3>
+    <button className="primary-button">Lisää sähködataa</button>
 <div>
+
 <div className='kwh-labels-year'>
+
   {years.map(year => (
     <article key={year} style={{ backgroundColor: colorMap.getColor(year), padding: '5px', margin: '5px' }} className='kwh-box'>
     <input
