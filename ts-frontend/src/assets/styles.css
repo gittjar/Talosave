@@ -364,13 +364,12 @@ th, td {
 }
 
 .kwh-box {
-    padding: 0.2rem !important;
+    padding: 0.3rem !important;
     border: 0;
     border-radius: 10px 10px 10px 10px  !important;
-    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.25);
-    text-align: center  !important;
-    font-size: 0.9rem  !important;
-    padding-right: 1rem  !important;
+    box-shadow: 3px 6px rgba(0, 0, 0, 0.4);
+    font-size: 1rem  !important;
+    padding-right: 1.2rem  !important;
 }
 
 .year-checkbox {

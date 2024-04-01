@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import config from '../configuration/config';
 import { useParams } from 'react-router-dom';
+import Table from 'react-bootstrap/Table';
+import colorMap from '../components/colorMap';
 import { VictoryBar, VictoryChart, VictoryAxis, VictoryLabel, VictoryTooltip, VictoryGroup, VictoryArea } from 'victory';
 
 const ShowElectricityConsumption = () => {
@@ -40,11 +42,11 @@ const ShowElectricityConsumption = () => {
 
   const handleYearChange = (event) => {
     const year = Number(event.target.value);
-    setSelectedYears(selectedYears =>
-      selectedYears.includes(year)
-        ? selectedYears.filter(y => y !== year)
-        : [...selectedYears, year]
-    );
+    if (selectedYears.includes(year)) {
+      setSelectedYears(selectedYears.filter(y => y !== year));
+    } else if (selectedYears.length < 2) {
+      setSelectedYears([...selectedYears, year]);
+    }
   };
   
   // Filter the electricityConsumptions array to only include the records for the current property
@@ -60,6 +62,8 @@ if (years.length === 0) {
     return <div>Ei kulutusdataa saatavilla.</div>;
   }
 
+  /* RANDOM COLOR GENERATOR */
+  /*
   const getRandomColor = () => {
     const letters = '0123456789ABCDEF';
     let color = '#';
@@ -67,26 +71,28 @@ if (years.length === 0) {
       color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
-  };
+  };*/
 
   
 
   const monthNames = ['tammikuu', 'helmikuu', 'maaliskuu', 'huhtikuu', 'toukokuu', 'kesäkuu', 'heinäkuu', 'elokuu', 'syyskuu', 'lokakuu', 'marraskuu', 'joulukuu'];
   
-  const colorMap = {
-    2019: 'lightblue',
-    2020: 'darkblue',
-    2021: 'green',
-    2022: 'khaki',
-    2023: 'orange',
-    2024: 'pink',
-    2025: 'purple',
-    2026: 'lightgreen',
-    2027: 'lightgrey',
-    getColor: function(year) {
-      return this[year] || getRandomColor();
-    }
+ 
+  /* KWH table totals*/
+  const calculateTotals = (consumptions) => {
+    return consumptions.reduce((totals, consumption) => {
+      if (!totals[consumption.year]) {
+        totals[consumption.year] = { kwh: 0, euros: 0 };
+      }
+  
+      totals[consumption.year].kwh += consumption.kwh;
+      totals[consumption.year].euros += consumption.euros;
+  
+      return totals;
+    }, {});
   };
+
+  const totals = calculateTotals(currentPropertyConsumptions);
 
   return (
     <div>
@@ -152,16 +158,34 @@ width={550} // Set the chart width here
   ))}
 </VictoryChart>
 
+<Table striped bordered hover size="sm">
+    <thead>
+      <tr>
+        <th>Year</th>
+        <th>Month</th>
+        <th>kWh</th>
+        <th>Euros</th>
+      </tr>
+    </thead>
+    <tbody>
       {currentPropertyConsumptions.map((consumption, index) => (
-        <div key={index}>
-          <p>Property Name: {consumption.propertyname}</p>
-          <p>Property ID: {consumption.propertyid}</p>
-          <p>Month: {consumption.month}</p>
-          <p>Year: {consumption.year}</p>
-          <p>kWh: {consumption.kwh}</p>
-          <p>Euros: {consumption.euros}</p>
-        </div>
+        <tr key={index}>
+          <td>{consumption.year}</td>
+          <td>{consumption.month}</td>
+          <td>{consumption.kwh.toFixed(2)}</td>
+          <td>{consumption.euros.toFixed(2)}</td>
+        </tr>
       ))}
+      {Object.entries(totals).map(([year, total]) => (
+        <tr key={year}>
+          <td>{year}</td>
+          <td>Total</td>
+          <td>{total.kwh.toFixed(2)}</td>
+          <td>{total.euros.toFixed(2)}</td>
+        </tr>
+      ))}
+    </tbody>
+  </Table>
     </div>
   );
 };

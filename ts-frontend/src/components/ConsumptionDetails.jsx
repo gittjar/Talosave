@@ -34,16 +34,16 @@ const ConsumptionDetails = () => {
   </Tab.Pane>
   <Tab.Pane eventKey="2">
   <div className='d-flex'>
-  2
+  Lämmitys kulutus
   </div>
   </Tab.Pane>
   <Tab.Pane eventKey="3">
-    <section className='todos'>
-3.
+    <section>
+Vesi kulutus
   </section>
   </Tab.Pane>
   <Tab.Pane eventKey="4">
-  <p>4.</p>
+  <p>Jäte kulutus</p>
   </Tab.Pane>
 </Tab.Content>
 </Tab.Container>
