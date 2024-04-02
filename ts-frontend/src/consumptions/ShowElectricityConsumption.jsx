@@ -5,6 +5,8 @@ import { useParams } from 'react-router-dom';
 import Table from 'react-bootstrap/Table';
 import colorMap from '../components/colorMap';
 import { toast } from 'react-toastify';
+import { PlusLg } from 'react-bootstrap-icons';
+import AddElectricityForm from '../forms/AddElectricityForm';
 import { VictoryBar, VictoryChart, VictoryAxis, VictoryLabel, VictoryTooltip, VictoryGroup, VictoryArea } from 'victory';
 
 const ShowElectricityConsumption = () => {
@@ -13,6 +15,8 @@ const ShowElectricityConsumption = () => {
   const [selectedYears, setSelectedYears] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [years, setYears] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+
 
   useEffect(() => {
     const fetchElectricityConsumptions = async () => {
@@ -40,6 +44,8 @@ const ShowElectricityConsumption = () => {
   
     fetchElectricityConsumptions();
   }, [id]);
+
+
 
   const handleYearChange = (event) => {
     const year = Number(event.target.value);
@@ -97,11 +103,16 @@ if (years.length === 0) {
 
   const totals = calculateTotals(currentPropertyConsumptions);
 
+  const handleButtonClick = () => {
+    setShowForm(!showForm);
+  };
+
   return (
     <div>
     <h3>Sähkönkulutus</h3>
-    <button className="primary-button">Lisää sähködataa</button>
-<div>
+    <button className="edit-link" onClick={handleButtonClick}><PlusLg></PlusLg> Lisää sähködataa</button>
+    {showForm && <AddElectricityForm propertyId={id}  />}
+    <div>
 
 <div className='kwh-labels-year'>
 

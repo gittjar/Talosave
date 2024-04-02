@@ -20,6 +20,7 @@ const createUserRouter = require('./routes/users');
 const todoRouter = require('./todoroutes/rodocrud');
 // consumption
 const getElectricConsumption = require('./consumptionsroutes/getElec');
+const postElectricConsumption = require('./consumptionsroutes/postElec');
 
 app.use(express.json());
 app.use(cors());
@@ -62,6 +63,7 @@ app.use('/api', putRenovation);
 app.use('/api', todoRouter);
 // consumption
 app.use('/api/electricconsumptions', getElectricConsumption);
+app.use('/api/electricconsumptions', postElectricConsumption);
 
 
 
