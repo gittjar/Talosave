@@ -27,17 +27,26 @@ const verifyToken = (req, res, next) => {
     }
   };
 
-router.post('/', verifyToken, async (req, res) => {
+  router.post('/', verifyToken, async (req, res) => {
     const userid = req.user.id; // Get userid from the token
     const { propertyid, month, year, kwh, euros } = req.body; // Get data from the request body
   
     try {
       const sqlRequest = new sql.Request();
-      await sqlRequest
-        .input('userid', sql.Int, userid)
+      const checkResult = await sqlRequest
         .input('propertyid', sql.Int, propertyid)
         .input('month', sql.Int, month)
         .input('year', sql.Int, year)
+        .query(`
+          SELECT * FROM TS_ElectricityConsumption 
+          WHERE propertyid = @propertyid AND month = @month AND year = @year
+        `);
+  
+      if (checkResult.recordset.length > 0) {
+        return res.status(400).send('Tieto tälle kuukaudelle ja vuodelle on jo tallennettu.');
+      }
+  
+      await sqlRequest
         .input('kwh', sql.Float, kwh)
         .input('euros', sql.Float, euros)
         .query(`
@@ -46,8 +55,10 @@ router.post('/', verifyToken, async (req, res) => {
         `);
   
       res.status(201).send('Electricity data added successfully');
+      console.log('Electricity data added successfully');
     } catch (err) {
       console.error('Error executing query:', err); // Log the error
+      console.log('Error:', err);
       res.status(500).send(err.message);
     }
   });

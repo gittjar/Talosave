@@ -110,7 +110,9 @@ if (years.length === 0) {
   return (
     <div>
     <h3>Sähkönkulutus</h3>
-    <button className="edit-link" onClick={handleButtonClick}><PlusLg></PlusLg> Lisää sähködataa</button>
+    <button className="edit-link" onClick={handleButtonClick}>
+    <PlusLg></PlusLg> {showForm ? 'Sulje' : 'Lisää sähködataa'}
+      </button>
     {showForm && <AddElectricityForm propertyId={id}  />}
     <div>
 
