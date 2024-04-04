@@ -4,12 +4,13 @@ import config from '../configuration/config.js';
 import { toast } from 'react-toastify';
 
 const AddElectricityForm = ({ propertyId, refreshData, closeForm }) => {
-const [propertyid, setPropertyid] = useState(propertyId);    
-const [month, setMonth] = useState('');
+  const [propertyid, setPropertyid] = useState(propertyId);    
+  const [month, setMonth] = useState('');
   const [year, setYear] = useState('');
   const [kwh, setKwh] = useState('');
   const [euros, setEuros] = useState('');
   const [userid, setUserid] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
     const storedUserId = localStorage.getItem('userId');
@@ -17,6 +18,12 @@ const [month, setMonth] = useState('');
       setUserid(storedUserId);
     }
   }, []);
+
+  useEffect(() => {
+    if (submitted && month === '' && year === '' && kwh === '' && euros === '') {
+      closeForm();
+    }
+  }, [month, year, kwh, euros, submitted]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -45,35 +52,37 @@ const [month, setMonth] = useState('');
             return;
         }
 
-    try {
-      const response = await axios({
-        method: 'post',
-        url: `${config.baseURL}/api/electricconsumptions`,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        data: {
-          propertyid,
-          month,
-          year,
-          kwh,
-          euros,
-          userid
-        }
-      });
+        else {
+            const response = await axios({
+              method: 'post',
+              url: `${config.baseURL}/api/electricconsumptions`,
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              data: {
+                propertyid,
+                month,
+                year,
+                kwh,
+                euros,
+                userid
+              }
+            });
+      
+            console.log(response.data);
+            refreshData();
+            setMonth('');
+            setYear('');
+            setKwh('');
+            setEuros('');
+            setSubmitted(true);
+            toast.success('Electricity consumption added successfully!');
 
-      console.log(response.data);
-      refreshData();
-      closeForm();
-    }  catch (error) {
-        if (error.response && error.response.data) {
-          toast.error(error.response.data);
-        } else {
-          toast.error('An error occurred while adding electricity data');
-        }
-      }
-  };
+            
+
+          } 
+        };
 
   return (
     <form onSubmit={handleSubmit}>
@@ -89,10 +98,20 @@ const [month, setMonth] = useState('');
       <input className='m-1 w-25' type="number" value={euros} onChange={e => setEuros(e.target.value)} placeholder="Euros" required />
       <br></br>
       <button type="submit" className='primary-button m-1'>Lisää</button>
-      <button type="button" className='secondary-button' onClick={closeForm}>Takaisin</button>
        
     </form>
   );
 };
 
 export default AddElectricityForm;
+
+
+
+
+
+
+
+ 
+
+
+

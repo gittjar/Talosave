@@ -17,6 +17,42 @@ const ShowElectricityConsumption = () => {
   const [years, setYears] = useState([]);
   const [showForm, setShowForm] = useState(false);
 
+  const fetchElectricityConsumptions = async () => {
+    const token = localStorage.getItem('userToken'); 
+
+    try {
+      const response = await axios.get(`${config.baseURL}/api/electricconsumptions/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      setElectricityConsumptions(response.data);
+
+      // Get unique years from the data
+      const uniqueYears = [...new Set(response.data.map(item => item.year))];
+      setYears(uniqueYears);
+
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching electricity consumptions:', error);
+      // Handle error as needed
+    }
+  };
+
+  const refreshData = async () => {
+    await fetchElectricityConsumptions();
+  };
+
+  useEffect(() => {
+    fetchElectricityConsumptions();
+  }, [id]);
+
+  const closeForm = () => {
+    setShowForm(false);
+  };
+
+  
 
   useEffect(() => {
     const fetchElectricityConsumptions = async () => {
@@ -107,13 +143,18 @@ if (years.length === 0) {
     setShowForm(!showForm);
   };
 
+
+  
+
+
   return (
     <div>
+      <section className='electricity-head'>
     <h3>Sähkönkulutus</h3>
     <button className="edit-link" onClick={handleButtonClick}>
     <PlusLg></PlusLg> {showForm ? 'Sulje' : 'Lisää sähködataa'}
       </button>
-    {showForm && <AddElectricityForm propertyId={id}  />}
+      {showForm && <AddElectricityForm propertyId={id} refreshData={refreshData} closeForm={closeForm} />}    </section>
     <div>
 
 <div className='kwh-labels-year'>

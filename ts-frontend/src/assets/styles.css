@@ -354,6 +354,14 @@ th, td {
 
 /* Electricity page */
 
+.electricity-head {
+    background-color: #f8f9fa !important;
+    color: #2c2c2c !important;
+    padding-left: 3.4rem;
+    padding-top: 1rem;
+
+}
+
 .kwh-labels-year {
     display: flex;
     flex-direction: row;

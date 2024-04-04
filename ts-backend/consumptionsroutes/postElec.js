@@ -32,8 +32,8 @@ const verifyToken = (req, res, next) => {
     const { propertyid, month, year, kwh, euros } = req.body; // Get data from the request body
   
     try {
-      const sqlRequest = new sql.Request();
-      const checkResult = await sqlRequest
+      const sqlRequest1 = new sql.Request();
+      const checkResult = await sqlRequest1
         .input('propertyid', sql.Int, propertyid)
         .input('month', sql.Int, month)
         .input('year', sql.Int, year)
@@ -46,7 +46,11 @@ const verifyToken = (req, res, next) => {
         return res.status(400).send('Tieto tälle kuukaudelle ja vuodelle on jo tallennettu.');
       }
   
-      await sqlRequest
+      const sqlRequest2 = new sql.Request();
+      await sqlRequest2
+        .input('propertyid', sql.Int, propertyid)
+        .input('month', sql.Int, month)
+        .input('year', sql.Int, year)
         .input('kwh', sql.Float, kwh)
         .input('euros', sql.Float, euros)
         .query(`
