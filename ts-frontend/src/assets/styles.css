@@ -78,7 +78,7 @@
 
 .property-details {
     display: flex;
-    flex-direction: vertical;
+    flex-direction: row;
     gap: 0.4rem;
     padding-top: 1rem;
     padding-bottom: 1rem;

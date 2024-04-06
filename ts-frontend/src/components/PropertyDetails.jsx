@@ -309,10 +309,11 @@ const PropertyDetails = () => {
 
 
         <section className='property-details'>
+          
             <Tab.Container id="left-tabs-example" defaultActiveKey="first">
     <Nav variant="pills" className="flex-column nav-propertydetails">
       <Nav.Item>
-        <Nav.Link eventKey="1" className='navlinkpills'><HouseDoor></HouseDoor> Talo</Nav.Link>
+        <Nav.Link eventKey="1" className='navlinkpills'><HouseDoor></HouseDoor> {property.propertyname}</Nav.Link>
       </Nav.Item>
       <Nav.Item>
         <Nav.Link eventKey="2" className='navlinkpills'><Tools></Tools> Remontit</Nav.Link>
@@ -326,7 +327,12 @@ const PropertyDetails = () => {
       <Nav.Item>
         <Nav.Link eventKey="5" className='navlinkpills'><HouseCheck></HouseCheck> Tutkimukset</Nav.Link>
       </Nav.Item>
+      <Nav.Item>
+        <Nav.Link eventKey="6" className='navlinkpills' >Verot ja muut maksut</Nav.Link>
+      </Nav.Item>
     </Nav>
+   
+
     <Tab.Content>
       <Tab.Pane eventKey="1">
           <button onClick={handleEditClick} className="edit-link" title="Muokkaa tietoja"><PencilSquare /> Muokkaa</button>
@@ -359,6 +365,11 @@ const PropertyDetails = () => {
       <Tab.Pane eventKey="5">
       <h1>Tutkimukset</h1>
       <p>Tähän tulee tutkimusten tiedot, oma komponentti</p>
+      </Tab.Pane>
+
+      <Tab.Pane eventKey="6">
+      <h1>Verot ja muut maksut</h1>
+      <p>Tähän tulee verotietojen tiedot, oma komponentti</p>
       </Tab.Pane>
     </Tab.Content>
   </Tab.Container>
