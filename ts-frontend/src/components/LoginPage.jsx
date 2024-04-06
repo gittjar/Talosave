@@ -29,7 +29,7 @@ const LoginPage = () => {
         navigate('/mypage');
       }
     } catch (error) {
-      setError('Invalid username or password');
+      setError('Väärä käyttäjätunnus tai salasana!');
     }
   };
 

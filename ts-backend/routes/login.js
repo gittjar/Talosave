@@ -29,13 +29,13 @@ router.post('/', async (req, res) => {
   // Check if the password is correct
   const hashDigest = sha256(password);
   const hashedPassword = Base64.stringify(hmacSHA512(password + hashDigest, password));
-  const passwordCorrect = user === null
+  const passwordCorrect = !user // Check if user is null or undefined
     ? false
     : user.password === hashedPassword;
 
   if (!(user && passwordCorrect)) {
     return res.status(401).json({
-      error: 'invalid username or password'
+      error: 'Väärä käyttäjätunnus tai salasana.'
     });
   }
 

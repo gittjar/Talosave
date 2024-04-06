@@ -51,38 +51,41 @@ const AddElectricityForm = ({ propertyId, refreshData, closeForm }) => {
             toast.error('Euros must be a number and between 0 and 10000 per month');
             return;
         }
+              try {
+                const response = await axios({
+                  method: 'post',
+                  url: `${config.baseURL}/api/electricconsumptions`,
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                  },
+                  data: {
+                    propertyid,
+                    month,
+                    year,
+                    kwh,
+                    euros,
+                    userid
+                  }
+                });
+          
+                console.log(response.data);
+                refreshData();
+                setMonth('');
+                setYear('');
+                setKwh('');
+                setEuros('');
+                setSubmitted(true);
+                toast.success('Sähkötiedot lisätty onnistuneesti!');
+                    } catch (error) {
+                        if (error.response && error.response.status === 400 && error.response.data === 'Tieto tälle kuukaudelle ja vuodelle on jo tallennettu.') {
+                        toast.error('Tieto tälle kuukaudelle ja vuodelle on jo tallennettu.');
+                    } else {
+                        toast.error('An error occurred while adding the electricity data.');
+                    }
+                    }
+                };
 
-        else {
-            const response = await axios({
-              method: 'post',
-              url: `${config.baseURL}/api/electricconsumptions`,
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-              },
-              data: {
-                propertyid,
-                month,
-                year,
-                kwh,
-                euros,
-                userid
-              }
-            });
-      
-            console.log(response.data);
-            refreshData();
-            setMonth('');
-            setYear('');
-            setKwh('');
-            setEuros('');
-            setSubmitted(true);
-            toast.success('Electricity consumption added successfully!');
-
-            
-
-          } 
-        };
 
   return (
     <form onSubmit={handleSubmit}>
