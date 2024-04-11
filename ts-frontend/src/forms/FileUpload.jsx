@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import config from '../configuration/config.js';
 
 const FileUpload = () => {
   const [file, setFile] = useState(null);
@@ -8,7 +9,7 @@ const FileUpload = () => {
     event.preventDefault();
     const formData = new FormData();
     formData.append('file', file);
-    await axios.post('/upload', formData, {
+    await axios.post(`${config.baseURL}/upload`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

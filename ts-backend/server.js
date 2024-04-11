@@ -47,7 +47,7 @@ const config = {
 
 // Connect to your database.
 sql.connect(config).then(pool => {
-    console.log('Connected to the database.');
+    console.log('Connected to the SQL database!');
 
     // Create a SQL request for use in our routes.
     app.locals.sqlRequest = new sql.Request(pool);
@@ -80,12 +80,14 @@ app.post('/upload', upload.single('file'), (req, res) => {
       size: req.file.size,
       // other file metadata...
     });
-  
-    newFile.save(err => {
-      if (err) return console.error(err);
-      res.send('File uploaded and data saved to MongoDB');
-    });
-  });
+
+    newFile.save()
+      .then(() => res.send('File uploaded and data saved to MongoDB'))
+      .catch(err => {
+        console.error(err);
+        res.status(500).send('Error saving file to MongoDB');
+      });
+});
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
