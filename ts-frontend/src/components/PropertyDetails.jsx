@@ -15,6 +15,7 @@ import { XLg, PencilSquare } from 'react-bootstrap-icons';
 import { Tab, Nav } from 'react-bootstrap';
 import ConsumptionDetails from './ConsumptionDetails.jsx';
 import { HouseDoor, Tools, CardChecklist, BarChartFill, HouseCheck } from 'react-bootstrap-icons';
+import FileUpload from '../forms/FileUpload.jsx';
 
 
 export const PropertyContext = createContext();
@@ -365,6 +366,7 @@ const PropertyDetails = () => {
       <Tab.Pane eventKey="5">
       <h1>Tutkimukset</h1>
       <p>Tähän tulee tutkimusten tiedot, oma komponentti</p>
+      <FileUpload />
       </Tab.Pane>
 
       <Tab.Pane eventKey="6">

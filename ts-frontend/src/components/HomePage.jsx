@@ -11,8 +11,8 @@ const HomePage = () => {
   return (
     <div>
       <div className="jumbotron">
-        <h1 className="display-4">Tervehdys !</h1>
-        <p className="lead">Tämä on TaloSave. Verkkopohjainen tallennusohjelma sinun kiinteistöllesi.</p>
+        <h1 className="display-4">Hello!</h1>
+        <p className="lead">Tämä on TaloSave. Verkkopohjainen tallennusohjelma sinun kiinteistöllesi. Kaikki oikeudet Jarno K. 2024.</p>
         <hr className="my-4" />
         <p>Testaa ohjelmaa ilmaiseksi!</p>
         <hr className="my-4" />

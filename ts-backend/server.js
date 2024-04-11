@@ -1,30 +1,37 @@
 const express = require('express');
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+const { File } = require('./mongo');
 require('dotenv').config();
 const sql = require('mssql');
 const app = express();
 const cors = require('cors');
+
 // routes
 const getRoute = require('./routes/get');
 const loginRouter = require('./routes/login');
 const putRoute = require('./routes/put');
 const deleteRoute = require('./routes/delete');
 const postRoute = require('./routes/post');
-// renervations
+
+// renovations
 const postRenovation = require('./routesrenovations/post');
 const getRenovation = require('./routesrenovations/get');
 const deleteRenovation = require('./routesrenovations/delete');
 const putRenovation = require('./routesrenovations/put');
+
 // users
 const createUserRouter = require('./routes/users');
+
 // todo
 const todoRouter = require('./todoroutes/rodocrud');
+
 // consumption
 const getElectricConsumption = require('./consumptionsroutes/getElec');
 const postElectricConsumption = require('./consumptionsroutes/postElec');
 
 app.use(express.json());
 app.use(cors());
-
 
 const port = process.env.PORT || 3000;
 
@@ -42,7 +49,7 @@ const config = {
 sql.connect(config).then(pool => {
     console.log('Connected to the database.');
 
-// Create a SQL request for use in our routes.
+    // Create a SQL request for use in our routes.
     app.locals.sqlRequest = new sql.Request(pool);
 }).catch(err => console.error('Could not connect to the database. ', err));
 
@@ -59,17 +66,30 @@ app.use('/api', postRenovation);
 app.use('/api', getRenovation);
 app.use('/api', deleteRenovation);
 app.use('/api', putRenovation);
+
 // todo
 app.use('/api', todoRouter);
+
 // consumption
 app.use('/api/electricconsumptions', getElectricConsumption);
 app.use('/api/electricconsumptions', postElectricConsumption);
 
-
+app.post('/upload', upload.single('file'), (req, res) => {
+    const newFile = new File({
+      name: req.file.originalname,
+      size: req.file.size,
+      // other file metadata...
+    });
+  
+    newFile.save(err => {
+      if (err) return console.error(err);
+      res.send('File uploaded and data saved to MongoDB');
+    });
+  });
 
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
-  });
+});
 
 app.listen(port, () => console.log(`Server is running on port ${port}`));
