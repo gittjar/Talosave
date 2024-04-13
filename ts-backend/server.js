@@ -30,6 +30,9 @@ const todoRouter = require('./todoroutes/rodocrud');
 const getElectricConsumption = require('./consumptionsroutes/getElec');
 const postElectricConsumption = require('./consumptionsroutes/postElec');
 
+// research
+const getResearch = require('./researchroutes/get');
+
 app.use(express.json());
 app.use(cors());
 
@@ -73,6 +76,9 @@ app.use('/api', todoRouter);
 // consumption
 app.use('/api/electricconsumptions', getElectricConsumption);
 app.use('/api/electricconsumptions', postElectricConsumption);
+
+// research
+app.use('/api', getResearch);
 
 app.post('/upload', upload.single('file'), (req, res) => {
     const newFile = new File({
