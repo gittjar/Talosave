@@ -12,9 +12,11 @@ db.once('open', function() {
 });
 
 const fileSchema = new mongoose.Schema({
-  name: String,
-  size: Number,
-  // other file metadata fields...
+    name: String,
+    size: Number,
+    path: String,
+    propertyId: String, // add a propertyId field
+    // other fields...
 });
 
 const File = mongoose.model('File', fileSchema);

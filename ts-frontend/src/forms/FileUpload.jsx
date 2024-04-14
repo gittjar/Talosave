@@ -3,7 +3,7 @@ import axios from 'axios';
 import config from '../configuration/config.js';
 import { toast } from 'react-toastify';
 
-const FileUpload = () => {
+const FileUpload = ({ propertyId }) => { // receive propertyId as a prop
   const [file, setFile] = useState(null);
   const formRef = useRef(); // create a ref for the form
 
@@ -11,6 +11,7 @@ const FileUpload = () => {
     event.preventDefault();
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('propertyId', propertyId); // include the property ID in the form data
     await axios.post(`${config.baseURL}/upload`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
