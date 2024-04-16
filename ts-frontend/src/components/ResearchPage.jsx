@@ -5,6 +5,7 @@ import config from '../configuration/config';
 
 const ResearchPage = ({ propertyId }) => { // receive propertyId as a prop
   const [files, setFiles] = useState([]);
+  
 
   useEffect(() => {
     const fetchFiles = async () => {

@@ -115,6 +115,6 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something broke!');
 });
 
-app.use(express.static('uploads')); // add this line to serve static files
+app.use('/uploads', express.static('uploads'));
 
 app.listen(port, () => console.log(`Server is running on port ${port}`));
