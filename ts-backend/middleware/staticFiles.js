@@ -1,4 +1,4 @@
-// staticFiles.js
+// satisfies.js
 const express = require('express');
 const path = require('path');
 

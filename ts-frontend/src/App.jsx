@@ -1,4 +1,4 @@
-// Your existing imports
+
 import { PropertyProvider } from './hooks/PropertyProvider.jsx';
 import NavBar from './components/Navbar';
 import LoginPage  from './components/LoginPage'
@@ -12,7 +12,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Toast from './notifications/Toast.jsx';
 import ConsumptionDetails from './components/ConsumptionDetails.jsx';
 import ShowElectricityConsumption from './consumptions/ShowElectricityConsumption';
-import ResearchPage from './components/ResearchPage'; // Import the ResearchPage component
+import ResearchPage from './components/ResearchPage'; 
 
 function App() {
   return (

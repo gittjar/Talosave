@@ -32,10 +32,9 @@ const ResearchPage = ({ propertyId }) => { // receive propertyId as a prop
       <h2>Uploaded Files</h2>
       <ul>
       {files.map(file => (
-        <li key={file._id}>
-          <a href={file.path} target="_blank" rel="noopener noreferrer">
-           property ID: {propertyId} -
-            {file.name} ({file.size} bytes)
+          <li key={file._id}>
+          <a href={`/download/${file.name}`} target="_blank" rel="noopener noreferrer">
+            property ID: {propertyId} - {file.name} ({file.size} bytes)
           </a>
         </li>
       ))}

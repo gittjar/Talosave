@@ -15,7 +15,7 @@ const fileSchema = new mongoose.Schema({
     name: String,
     size: Number,
     path: String,
-    propertyId: String, // add a propertyId field
+    propertyId: Number, // add a propertyId field
     // other fields...
 });
 
