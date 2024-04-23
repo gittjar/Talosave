@@ -2,6 +2,8 @@ const jwt = require('jsonwebtoken');
 
 const getUserFromToken = (req, res, next) => {
   const authorization = req.get('authorization');
+  console.log('Authorization Header:', authorization); // Add logging
+
   if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
     req.token = authorization.substring(7);
 
@@ -11,6 +13,7 @@ const getUserFromToken = (req, res, next) => {
     } catch (err) {
       return res.status(401).json({ error: 'token missing or invalid' });
     }
+    console.log('Decoded Token:', decodedToken); // Add logging
 
     if (!decodedToken.id) {
       return res.status(401).json({ error: 'token missing or invalid' });

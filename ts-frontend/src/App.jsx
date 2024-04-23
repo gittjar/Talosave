@@ -12,7 +12,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Toast from './notifications/Toast.jsx';
 import ConsumptionDetails from './components/ConsumptionDetails.jsx';
 import ShowElectricityConsumption from './consumptions/ShowElectricityConsumption';
-import ResearchPage from './components/ResearchPage'; 
+import ResearchPage from './components/ResearchPage';
 
 function App() {
   return (
@@ -31,7 +31,7 @@ function App() {
               <Route path="/properties/:id" element={<PropertyDetails />} />
               <Route path="/consumptions/:id" element={<ConsumptionDetails />} />
               <Route path="/electricity/:id" element={<ShowElectricityConsumption />} />
-              <Route path="/research" element={<ResearchPage />} /> {/* Add this line */}
+              <Route path="/research" element={<ResearchPage />} />
               <Route path="/" element={<HomePage />} />
               <Route path="*" element={<LoginPage />} />
             </Routes>
