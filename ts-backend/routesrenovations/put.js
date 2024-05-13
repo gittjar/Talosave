@@ -27,17 +27,17 @@ const verifyToken = (req, res, next) => {
     }
   };
 
-router.put('/renovations/:id', verifyToken, async (req, res) => {
+  router.put('/renovations/:id', verifyToken, async (req, res) => {
     const userid = req.user.id; // Get userid from the token
     const id = req.params.id; // Get the id from the URL parameters
 
-    const dateObj = new Date(date);
-    const formattedDate = date;
-    console.log('Formatted date:', formattedDate); 
-  
     // Get the updated renovation information from the request body
     const { propertyid, construction_company, renovation, date, cost } = req.body;
-  
+
+    const dateObj = new Date(date);
+    const formattedDate = dateObj;
+    console.log('Formatted date:', formattedDate); 
+
     try {
       const sqlQuery = `
       UPDATE TS_Renovations
@@ -60,6 +60,6 @@ router.put('/renovations/:id', verifyToken, async (req, res) => {
     } catch (err) {
       res.status(500).send(err.message);
     }
-  });
+});
 
 module.exports = router;

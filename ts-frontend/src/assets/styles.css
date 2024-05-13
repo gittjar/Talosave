@@ -186,6 +186,10 @@
 
   /*ACCORDION*/
 
+  .text-danger {
+    color: red;
+  }
+
 
   .otsikko {
     background-color: #f8f9fa !important;

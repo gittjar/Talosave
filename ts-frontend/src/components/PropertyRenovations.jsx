@@ -7,8 +7,7 @@ import DeleteDetailsConfirmation from '../notifications/DeleteDetailsConfirmatio
 import EditRenovationForm from '../forms/EditRenovationForm.jsx';
 import Accordion from 'react-bootstrap/Accordion';
 import { XLg, PencilSquare } from 'react-bootstrap-icons';
-
-
+import Badge from 'react-bootstrap/Badge'; // Import Badge from react-bootstrap
 
 
 const PropertyRenovations = ({ propertyId }) => {

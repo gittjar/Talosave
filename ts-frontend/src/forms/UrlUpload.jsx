@@ -3,7 +3,7 @@ import axios from 'axios';
 import config from '../configuration/config.js';
 import { toast } from 'react-toastify';
 
-const UrlUpload = ({ propertyId }) => { // receive propertyId as a prop
+const UrlUpload = ({ propertyId, onUpload }) => { // receive propertyId as a prop
   const [url, setUrl] = useState('');
   const [name, setName] = useState(''); // state for file name
   const formRef = useRef(); // create a ref for the form
@@ -21,20 +21,21 @@ const UrlUpload = ({ propertyId }) => { // receive propertyId as a prop
     }
 
     await axios.post(`${config.baseURL}/upload`, formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    })
-    .then(() => {
-        formRef.current.reset(); // reset the form
-        setUrl(''); // clear the url state
-        setName(''); // clear the name state
-        toast.success('URL lisätty!'); // show a success toast
-    })
-    .catch(() => {
-        toast.error('URL lisääminen ei onnistunut!'); // show an error toast
-    });
-  };
+      headers: {
+          'Content-Type': 'multipart/form-data',
+      },
+  })
+  .then(() => {
+      formRef.current.reset(); // reset the form
+      setUrl(''); // clear the url state
+      setName(''); // clear the name state
+      toast.success('URL lisätty!'); // show a success toast
+      onUpload(); // call the onUpload function
+  })
+  .catch(() => {
+      toast.error('URL lisääminen ei onnistunut!'); // show an error toast
+  });
+};
 
   const handleUrlChange = (event) => {
     setUrl(event.target.value);

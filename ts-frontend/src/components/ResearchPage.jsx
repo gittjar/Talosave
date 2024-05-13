@@ -3,10 +3,9 @@ import axios from 'axios';
 import UrlUpload from '../forms/UrlUpload';
 import config from '../configuration/config';
 
-const ResearchPage = ({ propertyId }) => {
-  const [files, setFiles] = useState([]);
-
-  useEffect(() => {
+  const ResearchPage = ({ propertyId }) => {
+    const [files, setFiles] = useState([]);
+  
     const fetchFiles = async () => {
       try {
         const response = await axios.get(`${config.baseURL}/api/files`, {
@@ -19,27 +18,28 @@ const ResearchPage = ({ propertyId }) => {
         console.error(err);
       }
     };
-
-    fetchFiles();
-  }, [propertyId]);
-
-  return (
-    <div>
-      <h1>Research Page</h1>
-      <p>This is a basic React page.</p>
-      <UrlUpload propertyId={propertyId} />
-      <h2>Ladatut tiedostot</h2>
-      <ul>
-      {files.map(file => (
-    <li key={file._id}>
-        <a href={file.url} target="_blank" rel="noopener noreferrer">
-            {file.name}
-        </a>
-    </li>
-))}
-      </ul>
-    </div>
-  );
-};
+  
+    useEffect(() => {
+      fetchFiles();
+    }, [propertyId]);
+  
+    return (
+      <div className='mx-5'>
+        <h3 className='mb-3'>Tutkimukset ja linkit</h3>
+        <UrlUpload propertyId={propertyId} onUpload={fetchFiles} />
+        <hr></hr>
+        <h4>Ladatut tiedostot</h4>
+        <ul>
+        {files.map(file => (
+          <li key={file._id}>
+            <a href={file.url} target="_blank" rel="noopener noreferrer">
+              {file.name}
+            </a>
+          </li>
+        ))}
+        </ul>
+      </div>
+    );
+  };
 
 export default ResearchPage;
