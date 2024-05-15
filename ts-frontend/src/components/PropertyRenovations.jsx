@@ -142,10 +142,32 @@ const PropertyRenovations = ({ propertyId }) => {
               .map(([year, renovations], index) => (
                 <Accordion.Item eventKey={index.toString()} key={index}>
                   <Accordion.Header>
+    
+                  <div className='renovation-header'>
+                  <div className='over-10yrs-badge'>
+                  {renovations.sort((a, b) => new Date(b.date) - new Date(a.date)).map((renovation, index) => {
+                      const renovationYear = new Date(renovation.date).getFullYear();
+                      const currentYear = new Date().getFullYear();
+                      const differenceInYears = currentYear - renovationYear;
+                      return differenceInYears >= 10.01 ? <Badge bg="warning">+10v vanha</Badge> : null;} )}
+                  </div>
+
                   <h5 className='renovation-year'>
-                  {year} </h5> Remonttikulut yhteensä: {renovations.reduce((total, renovation) => total + (renovation.cost || 0), 0)} €
-                   
+                  {year} </h5> 
+                  <p>
+                  Remonttikulut yhteensä {year}: {renovations.reduce((total, renovation) => total + (renovation.cost || 0), 0)} €
+                  </p>
+                  
+        
+                  </div>
+                  
                   </Accordion.Header>
+               
+
+      
+
+               
+                 
                   <Accordion.Body>
                     <Accordion>
                       {renovations.sort((a, b) => new Date(b.date) - new Date(a.date)).map((renovation, index) => (
@@ -182,6 +204,9 @@ const PropertyRenovations = ({ propertyId }) => {
               ))
             }
           </Accordion>
+
+
+          
         </Card>
       ) : (
         <p>No renovations found for this property.</p>

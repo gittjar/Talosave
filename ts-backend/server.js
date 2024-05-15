@@ -36,6 +36,7 @@ const postElectricConsumption = require('./consumptionsroutes/postElec');
 
 // research
 const getResearch = require('./researchroutes/get');
+const deleteResearch = require('./researchroutes/delete');
 
 app.use(express.json());
 app.use(cors());
@@ -75,6 +76,7 @@ app.use('/api/electricconsumptions', getElectricConsumption);
 app.use('/api/electricconsumptions', postElectricConsumption);
 
 app.use('/api', getResearch);
+app.use('/api', deleteResearch);
 
 app.post('/upload', upload.none(), async (req, res) => {
   try {
