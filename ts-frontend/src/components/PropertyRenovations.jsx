@@ -152,10 +152,10 @@ const PropertyRenovations = ({ propertyId }) => {
                       return differenceInYears >= 10.01 ? <Badge bg="warning">+10v vanha</Badge> : null;} )}
                   </div>
 
-                  <h5 className='renovation-year'>
-                  {year} </h5> 
-                  <p>
-                  Remonttikulut yhteensä {year}: {renovations.reduce((total, renovation) => total + (renovation.cost || 0), 0)} €
+                  <div className='renovation-year mb-1'>
+                  {year} </div> 
+                  <p className="border border-secondary p-1"> 
+                  Remonttikulut yhteensä: {renovations.reduce((total, renovation) => total + (renovation.cost || 0), 0)} €
                   </p>
                   
         

@@ -306,9 +306,6 @@ const PropertyDetails = () => {
        />
       ) : (
 
-        
-
-
         <section className='property-details'>
           
             <Tab.Container id="left-tabs-example" defaultActiveKey="first">

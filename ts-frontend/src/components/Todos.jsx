@@ -115,8 +115,8 @@ const Todos = ({ propertyId }) => {
                         <td>{`${new Date(todo.date).getMonth() + 1}/${new Date(todo.date).getFullYear()}`}</td>
                         
                         <td>
-                            <button className='edit-link' onClick={() => handleEditTodo(todo.id)}>Edit</button>
-                            <button className='delete-link' onClick={() => handleShowDeleteConfirm(todo)}>Delete</button>
+                            <button className='edit-link' onClick={() => handleEditTodo(todo.id)}>Muokkaa</button>
+                            <button className='delete-link' onClick={() => handleShowDeleteConfirm(todo)}>Poista</button>
                         </td>
                     </tr>
                 ))}
