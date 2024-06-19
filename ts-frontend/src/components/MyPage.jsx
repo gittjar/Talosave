@@ -32,7 +32,7 @@ const MyPage = () => {
           <div className="card-header">
             {property.propertyname}
   </div>
-            <div className="card-body">
+            <div className="card-body border border-secondary p-3">
               <h5 className="card-title">{property.street_address}</h5>
               <p className="card-text">{property.post_number} {property.city}</p>
               <p className="card-text">{property.description}</p>

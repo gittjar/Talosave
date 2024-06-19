@@ -23,7 +23,7 @@ const NavBar = () => {
     <nav className='navibar'>
     <Navbar expand="lg" className="bg-body-tertiary navibar-color">
       <Container>
-        <Navbar.Brand as={Link} to="/home">TaloSave v. 1.0</Navbar.Brand>
+        <Navbar.Brand as={Link} to="/home">TaloSave App (v.1.0)</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
