@@ -69,7 +69,7 @@ const AddElectricityForm = ({ propertyId, refreshData, closeForm }) => {
                   }
                 });
           
-                console.log(response.data);
+                console.log(response.data);   
                 refreshData();
                 setMonth('');
                 setYear('');

@@ -36,10 +36,10 @@ const verifyToken = (req, res, next) => {
         .input('userid', sql.Int, userid)
         .input('propertyid', sql.Int, propertyid)
         .query(`
-          SELECT H.*, P.propertyname 
-          FROM TS_HeatingConsumption H
-          INNER JOIN TS_Properties P ON H.propertyid = P.propertyid
-          WHERE P.userid = @userid AND P.propertyid = @property
+        SELECT H.*, P.propertyname 
+            FROM TS_HeatingConsumption H
+            INNER JOIN TS_Properties P ON H.propertyid = P.propertyid
+            WHERE P.userid = @userid AND P.propertyid = @propertyid
         `);
         // console.log('Query result:', result); // Log the query result
         res.json(result.recordset);

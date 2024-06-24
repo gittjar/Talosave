@@ -10,6 +10,7 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
     const [month, setMonth] = useState('');
     const [year, setYear] = useState('');
     const [kwh, setKwh] = useState('');
+    const [mwh, setMwh] = useState('');
     const [euros, setEuros] = useState('');
     const [userid, setUserid] = useState(null);
     const [submitted, setSubmitted] = useState(false);
@@ -22,10 +23,10 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
     }, []);
     
     useEffect(() => {
-        if (submitted && month === '' && year === '' && kwh === '' && euros === '') {
+        if (submitted && month === '' && year === '' && kwh === '' && mwh === '' && euros === '') {
         closeForm();
         }
-    }, [month, year, kwh, euros, submitted]);
+    }, [month, year, kwh, euros, mwh, submitted]);
     
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -41,6 +42,11 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
     
             if (isNaN(kwh) || kwh < 0 || kwh > 50000) {
                 toast.error('kWh must be a number and between 0 and 50000 per month');
+                return;
+            }
+
+            if (isNaN(mwh) || mwh < 0 || mwh > 100) {
+                toast.error('MWh must be a number and between 0 and 100 per month');
                 return;
             }
     
@@ -67,6 +73,7 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
                         year,
                         kwh,
                         euros,
+                        mwh,
                         userid
                     }
                     });
@@ -86,12 +93,17 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
         <div>
             <h2>Add Heating Consumption</h2>
             <form onSubmit={handleSubmit}>
+                <label>Property ID</label>
+                <span type="number" value={propertyid} onChange={e => setPropertyid(e.target.value)} placeholder="Property ID" required />
+                <br></br>
                 <label>Month</label>
                 <input type="text" value={month} onChange={(e) => setMonth(e.target.value)} />
                 <label>Year</label>
                 <input type="text" value={year} onChange={(e) => setYear(e.target.value)} />
                 <label>kWh</label>
                 <input type="text" value={kwh} onChange={(e) => setKwh(e.target.value)} />
+                <label>MWh</label>
+                <input type="text" value={mwh} onChange={(e) => setMwh(e.target.value)} />
                 <label>Euros</label>
                 <input type="text" value={euros} onChange={(e) => setEuros(e.target.value)} />
                 <button type="submit">Add Heating Consumption</button>

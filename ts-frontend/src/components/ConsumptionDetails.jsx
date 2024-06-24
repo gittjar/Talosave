@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Tab, Nav } from 'react-bootstrap';
 import ShowElectricityConsumption from '../consumptions/ShowElectricityConsumption';
+import ShowHeatingConsumption from '../consumptions/ShowHeatingConsumption';
 import { BarChart } from 'react-bootstrap-icons';
 
 const ConsumptionDetails = () => {
@@ -33,9 +34,8 @@ const ConsumptionDetails = () => {
   <ShowElectricityConsumption /> 
   </Tab.Pane>
   <Tab.Pane eventKey="2">
-  <div className='d-flex'>
-  Lämmitys kulutus - Coming soon
-  </div>
+  <ShowHeatingConsumption />
+      
   </Tab.Pane>
   <Tab.Pane eventKey="3">
     <section>

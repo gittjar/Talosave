@@ -45,9 +45,9 @@ CREATE TABLE TS_HeatingConsumption (
     propertyid INT,
     month INT,
     year INT,
-    mwh FLOAT,
     kwh FLOAT,
     euros FLOAT,
+    mwh FLOAT,
     FOREIGN KEY (propertyid) REFERENCES TS_Properties(propertyid)
 );
 
