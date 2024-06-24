@@ -3,12 +3,16 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Table from 'react-bootstrap/Table';
 import config from '../configuration/config';
+import AddHeatingForm from '../forms/AddHeatingForm';
+
 
 const ShowHeatingConsumption = () => {
 
     const { id } = useParams(); // Get the property ID from the URL
     const [heatingConsumptions, setHeatingConsumptions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showForm, setShowForm] = useState(false);
+
 
 
     const fetchHeatingConsumptions = async (propertyId) => {
@@ -41,7 +45,8 @@ const ShowHeatingConsumption = () => {
 const refreshData = async () => {
   const data = await fetchHeatingConsumptions(id);
   setHeatingConsumptions(data);
-  setLoading(false); // Set loading to false after data is fetched
+  setLoading(false); 
+  setShowForm(false);
 }
 
 useEffect(() => {
@@ -52,8 +57,11 @@ useEffect(() => {
 
     return (
         <div>
+
             <h1>Heating consumption</h1>
             {loading && <p>Loading data...</p>}
+            <button onClick={() => setShowForm(true)}>Add Heating Consumption</button> 
+            {showForm && <AddHeatingForm propertyId={id} refreshData={refreshData} />} 
             <Table>
                 <thead>
                     <tr>

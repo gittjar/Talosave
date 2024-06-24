@@ -34,6 +34,7 @@ const todoRouter = require('./todoroutes/rodocrud');
 const getElectricConsumption = require('./consumptionsroutes/getElec');
 const postElectricConsumption = require('./consumptionsroutes/postElec');
 const getHeatingConsumption = require('./consumptionsroutes/getHeat');
+const postHeatingConsumption = require('./consumptionsroutes/postHeat');
 
 // research
 const getResearch = require('./researchroutes/get');
@@ -76,6 +77,7 @@ app.use('/api', todoRouter);
 app.use('/api/electricconsumptions', getElectricConsumption);
 app.use('/api/electricconsumptions', postElectricConsumption);
 app.use('/api/heatingconsumptions', getHeatingConsumption);
+app.use('/api/heatingconsumptions', postHeatingConsumption);
 
 app.use('/api', getResearch);
 app.use('/api', deleteResearch);

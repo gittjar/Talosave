@@ -93,9 +93,7 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
         <div>
             <h2>Add Heating Consumption</h2>
             <form onSubmit={handleSubmit}>
-                <label>Property ID</label>
-                <span type="number" value={propertyid} onChange={e => setPropertyid(e.target.value)} placeholder="Property ID" required />
-                <br></br>
+                <span type="number" value={propertyid} onChange={e => setPropertyid(e.target.value)} placeholder="Property ID" required />                <br></br>
                 <label>Month</label>
                 <input type="text" value={month} onChange={(e) => setMonth(e.target.value)} />
                 <label>Year</label>
