@@ -30,6 +30,7 @@ const colorMap = {
     2028: 'lightpink',
     2029: 'darkgrey',
     2030: 'lightyellow',
+    2031: 'lightseagreen',
     getColor: function(year) {
       return this[year];
     }
