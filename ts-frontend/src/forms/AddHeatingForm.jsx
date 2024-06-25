@@ -93,19 +93,31 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
         <div>
             <h2>Add Heating Consumption</h2>
             <form onSubmit={handleSubmit}>
-                <span type="number" value={propertyid} onChange={e => setPropertyid(e.target.value)} placeholder="Property ID" required />                <br></br>
-                <label>Month</label>
-                <input type="text" value={month} onChange={(e) => setMonth(e.target.value)} />
-                <label>Year</label>
-                <input type="text" value={year} onChange={(e) => setYear(e.target.value)} />
-                <label>kWh</label>
-                <input type="text" value={kwh} onChange={(e) => setKwh(e.target.value)} />
-                <label>MWh</label>
-                <input type="text" value={mwh} onChange={(e) => setMwh(e.target.value)} />
-                <label>Euros</label>
-                <input type="text" value={euros} onChange={(e) => setEuros(e.target.value)} />
-                <button type="submit">Add Heating Consumption</button>
-            </form>
+  <div className="form-group">
+    <input type="number" id="propertyid" className="form-control" value={propertyid} onChange={e => setPropertyid(e.target.value)} required hidden />
+  </div>
+  <div className="form-group">
+    <label htmlFor="month">Month</label>
+    <input type="text" id="month" className="form-control" value={month} onChange={e => setMonth(e.target.value)} />
+  </div>
+  <div className="form-group">
+    <label htmlFor="year">Year</label>
+    <input type="text" id="year" className="form-control" value={year} onChange={e => setYear(e.target.value)} />
+  </div>
+  <div className="form-group">
+    <label htmlFor="kwh">kWh</label>
+    <input type="text" id="kwh" className="form-control" value={kwh} onChange={e => setKwh(e.target.value)} />
+  </div>
+  <div className="form-group">
+    <label htmlFor="mwh">MWh</label>
+    <input type="text" id="mwh" className="form-control" value={mwh} onChange={e => setMwh(e.target.value)} />
+  </div>
+  <div className="form-group">
+    <label htmlFor="euros">Euros</label>
+    <input type="text" id="euros" className="form-control" value={euros} onChange={e => setEuros(e.target.value)} />
+  </div>
+  <button type="submit" className="btn btn-primary mt-2">Add Heating Consumption</button>
+</form>
         </div>
     );
 

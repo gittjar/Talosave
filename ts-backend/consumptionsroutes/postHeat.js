@@ -62,7 +62,7 @@ const verifyToken = (req, res, next) => {
           `);
 
           res.sendStatus(201);
-            console.log('Heating data added successfully');
+            console.log('Lämmitysdata lisätty onnistuneesti.');
     } catch (err) {
         console.error('Error executing query:', err); // Log the error
         res.status(500).send(err.message);
