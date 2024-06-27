@@ -5,6 +5,8 @@ import Table from 'react-bootstrap/Table';
 import config from '../configuration/config';
 import AddHeatingForm from '../forms/AddHeatingForm';
 import colorMap from '../components/colorMap';
+import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryLabel, VictoryTooltip } from 'victory';
+
 
 
 const ShowHeatingConsumption = () => {
@@ -14,6 +16,8 @@ const ShowHeatingConsumption = () => {
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
     const [selectedYears, setSelectedYears] = useState([]);
+    const [unit, setUnit] = useState('kwh'); // Add this state variable
+
     
     const fetchHeatingConsumptions = async (propertyId) => {
         const token = localStorage.getItem('userToken'); // Get the token from local storage
@@ -59,6 +63,8 @@ useEffect(() => {
   const years = [...new Set(heatingConsumptions.map(item => item.year))];
     years.sort();
 
+    const monthNames = ['tammikuu', 'helmikuu', 'maaliskuu', 'huhtikuu', 'toukokuu', 'kesäkuu', 'heinäkuu', 'elokuu', 'syyskuu', 'lokakuu', 'marraskuu', 'joulukuu'];
+
 
 
     return (
@@ -91,6 +97,9 @@ useEffect(() => {
 </div>
 
 {showForm && <AddHeatingForm propertyId={id} refreshData={refreshData} />} 
+
+<section className='d-flex'>
+<article className='m-4'>
             <Table>
                 <thead>
                     <tr>
@@ -114,6 +123,66 @@ useEffect(() => {
   ))}
 </tbody>
             </Table>
+            </article>
+
+
+            <article className='p-2 border border-secondary rounded-lg'>
+            <h5>Lämmityskulut vuosittain</h5>
+            <div className="d-flex align-items-center">
+                <div className="form-check form-check-inline">
+                <input 
+                type="radio" 
+                id="kwh" 
+                name="unit" 
+                value="kwh" 
+                checked={unit === 'kwh'} 
+                onChange={e => setUnit(e.target.value)} 
+                />
+                <label className="form-check-label" htmlFor="kwh">kWh</label>
+            </div>
+            <div className="">
+                <input 
+                 
+                type="radio" 
+                id="mwh" 
+                name="unit" 
+                value="mwh" 
+                checked={unit === 'mwh'} 
+                onChange={e => setUnit(e.target.value)} 
+                />
+                <label className="form-check-label" htmlFor="mwh">MWh</label>
+            </div>
+            </div>
+    
+            <VictoryChart 
+                    domainPadding={30} 
+                    padding={{ top: 20, bottom: 80, left: 100, right: 100 }} // Increase the bottom and left padding here
+                    style={{ parent: { marginBottom: '50px' } }}
+                    width={850} // Set the chart width here
+                    >
+                    <VictoryAxis 
+                        tickValues={monthNames} 
+                        tickLabelComponent={<VictoryLabel angle={30} textAnchor="start" verticalAnchor="middle" />} 
+                    />
+                    <VictoryAxis 
+                        dependentAxis 
+                        label={unit} 
+                        style={{ axisLabel: { padding: 55 } }} 
+                    />
+                    {selectedYears.map(year => (
+                        <VictoryLine
+                        key={year}
+                        data={heatingConsumptions.filter(consumption => consumption.year === year).map(consumption => ({...consumption, month: monthNames[consumption.month - 1]}))}
+                        x="month"
+                        y={unit}
+                        style={{ data: { stroke: colorMap.getColor(year) } }}
+                        labelComponent={<VictoryTooltip />}
+                        labels={({ datum }) => `kWh: ${datum.kwh}\nEuros: ${datum.euros}`}
+                        />
+                    ))}
+                    </VictoryChart>
+    </article>
+</section>
         </div>
     );
 
