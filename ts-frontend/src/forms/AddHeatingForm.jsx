@@ -86,11 +86,17 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
                     if (error.response.status === 401) {
                     toast.error('You are not authorized to add heating consumption');
                     }
+                    if (error.response && error.response.status === 400) {
+                        toast.error('Tiedot tälle kuukaudelle on jo lisätty!');
+                    } else {
+                        toast.error('An error occurred while adding heating consumption');
+                    }
                 }
+            
     }
 
     return (
-        <div>
+        <div className='add-heating-form mb-4'>
             <h2>Add Heating Consumption</h2>
             <form onSubmit={handleSubmit}>
   <div className="form-group">

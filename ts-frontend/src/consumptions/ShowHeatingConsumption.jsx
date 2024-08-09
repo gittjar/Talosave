@@ -29,6 +29,7 @@ const ShowHeatingConsumption = () => {
               Authorization: `Bearer ${token}`
             }
           });
+          
       
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -41,6 +42,7 @@ const ShowHeatingConsumption = () => {
         } catch (error) {
           console.error('Error fetching heating consumptions:', error);
           return []; // Return an empty array in case of error
+          
         }
       };
 
@@ -74,7 +76,10 @@ useEffect(() => {
             {loading && <p>Loading data...</p>}
             <button onClick={() => setShowForm(prevShowForm => !prevShowForm)} className='edit-link'>
                 {showForm ? 'Sulje lämmityskulutuksen lisäys' : 'Lisää lämmityskulutus'}
-                </button>         
+                </button>  
+
+                {showForm && <AddHeatingForm propertyId={id} refreshData={refreshData} />} 
+
                 <div className='kwh-labels-year'>
   {years.map(year => (
     <article key={year} style={{ backgroundColor: colorMap.getColor(year), padding: '5px', margin: '5px' }} className='mwh-box'>
@@ -96,7 +101,6 @@ useEffect(() => {
   ))}
 </div>
 
-{showForm && <AddHeatingForm propertyId={id} refreshData={refreshData} />} 
 
 <section className='d-flex'>
 <article className='m-4'>

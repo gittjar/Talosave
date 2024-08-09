@@ -9,7 +9,7 @@ const Todos = ({ propertyId }) => {
     const [todoToDelete, setTodoToDelete] = useState(null);
     const [showEditForm, setShowEditForm] = useState(false);
     const [showFormId, setShowFormId] = useState(null);
-    const [refreshTodos, setRefreshTodos] = useState(false); // Add this line
+    const [refreshTodos, setRefreshTodos] = useState(false); 
 
 
     const handleShowForm = (id) => {

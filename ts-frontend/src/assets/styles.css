@@ -225,7 +225,7 @@
     padding: 0.6rem;
     font-size: 0.7rem;
     margin: 0rem;
-    border-radius: 0px;
+    border-radius: 5px 5px 5px 0px;
     margin-right: 1rem;
     background: linear-gradient(90deg, rgba(69,60,223,1) 0%, rgba(9,9,121,1) 100%, rgba(7,60,155,1) 100%, rgba(0,212,255,1) 100%) !important;
   }
@@ -403,7 +403,7 @@ th, td {
 
 /* Form styles */
 
-.create-user-form, .login-form, .property-edit-form {
+.create-user-form, .login-form, .property-edit-form, .add-heating-form {
     width: 50%;
     box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.25);
     padding: 1rem;
