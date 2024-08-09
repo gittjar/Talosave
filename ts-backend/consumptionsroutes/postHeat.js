@@ -29,7 +29,7 @@ const verifyToken = (req, res, next) => {
 
   router.post('/', verifyToken, async (req, res) => {
     const userid = req.user.id; // Get userid from the token
-    const { propertyid, month, year, kwh, euros, mwh } = req.body; // Get data from the request body
+    const { propertyid, month, year, kwh, euros, mwh, m3, liters } = req.body; // Get data from the request body
   
     try {
       const sqlRequest1 = new sql.Request();
@@ -56,9 +56,11 @@ const verifyToken = (req, res, next) => {
           .input('kwh', sql.Float, kwh)
           .input('euros', sql.Float, euros)
           .input('mwh', sql.Float, mwh)
+          .input('m3', sql.Float, m3)
+          .input('liters', sql.Float, liters)
           .query(`
-            INSERT INTO TS_HeatingConsumption (propertyid, month, year, kwh, euros, mwh)
-            VALUES (@propertyid, @month, @year, @kwh, @euros, @mwh)
+            INSERT INTO TS_HeatingConsumption (propertyid, month, year, kwh, euros, mwh, m3, liters)
+            VALUES (@propertyid, @month, @year, @kwh, @euros, @mwh, @m3, @liters)
           `);
 
           res.sendStatus(201);

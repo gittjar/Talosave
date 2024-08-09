@@ -11,6 +11,8 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
     const [year, setYear] = useState('');
     const [kwh, setKwh] = useState('');
     const [mwh, setMwh] = useState('');
+    const [m3, setM3] = useState('');
+    const [liters, setLiters] = useState('');
     const [euros, setEuros] = useState('');
     const [userid, setUserid] = useState(null);
     const [submitted, setSubmitted] = useState(false);
@@ -23,10 +25,10 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
     }, []);
     
     useEffect(() => {
-        if (submitted && month === '' && year === '' && kwh === '' && mwh === '' && euros === '') {
+        if (submitted && month === '' && year === '' && kwh === '' && mwh === '' && euros === '' && m3 === '' && liters === '') {
         closeForm();
         }
-    }, [month, year, kwh, euros, mwh, submitted]);
+    }, [month, year, kwh, euros, mwh, m3, liters, submitted]);
     
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -54,6 +56,15 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
                 toast.error('Month must be a number and between 1 and 12');
                 return;
             }
+
+            if (isNaN(m3) || m3 < 0 || m3 > 100) {
+                toast.error('m3 must be a number and between 0 and 100 per month');
+                return;
+            }
+            if (isNaN(liters) || liters < 0 || liters > 10000) {
+                toast.error('Liters must be a number and between 0 and 10000 per month');
+                return;
+            }
     
             if (isNaN(euros) || euros < 0 || euros > 10000) {
                 toast.error('Euros must be a number and between 0 and 10000 per month');
@@ -74,6 +85,8 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
                         kwh,
                         euros,
                         mwh,
+                        m3,
+                        liters,
                         userid
                     }
                     });
@@ -97,30 +110,39 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
 
     return (
         <div className='add-heating-form mb-4'>
-            <h2>Add Heating Consumption</h2>
+            <h2>Lisää lämmityskulutus</h2>
             <form onSubmit={handleSubmit}>
   <div className="form-group">
     <input type="number" id="propertyid" className="form-control" value={propertyid} onChange={e => setPropertyid(e.target.value)} required hidden />
   </div>
   <div className="form-group">
     <label htmlFor="month">Month</label>
-    <input type="text" id="month" className="form-control" value={month} onChange={e => setMonth(e.target.value)} />
+    <input type="text" id="month" className="form-control required" value={month} onChange={e => setMonth(e.target.value)} required/>
   </div>
   <div className="form-group">
     <label htmlFor="year">Year</label>
-    <input type="text" id="year" className="form-control" value={year} onChange={e => setYear(e.target.value)} />
+    <input type="text" id="year" className="form-control required" value={year} onChange={e => setYear(e.target.value)} required/>
   </div>
   <div className="form-group">
     <label htmlFor="kwh">kWh</label>
-    <input type="text" id="kwh" className="form-control" value={kwh} onChange={e => setKwh(e.target.value)} />
+    <input type="text" id="kwh" className="form-control required" value={kwh} onChange={e => setKwh(e.target.value)} required/>
   </div>
   <div className="form-group">
     <label htmlFor="mwh">MWh</label>
-    <input type="text" id="mwh" className="form-control" value={mwh} onChange={e => setMwh(e.target.value)} />
+    <input type="text" id="mwh" className="form-control required" value={mwh} onChange={e => setMwh(e.target.value)} required/>
   </div>
+    <div className="form-group">
+        <label htmlFor="m3">m3</label>
+        <input type="text" id="m3" className="form-control required" value={m3} onChange={e => setM3(e.target.value)} required/>
+
+    </div>
+    <div className="form-group">
+        <label htmlFor="liters">Liters</label>
+        <input type="text" id="liters" className="form-control required" value={liters} onChange={e => setLiters(e.target.value)} required/>
+    </div>
   <div className="form-group">
     <label htmlFor="euros">Euros</label>
-    <input type="text" id="euros" className="form-control" value={euros} onChange={e => setEuros(e.target.value)} />
+    <input type="text" id="euros" className="form-control required" value={euros} onChange={e => setEuros(e.target.value)} required/>
   </div>
   <button type="submit" className="btn btn-primary mt-2">Add Heating Consumption</button>
 </form>

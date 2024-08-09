@@ -111,6 +111,8 @@ useEffect(() => {
                         <th>Year</th>
                         <th>kWh</th>
                         <th>MWh</th>
+                        <th>M3</th>
+                        <th>Liters</th>
                         <th>Euros</th>
 
                     </tr>
@@ -122,6 +124,8 @@ useEffect(() => {
       <td>{item.year}</td>
       <td>{item.kwh}</td>
       <td>{item.mwh}</td>
+      <td>{item.m3}</td>
+      <td>{item.liters}</td>
       <td>{item.euros}</td>
     </tr>
   ))}
@@ -155,6 +159,30 @@ useEffect(() => {
                 onChange={e => setUnit(e.target.value)} 
                 />
                 <label className="form-check-label" htmlFor="mwh">MWh</label>
+            </div>
+            <div className="">
+                <input 
+                type="radio" 
+                id="m3" 
+                name="unit" 
+                value="m3" 
+                checked={unit === 'm3'} 
+                onChange={e => setUnit(e.target.value)} 
+                />
+                <label className="form-check-label" htmlFor="m3">M3</label>
+
+            </div>
+
+            <div className="">
+                <input
+                type="radio"
+                id="liters"
+                name="unit"
+                value="liters"
+                checked={unit === 'liters'}
+                onChange={e => setUnit(e.target.value)}
+                />
+                <label className="form-check-label" htmlFor="liters">Liters</label>
             </div>
             </div>
     
