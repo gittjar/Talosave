@@ -20,7 +20,7 @@ const UrlUpload = ({ propertyId, onUpload }) => { // receive propertyId as a pro
       console.log(pair[0]+ ', ' + pair[1]); 
     }
 
-    await axios.post(`${config.baseURL}/upload`, formData, {
+    await axios.post(`${config.baseURL}/api/upload`, formData, {
       headers: {
           'Content-Type': 'multipart/form-data',
       },

@@ -39,9 +39,10 @@ const ResearchPage = ({ propertyId }) => {
   return (
     <div className='mx-5'>
       <h3 className='mb-3'>Tutkimukset ja linkit</h3>
+      <p>Voit hyödyntää raporttien ja dokumenttien tallennukseen esim. Google Driveä tai Microsoftin OneDrive palveluita.</p>
       <UrlUpload propertyId={propertyId} onUpload={fetchFiles} />
       <hr></hr>
-      <h4>Ladatut tiedostot</h4>
+      <h4>Linkitetyt tiedostot</h4>
       <ListGroup variant="flush">
       {files.map(file => (
         <ListGroup.Item key={file._id} className='bg-white border border-primary mb-2'>

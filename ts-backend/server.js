@@ -28,7 +28,7 @@ const putRenovation = require('./routesrenovations/put');
 const createUserRouter = require('./routes/users');
 
 // todo
-const todoRouter = require('./todoroutes/rodocrud');
+const todoRouter = require('./todoroutes/todocrud');
 
 // consumption
 const getElectricConsumption = require('./consumptionsroutes/getElec');
@@ -39,6 +39,9 @@ const postHeatingConsumption = require('./consumptionsroutes/postHeat');
 // research
 const getResearch = require('./researchroutes/get');
 const deleteResearch = require('./researchroutes/delete');
+
+// uoload links
+const uploadRouter = require('./uploads/post');
 
 app.use(express.json());
 app.use(cors());
@@ -82,6 +85,9 @@ app.use('/api/heatingconsumptions', postHeatingConsumption);
 app.use('/api', getResearch);
 app.use('/api', deleteResearch);
 
+app.use('/api', uploadRouter);
+
+/*
 app.post('/upload', upload.none(), async (req, res) => {
   try {
       // Save the file information in the database
@@ -103,5 +109,5 @@ app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
 });
-
+*/
 app.listen(port, () => console.log(`Server is running on port ${port}`));
