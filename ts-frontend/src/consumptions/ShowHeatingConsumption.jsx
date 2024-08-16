@@ -46,6 +46,29 @@ const ShowHeatingConsumption = () => {
         }
       };
 
+      const deleteHeatingConsumption = async (propertyId, month, year) => {
+        const token = localStorage.getItem('userToken'); // Get the token from local storage
+      
+        try {
+          const response = await fetch(`${config.baseURL}/api/heatingconsumptions/`, {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ propertyid: propertyId, month, year }) // Send the property ID, month, and year in the request body
+          });
+      
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+      
+          console.log('Heating data deleted successfully.');
+          refreshData(); // Refresh the data after deleting
+        } catch (error) {
+          console.error('Error deleting heating consumption:', error);
+        }
+      };
 
 
 const refreshData = async () => {
@@ -114,6 +137,7 @@ useEffect(() => {
                         <th>M3</th>
                         <th>Liters</th>
                         <th>Euros</th>
+                        <th>Actions</th>
 
                     </tr>
                 </thead>
@@ -127,6 +151,16 @@ useEffect(() => {
       <td>{item.m3}</td>
       <td>{item.liters}</td>
       <td>{item.euros}</td>
+      <td>
+        <button
+          className="delete-link"
+          onClick={() => deleteHeatingConsumption(item.propertyid, item.month
+            , item.year)}
+        >
+          Poista
+        </button>
+      </td>
+
     </tr>
   ))}
 </tbody>
