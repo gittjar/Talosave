@@ -5,6 +5,7 @@ import Table from 'react-bootstrap/Table';
 import config from '../configuration/config';
 import AddHeatingForm from '../forms/AddHeatingForm';
 import colorMap from '../components/colorMap';
+import DeleteConfirmationHeating from '../notifications/DeleteConfirmationHeating';
 import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryLabel, VictoryTooltip } from 'victory';
 
 
@@ -17,6 +18,8 @@ const ShowHeatingConsumption = () => {
     const [showForm, setShowForm] = useState(false);
     const [selectedYears, setSelectedYears] = useState([]);
     const [unit, setUnit] = useState('kwh'); // Add this state variable
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [deletingItem, setDeletingItem] = useState(null);
 
     
     const fetchHeatingConsumptions = async (propertyId) => {
@@ -152,13 +155,24 @@ useEffect(() => {
       <td>{item.liters}</td>
       <td>{item.euros}</td>
       <td>
-        <button
-          className="delete-link"
-          onClick={() => deleteHeatingConsumption(item.propertyid, item.month
-            , item.year)}
-        >
-          Poista
-        </button>
+      <button
+  className="delete-link"
+  onClick={() => {
+    setDeletingItem(item);
+    setShowDeleteConfirm(true);
+  }}
+>
+  Poista
+</button>
+
+
+{showDeleteConfirm && 
+  <DeleteConfirmationHeating 
+    handleDeleteProperty={() => deleteHeatingConsumption(deletingItem.propertyid, deletingItem.month, deletingItem.year)} 
+    setShowDeleteConfirm={setShowDeleteConfirm} 
+    deletingItem={deletingItem}
+  />
+}
       </td>
 
     </tr>

@@ -45,6 +45,7 @@ router.delete('/', verifyToken, async (req, res) => {
 
         res.sendStatus(200);
         console.log('Heating data deleted successfully.');
+        console.log(`Deleting data for property: ${propertyid}, month: ${month}, year: ${year}`);
     } catch (err) {
         console.error('Error executing query:', err); // Log the error
         res.status(500).send(err.message);

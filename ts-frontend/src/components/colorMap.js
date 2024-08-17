@@ -5,7 +5,7 @@ const colorMap = {
     2003: 'yellow',
     2004: 'rosewood',
     2005: 'darkorange',
-    2006: 'tomato',
+    2006: 'teal',
     2007: 'silver',
     2008: 'grey',
     2009: 'banana',

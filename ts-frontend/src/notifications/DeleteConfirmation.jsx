@@ -1,6 +1,6 @@
 import { Modal, Button } from 'react-bootstrap';
 
-const DeleteConfirmation = ({ handleDeleteProperty, setShowDeleteConfirm }) => {
+const DeleteConfirmation = ({ handleDeleteProperty, setShowDeleteConfirm  }) => {
     return (
       <Modal show={true} onHide={() => setShowDeleteConfirm(false)}>
         <Modal.Header closeButton>
