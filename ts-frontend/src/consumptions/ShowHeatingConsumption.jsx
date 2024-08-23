@@ -147,14 +147,15 @@ useEffect(() => {
                 <tbody>
   {heatingConsumptions.filter(item => selectedYears.includes(item.year)).map((item, index) => (
     <tr key={index} style={{backgroundColor: colorMap.getColor(item.year)}}>
-      <td>{item.month}</td>
-      <td>{item.year}</td>
-      <td>{item.kwh}</td>
-      <td>{item.mwh}</td>
-      <td>{item.m3}</td>
-      <td>{item.liters}</td>
-      <td>{item.euros}</td>
+<td>{item.month}</td>
+<td>{item.year}</td>
+<td>{item.kwh.toFixed(1)}</td>
+<td>{item.mwh.toFixed(1)}</td>
+<td>{item.m3.toFixed(1)}</td>
+<td>{item.liters.toFixed(1)}</td>
+<td>{item.euros.toFixed(1)}</td>
       <td>
+
       <button
   className="delete-link"
   onClick={() => {

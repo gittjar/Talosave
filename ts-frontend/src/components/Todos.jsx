@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import config from '../configuration/config.js';
 import DeleteConfirmation from '../notifications/DeleteConfirmation.jsx';
 import EditTodoForm from '../forms/EditTodoForm.jsx';
+import { SortNumericDownAlt, SortNumericUpAlt } from 'react-bootstrap-icons';
+
 
 const Todos = ({ propertyId }) => {
     const [todos, setTodos] = useState([]);
@@ -10,6 +12,8 @@ const Todos = ({ propertyId }) => {
     const [showEditForm, setShowEditForm] = useState(false);
     const [showFormId, setShowFormId] = useState(null);
     const [refreshTodos, setRefreshTodos] = useState(false); 
+    const [activeButton, setActiveButton] = useState(null);
+
 
 
     const handleShowForm = (id) => {
@@ -23,17 +27,81 @@ const Todos = ({ propertyId }) => {
     }
 
     useEffect(() => {
-        const token = localStorage.getItem('userToken');
+      const token = localStorage.getItem('userToken');
     
-        fetch(`${config.baseURL}/api/todo/${propertyId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+      fetch(`${config.baseURL}/api/todo/${propertyId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          setTodos(data);
         })
-          .then(response => response.json())
-          .then(data => setTodos(data))
-          .catch(error => console.error('Error:', error));
-      }, [propertyId, refreshTodos]);
+        .catch(error => console.error('Error:', error));
+    }, [propertyId, refreshTodos]);
+    
+         
+    const sortNewest = () => {
+      let sortedData = [...todos];
+      sortedData.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateB - dateA; // Newest first
+      });
+      setTodos(sortedData);
+    }
+
+    const sortOldest = () => {
+      let sortedData = [...todos];
+      sortedData.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateA - dateB; // Oldest first
+      });
+      setTodos(sortedData);
+    }
+    
+    const sortCheapest = () => {
+      let sortedData = [...todos];
+      sortedData.sort((a, b) => {
+        const costA = parseFloat(a.cost);
+        const costB = parseFloat(b.cost);
+        return costA - costB; // Cheapest first
+      });
+      setTodos(sortedData);
+    }
+
+    const sortExpensive = () => {
+      let sortedData = [...todos];
+      sortedData.sort((a, b) => {
+        const costA = parseFloat(a.cost);
+        const costB = parseFloat(b.cost);
+        return costB - costA; // Most expensive first
+      });
+      setTodos(sortedData);
+    }
+
+    const sortDone = () => {  
+      let sortedData = [...todos];
+      sortedData.sort((a, b) => {
+        return b.isCompleted - a.isCompleted;
+      });
+      setTodos(sortedData);
+    }
+
+    const sortNotDone = () => {
+      let sortedData = [...todos];
+      sortedData.sort((a, b) => {
+        return a.isCompleted - b.isCompleted; 
+      });
+      setTodos(sortedData);
+    }
+
+
+
+    
+  
 
     const handleDeleteTodo = () => {
         const token = localStorage.getItem('userToken');
@@ -93,16 +161,33 @@ const Todos = ({ propertyId }) => {
         setTodoToDelete(null);
       }
 
+
+    
+
     return (
         <div className='todopage'> 
         <h4>Tehtäviä</h4>
+        <button className={`link-black ${activeButton === 'sortNewest' ? 'active' : ''}`} onClick={() => {sortNewest(); setActiveButton('sortNewest');}}>Uusin</button>
+<button className={`link-black ${activeButton === 'sortOldest' ? 'active' : ''}`} onClick={() => {sortOldest(); setActiveButton('sortOldest');}}>Vanhin</button>
+<button className={`link-black ${activeButton === 'sortCheapest' ? 'active' : ''}`} onClick={() => {sortCheapest(); setActiveButton('sortCheapest');}}>Halvin</button>
+<button className={`link-black ${activeButton === 'sortExpensive' ? 'active' : ''}`} onClick={() => {sortExpensive(); setActiveButton('sortExpensive');}}>Kallein</button>
+<button className={`link-black ${activeButton === 'sortDone' ? 'active' : ''}`} onClick={() => {sortDone(); setActiveButton('sortDone');}}>Tehty</button>
+<button className={`link-black ${activeButton === 'sortNotDone' ? 'active' : ''}`} onClick={() => {sortNotDone(); setActiveButton('sortNotDone');}}>Tekemättä</button>
+
         <table className='todo-table'>
+
+
             <thead>
                 <tr>
                     <th>Todo</th>
                     <th>Tehty</th>
-                    <th>Hinta</th>
-                    <th>Päiväys</th>
+                    <th>Hinta
+
+           
+                    </th>
+                    <th>Päiväys
+       
+                    </th>
                     <th>Muokkaa</th>
                 </tr>
             </thead>
@@ -112,8 +197,7 @@ const Todos = ({ propertyId }) => {
                         <td>{todo.action}</td>
                         <td>{todo.isCompleted ? 'Kyllä' : 'Ei'}</td>
                         <td>{todo.cost} €</td>
-                        <td>{`${new Date(todo.date).getMonth() + 1}/${new Date(todo.date).getFullYear()}`}</td>
-                        
+                        <td>{new Date(todo.date).toLocaleDateString()}</td>                        
                         <td>
                             <button className='edit-link' onClick={() => handleEditTodo(todo.id)}>Muokkaa</button>
                             <button className='delete-link' onClick={() => handleShowDeleteConfirm(todo)}>Poista</button>
