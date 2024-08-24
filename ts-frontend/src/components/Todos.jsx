@@ -2,8 +2,18 @@ import { useState, useEffect } from 'react';
 import config from '../configuration/config.js';
 import DeleteConfirmation from '../notifications/DeleteConfirmation.jsx';
 import EditTodoForm from '../forms/EditTodoForm.jsx';
-import { SortNumericDownAlt, SortNumericUpAlt } from 'react-bootstrap-icons';
 
+// Function to generate random light greycolor
+const getRandomColor = () => {
+  const letters = 'ABCDEF';
+  let color = '#';
+  let part = '';
+  for (let i = 0; i < 2; i++) {
+    part += letters[Math.floor(Math.random() * 6)];
+  }
+  color += part + part + part; // same value for red, green, blue
+  return color;
+};
 
 const Todos = ({ propertyId }) => {
     const [todos, setTodos] = useState([]);
@@ -13,8 +23,7 @@ const Todos = ({ propertyId }) => {
     const [showFormId, setShowFormId] = useState(null);
     const [refreshTodos, setRefreshTodos] = useState(false); 
     const [activeButton, setActiveButton] = useState(null);
-
-
+    const [colorMap, setColorMap] = useState({});
 
     const handleShowForm = (id) => {
         setShowFormId(id);
@@ -26,6 +35,7 @@ const Todos = ({ propertyId }) => {
         setShowEditForm(false);
     }
 
+
     useEffect(() => {
       const token = localStorage.getItem('userToken');
     
@@ -36,7 +46,15 @@ const Todos = ({ propertyId }) => {
       })
         .then(response => response.json())
         .then(data => {
+          const colorMap = {};
+          data.forEach(todo => {
+            const year = new Date(todo.date).getFullYear();
+            if (!colorMap[year]) {
+              colorMap[year] = getRandomColor();
+            }
+          });
           setTodos(data);
+          setColorMap(colorMap);
         })
         .catch(error => console.error('Error:', error));
     }, [propertyId, refreshTodos]);
@@ -191,20 +209,29 @@ const Todos = ({ propertyId }) => {
                     <th>Muokkaa</th>
                 </tr>
             </thead>
-            <tbody>
-                {todos.map(todo => (
-                    <tr key={todo.id} className={`panel ${todo.isCompleted ? 'panel-success' : 'panel-danger'}`}>
-                        <td>{todo.action}</td>
-                        <td>{todo.isCompleted ? 'Kyllä' : 'Ei'}</td>
-                        <td>{todo.cost} €</td>
-                        <td>{new Date(todo.date).toLocaleDateString()}</td>                        
-                        <td>
-                            <button className='edit-link' onClick={() => handleEditTodo(todo.id)}>Muokkaa</button>
-                            <button className='delete-link' onClick={() => handleShowDeleteConfirm(todo)}>Poista</button>
-                        </td>
-                    </tr>
-                ))}
-            </tbody>
+                <tbody>
+                {todos.map((todo, index) => {
+        const currentYear = new Date(todo.date).getFullYear();
+        const nextYear = index < todos.length - 1 ? new Date(todos[index + 1].date).getFullYear() : null;
+        const addBottomLine = nextYear && currentYear !== nextYear;
+        const backgroundColor = colorMap[currentYear];
+
+        return (
+          <tr key={todo.id} style={{ backgroundColor }} className={`panel ${todo.isCompleted ? 'panel-success' : 'panel-danger'} ${addBottomLine ? 'bottom-line' : ''}`}>
+          <td>{todo.action}</td>
+                <td>{todo.isCompleted ? 'Kyllä' : 'Ei'}</td>
+                <td>{todo.cost} €</td>
+                <td>{new Date(todo.date).toLocaleDateString()}</td>                        
+                <td>
+                    <button className='edit-link' onClick={() => handleEditTodo(todo.id)}>Muokkaa</button>
+                    <button className='delete-link' onClick={() => handleShowDeleteConfirm(todo)}>Poista</button>
+                </td>
+            </tr>
+        );
+    })}
+                </tbody>
+          
+
         </table>
         {showEditForm && (
       <EditTodoForm 
@@ -222,5 +249,6 @@ const Todos = ({ propertyId }) => {
         </div>
     );
 }
+
 
 export default Todos;

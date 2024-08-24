@@ -312,6 +312,7 @@
     border: none !important;
     font-size: 0.7rem !important;
     margin: 0.2rem;
+    padding: 0.35rem !important;
 }
 
 .link-black:hover {
@@ -402,8 +403,10 @@
 th, td {
     padding: 8px;
     text-align: left;
-    
+}
 
+.bottom-line {
+    border-bottom: 2px solid #000;
 }
 
 /* Electricity page */
