@@ -25,6 +25,7 @@ const LoginPage = () => {
       } else {
         localStorage.setItem('userToken', response.data.token);
         localStorage.setItem('userId', response.data.id);
+        localStorage.setItem('username', username); // Store the username in the localStorage
 
         navigate('/mypage');
       }

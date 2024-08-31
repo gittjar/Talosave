@@ -13,6 +13,7 @@ import Toast from './notifications/Toast.jsx';
 import ConsumptionDetails from './components/ConsumptionDetails.jsx';
 import ShowElectricityConsumption from './consumptions/ShowElectricityConsumption';
 import ResearchPage from './components/ResearchPage';
+import UserSettings from './components/UserSettings.jsx';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/mypage" element={<PrivateRoute><MyPage /></PrivateRoute>} />
+              <Route path="/usersettings" element={<PrivateRoute><UserSettings /></PrivateRoute>} />
               <Route path="/home" element={<HomePage />} />
               <Route path="/create-user" element={<CreateUser />} />
               <Route path="/add-property" element={<AddPropertyForm />} />

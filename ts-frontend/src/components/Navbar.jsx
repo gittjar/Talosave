@@ -44,15 +44,15 @@ const NavBar = () => {
             {isLoggedIn ? (
               <>
                 <Nav.Link as={Link} to="/login" onClick={handleLogout}>Logout</Nav.Link>
-                <Nav.Link as={Link} to="/mypage">Rakennukset</Nav.Link>
+                <Nav.Link as={Link} to="/mypage">Omat rakennukset</Nav.Link>
+                <Nav.Link as={Link} to="/usersettings">Asetukset</Nav.Link>
               </>
             ) : (
               <Nav.Link as={Link} to="/login">Login</Nav.Link>
             )}
-            <NavDropdown title="Asetukset" id="basic-nav-dropdown">
+            <NavDropdown title="Valikko" id="basic-nav-dropdown">
               <NavDropdown.Item href="#action/3.1" disabled>Link 1</NavDropdown.Item>
               <NavDropdown.Item href="#action/3.2" disabled>Link 2</NavDropdown.Item>
-              <NavDropdown.Item href="/usersettings">Käyttäjän asetukset</NavDropdown.Item>
               <NavDropdown.Item href="#action/3.3">Ohjelman tiedot</NavDropdown.Item>
               <NavDropdown.Divider />
               <NavDropdown.Item href="#action/3.4">Copyright JarnoK 2024</NavDropdown.Item>
