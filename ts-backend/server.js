@@ -27,6 +27,7 @@ const putRenovation = require('./routesrenovations/put');
 // users
 const createUserRouter = require('./routes/users');
 const getUserRouter = require('./routes/users');
+const putUserRouter = require('./routes/users');
 
 // todo
 const todoRouter = require('./todoroutes/todocrud');
@@ -70,6 +71,8 @@ app.use('/api/login', loginRouter);
 app.use('/api/create', createUserRouter);
 //app.use('/api/get', getUserRouter);
 app.use('/api/users', getUserRouter);
+app.use('/api/put', putUserRouter);
+
 
 app.use('/api/get', getRoute);
 app.use('/api/put', putRoute);

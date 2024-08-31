@@ -82,5 +82,26 @@ const config = {
             res.status(404).send('User not found');
         }
     });
+
+    router.put('/:username', getUserFromToken, async (req, res) => {
+        const { username } = req.params;
+        const { email, phone } = req.body;
+      
+        // Connect to the database
+        let pool = await sql.connect(config);
+      
+        // Update the user in the database
+        let result = await pool.request()
+            .input('username', sql.NVarChar, username)
+            .input('email', sql.NVarChar, email)
+            .input('phone', sql.NVarChar, phone)
+            .query('UPDATE TS_PropertyUsers SET email = @email, phone = @phone WHERE username = @username');
+      
+        if (result.rowsAffected[0] > 0) {
+            res.status(200).send('User updated');
+        } else {
+            res.status(404).send('User not found');
+        }
+    });
     
     module.exports = router;
