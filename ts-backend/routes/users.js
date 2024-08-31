@@ -1,3 +1,4 @@
+// users.js
 const express = require('express');
 const router = express.Router();
 const sql = require('mssql');
@@ -51,6 +52,34 @@ const config = {
             } else {
                 res.status(500).send('Error executing query');
             }
+        }
+    });
+
+    router.get('/:username', async (req, res) => {
+        const { username } = req.params;
+    
+        // Connect to the database
+        let pool = await sql.connect(config);
+    
+        // Fetch the user from the database
+        let result = await pool.request()
+            .input('username', sql.NVarChar, username)
+            .query('SELECT * FROM TS_PropertyUsers WHERE username = @username');
+
+            console.log('Result:', result); // Log the result of the database query
+
+    
+        if (result.recordset.length > 0) {
+            const user = result.recordset[0];
+            res.status(200).json({
+                username: user.username,
+                fullname: user.fullname,
+                email: user.email,
+                phone: user.phone,
+                role: user.role
+            });
+        } else {
+            res.status(404).send('User not found');
         }
     });
     

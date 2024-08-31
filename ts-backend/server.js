@@ -26,6 +26,7 @@ const putRenovation = require('./routesrenovations/put');
 
 // users
 const createUserRouter = require('./routes/users');
+const getUserRouter = require('./routes/users');
 
 // todo
 const todoRouter = require('./todoroutes/todocrud');
@@ -65,7 +66,11 @@ sql.connect(config).then(pool => {
 }).catch(err => console.error('Could not connect to the database. ', err));
 
 app.use('/api/login', loginRouter);
+
 app.use('/api/create', createUserRouter);
+//app.use('/api/get', getUserRouter);
+app.use('/api/users', getUserRouter);
+
 app.use('/api/get', getRoute);
 app.use('/api/put', putRoute);
 app.use('/api/delete', deleteRoute);
