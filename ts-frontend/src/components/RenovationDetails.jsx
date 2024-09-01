@@ -203,7 +203,6 @@ const RenovationDetails = ({ renovationId }) => {
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <button className='edit-link' onClick={() => handleEdit(detail.id, detail.detail)}><PencilSquare></PencilSquare>  Muokkaa</button>
                 <button className='delete-link' onClick={() => handleDeleteConfirmation(detail.id)}><XLg></XLg> Poista</button>
-
               </div>
             )}
           </td>

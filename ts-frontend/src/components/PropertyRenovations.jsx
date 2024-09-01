@@ -6,7 +6,7 @@ import DeleteConfirmation from '../notifications/DeleteConfirmation';
 import DeleteDetailsConfirmation from '../notifications/DeleteDetailsConfirmation';
 import EditRenovationForm from '../forms/EditRenovationForm.jsx';
 import Accordion from 'react-bootstrap/Accordion';
-import { XLg, PencilSquare } from 'react-bootstrap-icons';
+import { XLg, PencilSquare, WrenchAdjustable, SlashLg, ChevronRight } from 'react-bootstrap-icons';
 import Badge from 'react-bootstrap/Badge'; // Import Badge from react-bootstrap
 
 
@@ -145,24 +145,31 @@ const PropertyRenovations = ({ propertyId }) => {
                 return (
                   <Accordion.Item eventKey={index.toString()} key={index}>
                     <Accordion.Header>
-                      <div className='renovation-header d-flex'>
+                      <div className='otsikko'>
                         <div className='renovation-year mb-1'>
                           {year}
                         </div> 
+                        <SlashLg></SlashLg>
                         <div className='renovation-kpl'>
-                          Tehtyjä remontteja {renovations.length} kpl
+                         {renovations.length} <WrenchAdjustable></WrenchAdjustable>
+                           
                         </div>
+                        <SlashLg></SlashLg>
                         <p className="renovation-payment"> 
-                          Remonttikulut yhteensä: {totalCostForYear} €
+                          {totalCostForYear} €
                         </p>
                       </div>
                       <div className='over-10yrs-badge mx-2'>
-                        {renovations.sort((a, b) => new Date(b.date) - new Date(a.date)).map((renovation, index) => {
-                          const renovationYear = new Date(renovation.date).getFullYear();
-                          const currentYear = new Date().getFullYear();
-                          const differenceInYears = currentYear - renovationYear;
-                          return differenceInYears >= 10.01 ? <Badge bg="warning">+10v</Badge> : null;
-                        })}
+                        {(() => {
+                          const isOver10YearsOld = renovations.some(renovation => {
+                            const renovationYear = new Date(renovation.date).getFullYear();
+                            const currentYear = new Date().getFullYear();
+                            const differenceInYears = currentYear - renovationYear;
+                            return differenceInYears >= 10.01;
+                          });
+
+                          return isOver10YearsOld ? <Badge bg="warning">+10v</Badge> : null;
+                        })()}
                       </div>
                     </Accordion.Header>
                     <Accordion.Body>
@@ -173,9 +180,13 @@ const PropertyRenovations = ({ propertyId }) => {
                               <span className="cost">
                                 {renovation.cost !== 0 && renovation.cost !== null ? `${renovation.cost} €` : null}
                               </span>
-                              <div className='otsikko'>
-                                <div>
-                                  {renovation.construction_company} | {renovation.renovation} - {new Date(renovation.date).toLocaleDateString('fi-FI')}
+                              <div className=''>
+                              <div className="renovation-card">
+                                  <span className="company-name">{renovation.construction_company}</span>
+                                  <ChevronRight></ChevronRight>
+                                  <span className="renovation-name">{renovation.renovation}</span>
+                                  <ChevronRight></ChevronRight>
+                                  <span className='renovation-date'>{new Date(renovation.date).toLocaleDateString('fi-FI')}</span>
                                 </div>
                                 <article className='edit-delete-icons'>
                                   <span className='edit-link' onClick={() => handleShowForm(renovation.id)}>
