@@ -5,6 +5,7 @@ import axios from 'axios';
 import config from '../configuration/config';
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
+import { toast } from 'react-toastify';
 
 const EditUserForm = ({ user, onUserUpdate, toggleEdit }) => {
     const [email, setEmail] = useState(user.email);
@@ -28,6 +29,7 @@ const EditUserForm = ({ user, onUserUpdate, toggleEdit }) => {
             if (response.status === 200) { // Check if the status is 200 (OK)
                 onUserUpdate(response.data); // Call the callback function with the updated user data
                 toggleEdit(); // Close the edit form
+                toast.success('Tiedot päivitetty onnistuneesti');
             } else if (response.status === 404) {
                 setError('User not found');
             }

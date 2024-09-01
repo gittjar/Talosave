@@ -77,7 +77,7 @@ const UserSettings = () => {
                 <p>Loading...</p>
             )}
             <hr></hr>
-            <Link to='/mypage'>Minun rakennukset</Link>
+            <Link to='/mypage'>Omat rakennukset</Link>
         </div>
     );
 }

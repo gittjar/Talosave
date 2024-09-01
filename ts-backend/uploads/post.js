@@ -1,7 +1,10 @@
+const express = require('express');
 const multer = require('multer');
 const upload = multer();
 const { File } = require('../mongo');
-const router = require('../consumptionsroutes/postHeat');
+//const router = require('../consumptionsroutes/postHeat');
+const router = express.Router(); // Create a new router instance
+
 
 
 router.post('/upload', upload.none(), async (req, res) => {

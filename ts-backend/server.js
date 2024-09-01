@@ -43,7 +43,7 @@ const deleteHeatingConsumption = require('./consumptionsroutes/deleteHeat');
 const getResearch = require('./researchroutes/get');
 const deleteResearch = require('./researchroutes/delete');
 
-// uoload links
+// upload links
 const uploadRouter = require('./uploads/post');
 
 app.use(express.json());

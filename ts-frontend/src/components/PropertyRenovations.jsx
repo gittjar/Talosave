@@ -114,7 +114,7 @@ const PropertyRenovations = ({ propertyId }) => {
       .catch(error => console.error('Error:', error));
   };
 
-
+  
 
   return (
     <div className='renovations'>
@@ -139,91 +139,76 @@ const PropertyRenovations = ({ propertyId }) => {
                 }, {})
               )
               .sort(([yearA], [yearB]) => yearB - yearA)
-              .map(([year, renovations], index) => (
-                <Accordion.Item eventKey={index.toString()} key={index}>
-                  <Accordion.Header>
-    
-                  <div className='renovation-header d-flex'>
-        
-
-
-                   
-                  <div className='renovation-year mb-1'>
-          
-                  {year} </div> 
-                  <div className='renovation-kpl'>
-                  Tehtyjä remontteja {renovations.length} kpl
-                  </div>
-
-                  <p className="renovation-payment"> 
-                  Remonttikulut yhteensä: {renovations.reduce((total, renovation) => total + (renovation.cost || 0), 0)} €
-                  </p>
-                  </div>
-
-                  <div className='over-10yrs-badge mx-2'>
-                  {renovations.sort((a, b) => new Date(b.date) - new Date(a.date)).map((renovation, index) => {
-                      const renovationYear = new Date(renovation.date).getFullYear();
-                      const currentYear = new Date().getFullYear();
-                      const differenceInYears = currentYear - renovationYear;
-                      return differenceInYears >= 10.01 ? <Badge bg="warning">+10v</Badge> : null;} )}
-                  </div>
-
-                 
-                  </Accordion.Header>
-
-               
-                  <Accordion.Body>
-                    <Accordion>
-                      {renovations.sort((a, b) => new Date(b.date) - new Date(a.date)).map((renovation, index) => (
-                        <Accordion.Item eventKey={index.toString()} key={index}>
-                          <Accordion.Header>
-                            <span className="cost">
-                              {renovation.cost !== 0 && renovation.cost !== null ? `${renovation.cost} €` : null}
-                            </span>
-                            <div className='otsikko'>
-                              <div>
-                                {renovation.construction_company} | {renovation.renovation} - {new Date(renovation.date).toLocaleDateString('fi-FI')}
+              .map(([year, renovations], index) => {
+                const totalCostForYear = renovations.reduce((total, renovation) => total + (renovation.cost || 0), 0);
+  
+                return (
+                  <Accordion.Item eventKey={index.toString()} key={index}>
+                    <Accordion.Header>
+                      <div className='renovation-header d-flex'>
+                        <div className='renovation-year mb-1'>
+                          {year}
+                        </div> 
+                        <div className='renovation-kpl'>
+                          Tehtyjä remontteja {renovations.length} kpl
+                        </div>
+                        <p className="renovation-payment"> 
+                          Remonttikulut yhteensä: {totalCostForYear} €
+                        </p>
+                      </div>
+                      <div className='over-10yrs-badge mx-2'>
+                        {renovations.sort((a, b) => new Date(b.date) - new Date(a.date)).map((renovation, index) => {
+                          const renovationYear = new Date(renovation.date).getFullYear();
+                          const currentYear = new Date().getFullYear();
+                          const differenceInYears = currentYear - renovationYear;
+                          return differenceInYears >= 10.01 ? <Badge bg="warning">+10v</Badge> : null;
+                        })}
+                      </div>
+                    </Accordion.Header>
+                    <Accordion.Body>
+                      <Accordion>
+                        {renovations.sort((a, b) => new Date(b.date) - new Date(a.date)).map((renovation, index) => (
+                          <Accordion.Item eventKey={index.toString()} key={index}>
+                            <Accordion.Header>
+                              <span className="cost">
+                                {renovation.cost !== 0 && renovation.cost !== null ? `${renovation.cost} €` : null}
+                              </span>
+                              <div className='otsikko'>
+                                <div>
+                                  {renovation.construction_company} | {renovation.renovation} - {new Date(renovation.date).toLocaleDateString('fi-FI')}
+                                </div>
+                                <article className='edit-delete-icons'>
+                                  <span className='edit-link' onClick={() => handleShowForm(renovation.id)}>
+                                    <PencilSquare></PencilSquare>  Muokkaa
+                                  </span>
+                                  <span className='delete-link' onClick={() => { setRenovationToDelete(renovation); setShowDeleteConfirm(true); }}>
+                                    <XLg></XLg> Poista
+                                  </span>
+                                </article>
                               </div>
-                              <article className='edit-delete-icons'>
-                                <span className='edit-link' onClick={() => handleShowForm(renovation.id)}>
-                                  <PencilSquare></PencilSquare>  Muokkaa
-                                </span>
-                                <span className='delete-link' onClick={() => { setRenovationToDelete(renovation); setShowDeleteConfirm(true); }}>
-                                  <XLg></XLg> Poista
-                                </span>
-                              </article>
-                            </div>
-                          </Accordion.Header>
-                          
-
-                          <Accordion.Body>
-                            {showFormId === renovation.id && (
-                              <EditRenovationForm renovation={renovation} handleEditRenovation={handleEditRenovation} />
-                            )}
-                            <RenovationDetails renovationId={renovation.id} />
-                          </Accordion.Body>
-                        </Accordion.Item>
-                      ))}
-                    </Accordion>
-                  </Accordion.Body>
-                </Accordion.Item>
-              ))
+                            </Accordion.Header>
+                            <Accordion.Body>
+                              {showFormId === renovation.id && (
+                                <EditRenovationForm renovation={renovation} handleEditRenovation={handleEditRenovation} />
+                              )}
+                              <RenovationDetails renovationId={renovation.id} />
+                            </Accordion.Body>
+                          </Accordion.Item>
+                        ))}
+                      </Accordion>
+                    </Accordion.Body>
+                  </Accordion.Item>
+                );
+              })
             }
           </Accordion>
-
-
-          
         </Card>
       ) : (
         <p>No renovations found for this property.</p>
       )}
     </div>
   );
-}
 
-export default PropertyRenovations;
-
-
-
-
+};
+  export default PropertyRenovations;
 

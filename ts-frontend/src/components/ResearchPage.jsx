@@ -4,9 +4,12 @@ import UrlUpload from '../forms/UrlUpload';
 import config from '../configuration/config';
 import { toast } from 'react-toastify';
 import ListGroup from 'react-bootstrap/ListGroup';
+import DeleteConfirmation from '../notifications/DeleteConfirmation';
 
 const ResearchPage = ({ propertyId }) => {
   const [files, setFiles] = useState([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState(null);
 
   const fetchFiles = async () => {
     try {
@@ -21,9 +24,9 @@ const ResearchPage = ({ propertyId }) => {
     }
   };
 
-  const deleteFile = async (id) => {
+  const deleteFile = async () => {
     try {
-      await axios.delete(`${config.baseURL}/api/files/${id}`);
+      await axios.delete(`${config.baseURL}/api/files/${fileToDelete}`);
       fetchFiles(); // Refresh the files list after deleting a file
       toast.success('Tiedostolinkki poistettu onnistuneesti');
     } catch (err) {
@@ -50,11 +53,12 @@ const ResearchPage = ({ propertyId }) => {
             {file.name}
           </a>
           <br />
-          <button onClick={() => deleteFile(file._id)} className='delete-link'>Poista</button>
+          <button onClick={() => { setFileToDelete(file._id); setShowDeleteConfirm(true); }} className='delete-link'>Poista</button>
         </ListGroup.Item>
 
       ))}
       </ListGroup>
+      {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={deleteFile} setShowDeleteConfirm={setShowDeleteConfirm} />}
     </div>
   );
 };
