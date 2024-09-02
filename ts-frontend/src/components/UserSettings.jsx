@@ -5,7 +5,7 @@ import EditUserForm from '../forms/EditUserForm.jsx';
 
 const UserSettings = () => {
     const [user, setUser] = useState({}); // Initialize user with an empty object
-    const [isEditing, setIsEditing] = useState(false); // Add this line
+    const [isEditing, setIsEditing] = useState(false); 
 
     useEffect(() => {
         const username = localStorage.getItem('username'); // Get the username from local storage
@@ -65,9 +65,13 @@ const UserSettings = () => {
             <h2>Tilin asetukset</h2>
             {user ? (
                 <>
+                 <div className="user-card">
+                    <p>ID: {user.userid}</p>
                     <p>Käyttäjätunnus: {user.username}</p>
+                    <p>Nimi: {user.fullname}</p>
                     <p>Sähköposti: {user.email}</p>
                     <p>Puhelin: {user.phone}</p>
+                    </div>
                     <button className='edit-link' onClick={toggleEdit}>{isEditing ? 'Cancel' : 'Edit'}</button>
                     {isEditing && <EditUserForm user={user} onUserUpdate={handleUserUpdate} toggleEdit={toggleEdit} />}
                               

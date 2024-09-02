@@ -16,6 +16,7 @@ import { Tab, Nav } from 'react-bootstrap';
 import ConsumptionDetails from './ConsumptionDetails.jsx';
 import { HouseDoor, Tools, CardChecklist, BarChartFill, HouseCheck } from 'react-bootstrap-icons';
 import ResearchPage from './ResearchPage.jsx';
+import ChangeOwnerForm from '../forms/ChangeOwnerForm.jsx';
 
 
 export const PropertyContext = createContext();
@@ -65,7 +66,7 @@ const PropertyDetails = () => {
   const [showTodos, setShowTodos] = useState(false);
   const [isAddTodoFormVisible, setIsAddTodoFormVisible] = useState(false);
 
-
+  const [isChangeOwnerFormVisible, setIsChangeOwnerFormVisible] = useState(false);
 
 
 
@@ -335,10 +336,14 @@ const PropertyDetails = () => {
       <Tab.Pane eventKey="1">
           <button onClick={handleEditClick} className="edit-link" title="Muokkaa tietoja"><PencilSquare /> Muokkaa</button>
           <button onClick={() => setShowDeleteConfirm(true)} className="delete-link" title="Poista kohde"><XLg /> Poista</button>
+          <button onClick={() => setIsChangeOwnerFormVisible(!isChangeOwnerFormVisible)}>Change Owner</button>
+          {isChangeOwnerFormVisible && <ChangeOwnerForm propertyId={id} />}
+          
         <HouseBasicInformation property={property} />
       </Tab.Pane>
       <Tab.Pane eventKey="2">
       <div>
+
       {isAddRenovationFormOpen ? (
       <AddRenovationForm propertyId={id} refreshData={refreshData} closeForm={closeForm} />
       ) : (

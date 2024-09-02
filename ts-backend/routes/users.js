@@ -72,6 +72,7 @@ const config = {
         if (result.recordset.length > 0) {
             const user = result.recordset[0];
             res.status(200).json({
+                userid: user.userid,
                 username: user.username,
                 fullname: user.fullname,
                 email: user.email,

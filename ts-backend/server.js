@@ -18,6 +18,9 @@ const putRoute = require('./routes/put');
 const deleteRoute = require('./routes/delete');
 const postRoute = require('./routes/post');
 
+// change owner
+const changeOwnerRouter = require('./routes/changeowner');
+
 // renovations
 const postRenovation = require('./routesrenovations/post');
 const getRenovation = require('./routesrenovations/get');
@@ -72,6 +75,8 @@ app.use('/api/create', createUserRouter);
 //app.use('/api/get', getUserRouter);
 app.use('/api/users', getUserRouter);
 app.use('/api/put', putUserRouter);
+
+app.use('/api/changeowner', changeOwnerRouter);
 
 
 app.use('/api/get', getRoute);

@@ -13,7 +13,8 @@ const getUserFromToken = (req, res, next) => {
     } catch (err) {
       return res.status(401).json({ error: 'token missing or invalid' });
     }
-    console.log('Decoded Token:', decodedToken); // Add logging
+
+    // console.log('Decoded Token:', decodedToken); // Add logging
 
     if (!decodedToken.id) {
       return res.status(401).json({ error: 'token missing or invalid' });
