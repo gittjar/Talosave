@@ -11,7 +11,7 @@ import PropertyRenovations from './PropertyRenovations.jsx';
 import AddTodoForm from '../forms/AddTodoForm.jsx';
 import Todos from './Todos.jsx';
 import HouseBasicInformation from './HouseBasicInformation.jsx';
-import { XLg, PencilSquare } from 'react-bootstrap-icons';
+import { XLg, PencilSquare, BuildingUp } from 'react-bootstrap-icons';
 import { Tab, Nav } from 'react-bootstrap';
 import ConsumptionDetails from './ConsumptionDetails.jsx';
 import { HouseDoor, Tools, CardChecklist, BarChartFill, HouseCheck } from 'react-bootstrap-icons';
@@ -336,7 +336,7 @@ const PropertyDetails = () => {
       <Tab.Pane eventKey="1">
           <button onClick={handleEditClick} className="edit-link" title="Muokkaa tietoja"><PencilSquare /> Muokkaa</button>
           <button onClick={() => setShowDeleteConfirm(true)} className="delete-link" title="Poista kohde"><XLg /> Poista</button>
-          <button onClick={() => setIsChangeOwnerFormVisible(!isChangeOwnerFormVisible)}>Change Owner</button>
+          <button onClick={() => setIsChangeOwnerFormVisible(!isChangeOwnerFormVisible)} className='edit-link' title='Vaihda omistaja'><BuildingUp /> Siirrä omistajuus</button>
           {isChangeOwnerFormVisible && <ChangeOwnerForm propertyId={id} />}
           
         <HouseBasicInformation property={property} />
