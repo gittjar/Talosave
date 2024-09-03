@@ -4,16 +4,15 @@ import config from '../configuration/config';
 import { Form, FloatingLabel } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import ChangeOwnerConfirmation from '../notifications/ChangeOwnerConfirmation';
 
-
-const ChangeOwnerForm = ({ propertyId }) => { // propertyId is now a prop
+const ChangeOwnerForm = ({ propertyId }) => {
     const [newOwnerId, setNewOwnerId] = useState('');
     const [isFormVisible, setIsFormVisible] = useState(true);
+    const [showChangeOwnerConfirm, setShowChangeOwnerConfirm] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-
+    const handleSubmit = async () => {
         try {
             const response = await axios.put(`${config.baseURL}/api/changeowner/${propertyId}/owner`, {
                 newOwnerId
@@ -22,7 +21,7 @@ const ChangeOwnerForm = ({ propertyId }) => { // propertyId is now a prop
                     'Authorization': `Bearer ${localStorage.getItem('userToken')}`
                 }
             });
-            toast.success('Omistaja vaihdettu onnistuneesti');
+            toast.dark('Omistaja vaihdettu onnistuneesti! Uuden omistajan käyttäjä ID: ' + newOwnerId);
             setIsFormVisible(false); // hide the form
             navigate('/mypage'); // navigate to /mypage
             console.log(response.data);
@@ -33,13 +32,14 @@ const ChangeOwnerForm = ({ propertyId }) => { // propertyId is now a prop
 
     return isFormVisible ? (
         <section>
-            <Form onSubmit={handleSubmit}>
+            <Form onSubmit={(e) => { e.preventDefault(); setShowChangeOwnerConfirm(true); }}>
                 <FloatingLabel controlId="floatingNewOwnerId" label="Uuden omistajan ID numero" className="mb-2 mt-2">
                     <Form.Control type="text" value={newOwnerId} onChange={e => setNewOwnerId(e.target.value)} />
                 </FloatingLabel>
                 <button className="primary-button" type="submit">Submit</button>
             </Form>
             <hr></hr>
+            {showChangeOwnerConfirm && <ChangeOwnerConfirmation newOwnerId={newOwnerId} handleChangePropertyOwner={handleSubmit} setShowChangeOwnerConfirm={setShowChangeOwnerConfirm} />}
         </section>
     ) : null;
 };

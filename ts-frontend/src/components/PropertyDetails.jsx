@@ -68,9 +68,6 @@ const PropertyDetails = () => {
 
   const [isChangeOwnerFormVisible, setIsChangeOwnerFormVisible] = useState(false);
 
-
-
-
   useEffect(() => {
     const token = localStorage.getItem('userToken');
 
@@ -238,6 +235,8 @@ const PropertyDetails = () => {
 
 
 
+
+
   return (
     <div>
       {isEditing ? (
@@ -337,6 +336,7 @@ const PropertyDetails = () => {
           <button onClick={handleEditClick} className="edit-link" title="Muokkaa tietoja"><PencilSquare /> Muokkaa</button>
           <button onClick={() => setShowDeleteConfirm(true)} className="delete-link" title="Poista kohde"><XLg /> Poista</button>
           <button onClick={() => setIsChangeOwnerFormVisible(!isChangeOwnerFormVisible)} className='edit-link' title='Vaihda omistaja'><BuildingUp /> Siirrä omistajuus</button>
+          
           {isChangeOwnerFormVisible && <ChangeOwnerForm propertyId={id} />}
           
         <HouseBasicInformation property={property} />

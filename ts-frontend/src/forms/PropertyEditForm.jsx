@@ -70,7 +70,7 @@ const PropertyEditForm = ({
     const handleUpdatePropertySuccess = () => {
         handleUpdateProperty();
       setSubmitSuccess(true);
-      toast.success('Tiedot päivitetty onnistuneesti!');
+      toast.dark('Tiedot päivitetty onnistuneesti!');
     };
 
 
