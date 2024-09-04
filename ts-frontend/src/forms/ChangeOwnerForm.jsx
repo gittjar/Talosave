@@ -25,8 +25,12 @@ const ChangeOwnerForm = ({ propertyId }) => {
             setIsFormVisible(false); // hide the form
             navigate('/mypage'); // navigate to /mypage
             console.log(response.data);
-        } catch (error) {
-            console.error(error);
+        }catch (error) {
+            if (error.response && error.response.status === 400) {
+                toast.error('Virhe! Tarkista käyttäjä ID ja yritä uudelleen.');
+            } else {
+                console.error(error);
+            }
         }
     };
 

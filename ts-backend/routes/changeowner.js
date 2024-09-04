@@ -28,30 +28,51 @@ const verifyToken = (req, res, next) => {
   };
 
 
+  const checkUserExists = async (newOwnerId) => {
+    const sqlRequest = new sql.Request();
+    const result = await sqlRequest
+        .input('newOwnerId', sql.Int, newOwnerId)
+        .query(`
+            SELECT * FROM TS_PropertyUsers 
+            WHERE userid = @newOwnerId
+        `);
+    return result.recordset.length > 0;
+};
+
 router.put('/:id/owner', verifyToken, async (req, res) => {
     const id = parseInt(req.params.id, 10);
     const newOwnerId = req.body.newOwnerId;
   
     try {
-      const sqlRequest = new sql.Request();
-      const result = await sqlRequest
-        .input('id', sql.Int, id)
-        .input('newOwnerId', sql.Int, newOwnerId)
-        .query(`
-          UPDATE TS_Properties 
-          SET userid = @newOwnerId
-          WHERE propertyid = @id
-        `);
+        // Check if the user ID exists in the database
+        const userExists = await checkUserExists(newOwnerId);
+
+        if (!userExists) {
+            return res.status(400).send('User ID not found');
+        }
+
+        // Update the owner
+        const sqlRequest = new sql.Request();
+        const result = await sqlRequest
+            .input('id', sql.Int, id)
+            .input('newOwnerId', sql.Int, newOwnerId)
+            .query(`
+                UPDATE TS_Properties 
+                SET userid = @newOwnerId
+                WHERE propertyid = @id
+            `);
   
-      if (result.rowsAffected[0] > 0) {
-        res.status(200).send('Owner updated');
-        console.log('Owner updated:', id, newOwnerId);
-      } else {
-        res.status(404).send('Property not found');
-      }
+        if (result.rowsAffected[0] > 0) {
+            res.status(200).send('Owner updated!');
+            console.log('Owner updated:', id, newOwnerId);
+        } else {
+            res.status(404).send('Property not found');
+        }
     } catch (err) {
-      res.status(500).send(err.message);
+        console.error(err.message);
+        console.error(err.stack);
+        res.status(500).send(err.message);
     }
-  });
+});
 
 module.exports = router;

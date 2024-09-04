@@ -378,8 +378,7 @@ const PropertyDetails = () => {
       </Tab.Pane>
     </Tab.Content>
   </Tab.Container>
-
-         
+     
         </section>
       )}
   {showDeleteConfirm && (
