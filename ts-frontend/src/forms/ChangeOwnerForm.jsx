@@ -25,9 +25,24 @@ const ChangeOwnerForm = ({ propertyId }) => {
             setIsFormVisible(false); // hide the form
             navigate('/mypage'); // navigate to /mypage
             console.log(response.data);
-        }catch (error) {
-            if (error.response && error.response.status === 400) {
-                toast.error('Virhe! Tarkista käyttäjä ID ja yritä uudelleen.');
+        }
+        catch (error) {
+            if (error.response) {
+                if (error.response.status === 400) {
+                    if (error.response.data === 'User ID not found') {
+                        toast.error('Virhe! Käyttäjä ID ei löydy. Yritä uudelleen.');
+                    } else if (error.response.data === 'Property already owned by the new owner') {
+                        toast.error('Virhe! Kiinteistö on jo omistuksessa.');
+                    } else {
+                        toast.error('Virhe! Tarkista käyttäjä ID ja yritä uudelleen.');
+                    }
+                } else if (error.response.status === 404) {
+                    toast.error('Virhe! Kiinteistöä ei löydy.');
+                } else if (error.response.status === 500) {
+                    toast.error('Virhe! Palvelinvirhe. Yritä myöhemmin uudelleen.');
+                } else {
+                    console.error(error);
+                }
             } else {
                 console.error(error);
             }

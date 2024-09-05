@@ -39,6 +39,18 @@ const verifyToken = (req, res, next) => {
     return result.recordset.length > 0;
 };
 
+const UserPropertyAllReadyOwner = async (id, newOwnerId) => {
+    const sqlRequest = new sql.Request();
+    const result = await sqlRequest
+        .input('id', sql.Int, id)
+        .input('newOwnerId', sql.Int, newOwnerId)
+        .query(`
+            SELECT * FROM TS_Properties 
+            WHERE propertyid = @id AND userid = @newOwnerId
+        `);
+    return result.recordset.length > 0;
+}
+
 router.put('/:id/owner', verifyToken, async (req, res) => {
     const id = parseInt(req.params.id, 10);
     const newOwnerId = req.body.newOwnerId;
@@ -50,6 +62,13 @@ router.put('/:id/owner', verifyToken, async (req, res) => {
         if (!userExists) {
             return res.status(400).send('User ID not found');
         }
+
+        // Check if the property is already owned by the new owner
+        const propertyAllReadyOwner = await UserPropertyAllReadyOwner(id, newOwnerId);
+        if (propertyAllReadyOwner) {
+            return res.status(400).send('Property already owned by the new owner');
+        }
+
 
         // Update the owner
         const sqlRequest = new sql.Request();
@@ -64,7 +83,7 @@ router.put('/:id/owner', verifyToken, async (req, res) => {
   
         if (result.rowsAffected[0] > 0) {
             res.status(200).send('Owner updated!');
-            console.log('Owner updated:', id, newOwnerId);
+            console.log('Owner updated ID --> ' + 'ID: ', id + ' New owner ID: ', newOwnerId);
         } else {
             res.status(404).send('Property not found');
         }
