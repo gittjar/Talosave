@@ -104,7 +104,19 @@ const ShowElectricityConsumption = () => {
   }
 
 if (years.length === 0) {
-    return <div>Ei kulutusdataa saatavilla.</div>;
+    return <div>
+
+   <p>Sähködataa ei löydy.</p>
+    <div class="p-2 mt-2 alert alert-success" role="alert">
+      
+  <h4 class="alert-heading">Lisää sähködataa</h4>
+  <p>Lisää sähködataa painamalla "Lisää" -nappia.</p>
+</div>
+    <AddElectricityForm propertyId={id} refreshData={refreshData} closeForm={closeForm} />
+    </div>
+    
+    
+    ;
   }
 
   /* RANDOM COLOR GENERATOR */
