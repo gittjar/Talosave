@@ -5,6 +5,7 @@ import Table from 'react-bootstrap/Table';
 import config from '../configuration/config';
 import AddHeatingForm from '../forms/AddHeatingForm';
 import colorMap from '../components/colorMap';
+import { PlusLg } from 'react-bootstrap-icons';
 import DeleteConfirmationHeating from '../notifications/DeleteConfirmationHeating';
 import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryLabel, VictoryTooltip } from 'victory';
 
@@ -101,8 +102,8 @@ useEffect(() => {
             <h3>Lämmityskulut</h3>
             {loading && <p>Loading data...</p>}
             <button onClick={() => setShowForm(prevShowForm => !prevShowForm)} className='edit-link'>
-                {showForm ? 'Sulje lämmityskulutuksen lisäys' : 'Lisää lämmityskulutus'}
-                </button>  
+                   
+            {showForm ? 'Sulje lämmityskulutuksen lisäys' :  <><PlusLg /> Lisää lämmityskulutus</>}                </button>  
 
                 {showForm && <AddHeatingForm propertyId={id} refreshData={refreshData} />} 
 

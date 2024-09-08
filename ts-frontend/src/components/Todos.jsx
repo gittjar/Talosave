@@ -183,7 +183,7 @@ const Todos = ({ propertyId }) => {
     
 
     return (
-        <div className='todopage'> 
+        <section className='todopage'> 
         <h4>Tehtäviä</h4>
         <button className={`link-black ${activeButton === 'sortNewest' ? 'active' : ''}`} onClick={() => {sortNewest(); setActiveButton('sortNewest');}}>Uusin</button>
 <button className={`link-black ${activeButton === 'sortOldest' ? 'active' : ''}`} onClick={() => {sortOldest(); setActiveButton('sortOldest');}}>Vanhin</button>
@@ -246,7 +246,7 @@ const Todos = ({ propertyId }) => {
                     setShowDeleteConfirm={setShowDeleteConfirm} 
                 />
             )}
-        </div>
+        </section>
     );
 }
 
