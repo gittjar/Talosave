@@ -4,6 +4,7 @@ import { Tab, Nav } from 'react-bootstrap';
 import ShowElectricityConsumption from '../consumptions/ShowElectricityConsumption';
 import ShowHeatingConsumption from '../consumptions/ShowHeatingConsumption';
 import { BarChart } from 'react-bootstrap-icons';
+import ShowWaterConsumption from '../consumptions/ShowWaterConsumption';
 
 const ConsumptionDetails = () => {
   const { id } = useParams();
@@ -39,7 +40,7 @@ const ConsumptionDetails = () => {
   </Tab.Pane>
   <Tab.Pane eventKey="3">
     <section>
-Vesi kulutus - Coming soon
+      <ShowWaterConsumption />
   </section>
   </Tab.Pane>
   <Tab.Pane eventKey="4">

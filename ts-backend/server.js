@@ -41,6 +41,7 @@ const postElectricConsumption = require('./consumptionsroutes/postElec');
 const getHeatingConsumption = require('./consumptionsroutes/getHeat');
 const postHeatingConsumption = require('./consumptionsroutes/postHeat');
 const deleteHeatingConsumption = require('./consumptionsroutes/deleteHeat');
+const getWaterConsumption = require('./consumptionsroutes/getWater');
 
 // research
 const getResearch = require('./researchroutes/get');
@@ -96,6 +97,7 @@ app.use('/api/electricconsumptions', postElectricConsumption);
 app.use('/api/heatingconsumptions', getHeatingConsumption);
 app.use('/api/heatingconsumptions', postHeatingConsumption);
 app.use('/api/heatingconsumptions', deleteHeatingConsumption);
+app.use('/api/waterconsumptions', getWaterConsumption);
 
 app.use('/api', getResearch);
 app.use('/api', deleteResearch);
