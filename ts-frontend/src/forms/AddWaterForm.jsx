@@ -100,7 +100,7 @@ const AddWaterForm = ({ propertyId, refreshData, closeForm }) => {
       <br></br>
       <input className='m-1 w-25' type="number" value={euros} onChange={e => setEuros(e.target.value)} placeholder="Euros" required />
       <br></br>
-      <button type="submit" className='primary-button m-1'>Add</button>
+      <button type="submit" className='primary-button m-1'>Lisää</button>
     </form>
   );
 };

@@ -6,6 +6,7 @@ import config from '../configuration/config';
 import AddHeatingForm from '../forms/AddHeatingForm';
 import colorMap from '../components/colorMap';
 import { PlusLg } from 'react-bootstrap-icons';
+import { toast } from 'react-toastify';
 import DeleteConfirmationHeating from '../notifications/DeleteConfirmationHeating';
 import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryLabel, VictoryTooltip } from 'victory';
 
@@ -68,6 +69,7 @@ const ShowHeatingConsumption = () => {
           }
       
           console.log('Heating data deleted successfully.');
+          toast.dark('Tietue poistettu onnistuneesti.'); // Show a success toast
           refreshData(); // Refresh the data after deleting
         } catch (error) {
           console.error('Error deleting heating consumption:', error);

@@ -5,7 +5,8 @@ import config from '../configuration/config';
 import AddWaterForm from '../forms/AddWaterForm';
 import colorMap from '../components/colorMap';
 import { PlusLg } from 'react-bootstrap-icons';
-// import DeleteConfirmationWater from '../notifications/DeleteConfirmationWater';
+import DeleteConfirmationWater from '../notifications/DeleteConfirmationWater';
+import { toast } from 'react-toastify';
 import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryLabel, VictoryTooltip } from 'victory';
 
 const ShowWaterConsumption = () => {
@@ -18,8 +19,6 @@ const ShowWaterConsumption = () => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deletingItem, setDeletingItem] = useState(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
-
-
 
     const fetchWaterConsumptions = async (propertyId) => {
         const token = localStorage.getItem('userToken'); // Get the token from local storage
@@ -49,32 +48,32 @@ const ShowWaterConsumption = () => {
 
     // Delete water consumption function here
 
-  const deleteWaterConsumption = async (propertyId, month, year) => {
+    const deleteWaterConsumption = async (propertyId, month, year) => {
         const token = localStorage.getItem('userToken'); // Get the token from local storage
-
+    
         try {
             const response = await fetch(`${config.baseURL}/api/waterconsumptions/`, {
                 method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({ propertyId, month, year })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log('Data:', data);
-
-            return data;
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ propertyid: propertyId, month, year }) // Send the property ID, month, and year in the request body
+          });
+    
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+      
+          console.log('Water data successfully deleted.');
+            toast.dark('Tietue poistetty onnistuneesti.'); // Show a success toast
+          refreshData(); // Refresh the data after deleting
         } catch (error) {
-            console.error('Error deleting water consumption:', error);
-            return null;
+          console.error('Error deleting water consumption:', error);
         }
-    }
+      };
+
+
     useEffect(() => {
         console.log('Property ID:', id); // Log the property ID
         setLoading(true); // Set loading to true before fetching data
@@ -96,11 +95,15 @@ const ShowWaterConsumption = () => {
         <div>
             <h2>Vedenkulutus</h2>
 
+            <section>
             <button onClick={() => setShowForm(prevShowForm => !prevShowForm)} className='edit-link'>
-                <PlusLg /> Lisää vedenkulutus
+                <PlusLg /> Lisää vedenkulutus / kuukausi
             </button>
             {showForm && <AddWaterForm propertyId={id} refreshData={refreshData} />}
 
+            <button className='edit-link'> <PlusLg /> Lisää vedenkulutus / koko vuosi
+ </button>
+            </section>
       
 
             {loading && <p>Loading...</p>}
@@ -132,17 +135,19 @@ const ShowWaterConsumption = () => {
                     ))}
                 </tbody>
             </Table>
-            {showDeleteConfirm && <DeleteConfirmationWater
-                item={deletingItem}
-                deleteItem={() => {
-                    deleteWaterConsumption(deletingItem.propertyId, deletingItem.month, deletingItem.year)
-                        .then(() => {
-                            refreshData();
-                            setShowDeleteConfirm(false);
-                        });
-                }}
-                cancelDelete={() => setShowDeleteConfirm(false)}
-            />}
+            {showDeleteConfirm && (
+                <DeleteConfirmationWater
+    deleteItem={() => {
+        deleteWaterConsumption(id, deletingItem.month, deletingItem.year)
+            .then(() => {
+                refreshData();
+                setShowDeleteConfirm(false);
+            });
+    }}
+    setShowDeleteConfirm={setShowDeleteConfirm}
+    deletingItem={deletingItem}
+/>
+)}
         </div>
     );
 };

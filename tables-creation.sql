@@ -60,6 +60,7 @@ CREATE TABLE TS_WaterConsumption (
     year INT,
     liters FLOAT,
     euros FLOAT,
+    m3 FLOAT,
     FOREIGN KEY (propertyid) REFERENCES TS_Properties(propertyid)
 );
 
