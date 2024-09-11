@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Table from 'react-bootstrap/Table';
 import config from '../configuration/config';
-// import AddWaterForm from '../forms/AddWaterForm';
+import AddWaterForm from '../forms/AddWaterForm';
 import colorMap from '../components/colorMap';
 import { PlusLg } from 'react-bootstrap-icons';
 // import DeleteConfirmationWater from '../notifications/DeleteConfirmationWater';
@@ -14,10 +14,12 @@ const ShowWaterConsumption = () => {
     const [waterConsumptions, setWaterConsumptions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
-    const [selectedYears, setSelectedYears] = useState([]);
     const [unit, setUnit] = useState('m³'); // Add this state variable
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deletingItem, setDeletingItem] = useState(null);
+    const [isFormOpen, setIsFormOpen] = useState(false);
+
+
 
     const fetchWaterConsumptions = async (propertyId) => {
         const token = localStorage.getItem('userToken'); // Get the token from local storage
@@ -86,13 +88,23 @@ const ShowWaterConsumption = () => {
         setShowForm(false);
     }
 
+    const closeForm = () => {
+        setIsFormOpen(false);
+      };
+
     return (
         <div>
             <h2>Vedenkulutus</h2>
-            <button className="edit-link" onClick={() => setShowForm(true)}>
+
+            <button onClick={() => setShowForm(prevShowForm => !prevShowForm)} className='edit-link'>
                 <PlusLg /> Lisää vedenkulutus
             </button>
             {showForm && <AddWaterForm propertyId={id} refreshData={refreshData} />}
+
+      
+
+            {loading && <p>Loading...</p>}
+
             <Table striped bordered hover>
                 <thead>
                     <tr>

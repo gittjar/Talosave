@@ -14,7 +14,9 @@ const ConsumptionDetails = () => {
     <div>
 
 
-<Tab.Container id="left-tabs-example" defaultActiveKey="first">
+
+<Tab.Container id="left-tabs-example" defaultActiveKey="0">
+
   <Nav variant="tabs" className="nav-propertydetails">
   <Nav.Item>
     <Nav.Link eventKey="1" className='navlinks'>Sähkö <BarChart /></Nav.Link>
@@ -29,7 +31,15 @@ const ConsumptionDetails = () => {
     <Nav.Link eventKey="4" className='navlinks'>Jätehuolto <BarChart /></Nav.Link>
   </Nav.Item>
 </Nav>
+
+
+
 <Tab.Content>
+<Tab.Pane eventKey="0">
+            <h1>Kohteen kulutuslukemat</h1>
+            <section>Kuva tähän</section>
+          </Tab.Pane>
+
   <Tab.Pane eventKey="1">
     {/* SÄHKÖ */}
   <ShowElectricityConsumption /> 
