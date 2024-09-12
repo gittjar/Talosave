@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import Table from 'react-bootstrap/Table';
 import config from '../configuration/config';
 import AddWaterForm from '../forms/AddWaterForm';
+import AddYearlyWaterForm from '../forms/AddYearlyWaterForm';
 import colorMap from '../components/colorMap';
 import { PlusLg } from 'react-bootstrap-icons';
 import DeleteConfirmationWater from '../notifications/DeleteConfirmationWater';
@@ -101,8 +102,9 @@ const ShowWaterConsumption = () => {
             </button>
             {showForm && <AddWaterForm propertyId={id} refreshData={refreshData} />}
 
-            <button className='edit-link'> <PlusLg /> Lisää vedenkulutus / koko vuosi
- </button>
+            <button onClick={() => setShowForm(prevShowForm => !prevShowForm)} className='edit-link'> <PlusLg /> Lisää vedenkulutus / koko vuosi
+            </button>
+            {showForm && <AddYearlyWaterForm propertyId={id} refreshData={refreshData} />}
             </section>
       
 
