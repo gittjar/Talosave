@@ -20,6 +20,9 @@ const ShowWaterConsumption = () => {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deletingItem, setDeletingItem] = useState(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
+    const [showMonthlyForm, setShowMonthlyForm] = useState(false);
+    const [showYearlyForm, setShowYearlyForm] = useState(false);
+    const [yearlyWaterConsumptions, setYearlyWaterConsumptions] = useState([]);
 
     const fetchWaterConsumptions = async (propertyId) => {
         const token = localStorage.getItem('userToken'); // Get the token from local storage
@@ -44,6 +47,30 @@ const ShowWaterConsumption = () => {
             console.error('Error fetching water consumptions:', error);
             return []; // Return an empty array in case of error
 
+        }
+    }
+
+    const fetchYearlyWaterConsumptions = async (propertyId) => {
+        const token = localStorage.getItem('userToken'); // Get the token from local storage
+    
+        try {
+            const response = await fetch(`${config.baseURL}/api/waterconsumptions/${propertyId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+    
+            const data = await response.json(); // Parse the response as JSON
+            console.log('Yearly Data:', data); // Log the data
+    
+            return data; // Return the data
+        } catch (error) {
+            console.error('Error fetching yearly water consumptions:', error);
+            return []; // Return an empty array in case of error
         }
     }
 
@@ -75,11 +102,17 @@ const ShowWaterConsumption = () => {
       };
 
 
-    useEffect(() => {
+      useEffect(() => {
         console.log('Property ID:', id); // Log the property ID
         setLoading(true); // Set loading to true before fetching data
         refreshData();
+        fetchYearlyData();
     }, [id]);
+    
+    const fetchYearlyData = async () => {
+        const yearlyData = await fetchYearlyWaterConsumptions(id);
+        setYearlyWaterConsumptions(yearlyData);
+    }
 
     const refreshData = async () => {
         const data = await fetchWaterConsumptions(id);
@@ -97,18 +130,11 @@ const ShowWaterConsumption = () => {
             <h2>Vedenkulutus</h2>
 
             <section>
-            <button onClick={() => setShowForm(prevShowForm => !prevShowForm)} className='edit-link'>
+                <button onClick={() => setShowMonthlyForm(prevShowForm => !prevShowForm)} className='edit-link'>
                 <PlusLg /> Lisää vedenkulutus / kuukausi
-            </button>
-            {showForm && <AddWaterForm propertyId={id} refreshData={refreshData} />}
-
-            <button onClick={() => setShowForm(prevShowForm => !prevShowForm)} className='edit-link'> <PlusLg /> Lisää vedenkulutus / koko vuosi
-            </button>
-            {showForm && <AddYearlyWaterForm propertyId={id} refreshData={refreshData} />}
+                </button>
+                {showMonthlyForm && <AddWaterForm propertyId={id} refreshData={refreshData} />}
             </section>
-      
-
-            {loading && <p>Loading...</p>}
 
             <Table striped bordered hover>
                 <thead>
@@ -121,22 +147,54 @@ const ShowWaterConsumption = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {waterConsumptions.map((item, index) => (
-                        <tr key={index}>
-                            <td>{item.month}</td>
-                            <td>{item.year}</td>
-                            <td>{(item.liters / 1000).toFixed(2)} /  {unit} </td>
-                           <td>{item.euros}</td>
-                            <td>
-                                <button className="delete-link" onClick={() => {
-                                    setShowDeleteConfirm(true);
-                                    setDeletingItem(item);
-                                }}>Delete</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
+    {waterConsumptions.filter(item => item.liters).map((item, index) => (
+        <tr key={index}>
+            <td>{item.month}</td>
+            <td>{item.year}</td>
+            <td>{(item.liters / 1000).toFixed(2)} /  {unit} </td>
+            <td>{item.euros}</td>
+            <td>
+                <button className="delete-link" onClick={() => {
+                    setShowDeleteConfirm(true);
+                    setDeletingItem(item);
+                }}>Delete</button>
+            </td>
+        </tr>
+    ))}
+</tbody>
             </Table>
+      
+
+            {loading && <p>Loading...</p>}
+
+            <section>
+                <button onClick={() => setShowYearlyForm(prevShowForm => !prevShowForm)} className='edit-link'>
+                    <PlusLg /> Add Yearly Water Consumption
+                </button>
+                {showYearlyForm && <AddYearlyWaterForm propertyId={id} refreshData={refreshData} />}
+            </section>
+
+            <h3>Yearly Water Consumption</h3>
+            <Table striped bordered hover>
+    <thead>
+        <tr>
+            <th>Year</th>
+            <th>Consumption (m³)</th>
+            <th>Euros</th>
+        </tr>
+    </thead>
+    <tbody>
+        {yearlyWaterConsumptions.filter(item => item.m3 && item.euros).map((item, index) => (
+            <tr key={index}>
+                <td>{item.year}</td>
+                <td>{item.m3}</td>
+                <td>{item.euros}</td>
+            </tr>
+        ))}
+    </tbody>
+</Table>
+
+   
             {showDeleteConfirm && (
                 <DeleteConfirmationWater
     deleteItem={() => {

@@ -60,7 +60,7 @@ const AddYearlyWaterForm = ({ propertyId, refreshData }) => {
 
     return (
         <form onSubmit={handleSubmit}>
-<input type="number" value={propertyid} onChange={e => setPropertyid(e.target.value)} placeholder="Property ID" required />        <br></br>
+<input type="number" value={propertyid} onChange={e => setPropertyid(e.target.value)} placeholder="Property ID" required hidden />        <br></br>
         <input className='m-1 w-25' type="number" value={year} onChange={e => setYear(e.target.value)} placeholder="Year" required />
         <br></br>
         <input className='m-1 w-25' type="number" value={m3} onChange={e => setM3(e.target.value)} placeholder="m3" required />

@@ -45,7 +45,8 @@ const getWaterConsumption = require('./consumptionsroutes/getWater');
 const postWaterConsumption = require('./consumptionsroutes/postWater');
 const deleteWaterConsumption = require('./consumptionsroutes/deleteWater');
         // waterconsumptions yearly
-const postWaterConsumptionYearly = require('./consumptionsroutes/postWaterYearly');        
+const postWaterConsumptionYearly = require('./consumptionsroutes/postWaterYearly'); 
+const getWaterConsumptionYearly = require('./consumptionsroutes/getWaterYearly');      
 
 
 // research
@@ -110,7 +111,7 @@ app.use('/api/waterconsumptions', postWaterConsumption);
 app.use('/api/waterconsumptions', deleteWaterConsumption);
     // waterconsumptions yearly
 app.use('/api/waterconsumptions', postWaterConsumptionYearly);
-
+app.use('/api/waterconsumptions', getWaterConsumptionYearly);
 
 
 app.use('/api', getResearch);
