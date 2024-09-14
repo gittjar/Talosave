@@ -1,7 +1,7 @@
 const colorMap = {
     2000: 'passionfruit',
-    2001: 'pastelturquoise',
-    2002: 'lightgreen',
+    2001: 'skyblue',
+    2002: 'tan',
     2003: 'yellow',
     2004: 'rosewood',
     2005: 'darkorange',
@@ -19,7 +19,7 @@ const colorMap = {
     2017: 'tomato',
     2018: 'gold',
     2019: 'lightblue',
-    2020: 'tan',
+    2020: 'goldenrod',
     2021: 'lightcyan',
     2022: 'lightcoral',
     2023: 'orange',

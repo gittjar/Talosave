@@ -428,7 +428,7 @@ th, td {
 
 }
 
-.kwh-labels-year {
+.kwh-labels-year, .water-labels-year {
     display: flex;
     flex-direction: row;
     gap: 0.4rem;
@@ -437,7 +437,7 @@ th, td {
     padding-bottom: 1rem;
 }
 
-.kwh-box, .mwh-box {
+.kwh-box, .mwh-box, .m3-box {
     padding: 0.3rem !important;
     border: 0;
     border-radius: 10px 10px 10px 10px  !important;
