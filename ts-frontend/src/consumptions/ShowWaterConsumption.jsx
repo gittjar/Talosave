@@ -2,53 +2,18 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Table from 'react-bootstrap/Table';
 import config from '../configuration/config';
-import AddWaterForm from '../forms/AddWaterForm';
 import AddYearlyWaterForm from '../forms/AddYearlyWaterForm';
-import colorMap from '../components/colorMap';
 import { PlusLg } from 'react-bootstrap-icons';
-import DeleteConfirmationWater from '../notifications/DeleteConfirmationWater';
 import { toast } from 'react-toastify';
-import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryLabel, VictoryTooltip } from 'victory';
+import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryLabel, VictoryTooltip, VictoryBar } from 'victory';
 
 const ShowWaterConsumption = () => {
 
     const { id } = useParams(); // Get the property ID from the URL
-    const [waterConsumptions, setWaterConsumptions] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [showForm, setShowForm] = useState(false);
-    const [unit, setUnit] = useState('m³'); // Add this state variable
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [deletingItem, setDeletingItem] = useState(null);
-    const [isFormOpen, setIsFormOpen] = useState(false);
-    const [showMonthlyForm, setShowMonthlyForm] = useState(false);
-    const [showYearlyForm, setShowYearlyForm] = useState(false);
     const [yearlyWaterConsumptions, setYearlyWaterConsumptions] = useState([]);
-
-    const fetchWaterConsumptions = async (propertyId) => {
-        const token = localStorage.getItem('userToken'); // Get the token from local storage
-        console.log('Token:', token); // Log the token
-
-        try {
-            const response = await fetch(`${config.baseURL}/api/waterconsumptions/${propertyId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json(); // Parse the response as JSON
-            console.log('Data:', data); // Log the data
-
-            return data; // Return the data
-        } catch (error) {
-            console.error('Error fetching water consumptions:', error);
-            return []; // Return an empty array in case of error
-
-        }
-    }
+    const [selectedYears, setSelectedYears] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [showYearlyForm, setShowYearlyForm] = useState(false);
 
     const fetchYearlyWaterConsumptions = async (propertyId) => {
         const token = localStorage.getItem('userToken'); // Get the token from local storage
@@ -74,140 +39,77 @@ const ShowWaterConsumption = () => {
         }
     }
 
-    // Delete water consumption function here
-
-    const deleteWaterConsumption = async (propertyId, month, year) => {
-        const token = localStorage.getItem('userToken'); // Get the token from local storage
-    
-        try {
-            const response = await fetch(`${config.baseURL}/api/waterconsumptions/`, {
-                method: 'DELETE',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify({ propertyid: propertyId, month, year }) // Send the property ID, month, and year in the request body
-          });
-    
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-      
-          console.log('Water data successfully deleted.');
-            toast.dark('Tietue poistetty onnistuneesti.'); // Show a success toast
-          refreshData(); // Refresh the data after deleting
-        } catch (error) {
-          console.error('Error deleting water consumption:', error);
-        }
-      };
-
-
-      useEffect(() => {
+    useEffect(() => {
         console.log('Property ID:', id); // Log the property ID
         setLoading(true); // Set loading to true before fetching data
-        refreshData();
         fetchYearlyData();
     }, [id]);
     
     const fetchYearlyData = async () => {
         const yearlyData = await fetchYearlyWaterConsumptions(id);
         setYearlyWaterConsumptions(yearlyData);
-    }
-
-    const refreshData = async () => {
-        const data = await fetchWaterConsumptions(id);
-        setWaterConsumptions(data);
+        setSelectedYears(yearlyData.filter(item => item.m3).map(item => item.year)); // Select all years with M3 data by default
         setLoading(false);
-        setShowForm(false);
     }
 
-    const closeForm = () => {
-        setIsFormOpen(false);
-      };
+    const handleYearCheck = (year) => {
+        setSelectedYears(prevYears => {
+            if (prevYears.includes(year)) {
+                return prevYears.filter(y => y !== year);
+            } else {
+                return [...prevYears, year];
+            }
+        });
+    }
+
+    const filteredData = yearlyWaterConsumptions.filter(item => selectedYears.includes(item.year));
 
     return (
         <div>
             <h2>Vedenkulutus</h2>
 
             <section>
-                <button onClick={() => setShowMonthlyForm(prevShowForm => !prevShowForm)} className='edit-link'>
-                <PlusLg /> Lisää vedenkulutus / kuukausi
-                </button>
-                {showMonthlyForm && <AddWaterForm propertyId={id} refreshData={refreshData} />}
-            </section>
-
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>Month</th>
-                        <th>Year</th>
-                        <th>Consumption</th>
-                        <th>Euros</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-    {waterConsumptions.filter(item => item.liters).map((item, index) => (
-        <tr key={index}>
-            <td>{item.month}</td>
-            <td>{item.year}</td>
-            <td>{(item.liters / 1000).toFixed(2)} /  {unit} </td>
-            <td>{item.euros}</td>
-            <td>
-                <button className="delete-link" onClick={() => {
-                    setShowDeleteConfirm(true);
-                    setDeletingItem(item);
-                }}>Delete</button>
-            </td>
-        </tr>
-    ))}
-</tbody>
-            </Table>
-      
-
-            {loading && <p>Loading...</p>}
-
-            <section>
                 <button onClick={() => setShowYearlyForm(prevShowForm => !prevShowForm)} className='edit-link'>
                     <PlusLg /> Add Yearly Water Consumption
                 </button>
-                {showYearlyForm && <AddYearlyWaterForm propertyId={id} refreshData={refreshData} />}
+                {showYearlyForm && <AddYearlyWaterForm propertyId={id} refreshData={fetchYearlyData} />}
             </section>
 
             <h3>Yearly Water Consumption</h3>
+            {yearlyWaterConsumptions.filter(item => item.m3).map(item => (
+                <div key={item.year}>
+                    <input type="checkbox" checked={selectedYears.includes(item.year)} onChange={() => handleYearCheck(item.year)} />
+                    <label>{item.year}</label>
+                </div>
+            ))}
+         <VictoryChart domainPadding={20} theme={VictoryTheme.material}>
+                <VictoryBar
+                    data={filteredData}
+                    x="euros"
+                    y="m3"
+                    style={{ data: { fill: "#c43a31" } }}
+                />
+            </VictoryChart>
             <Table striped bordered hover>
-    <thead>
-        <tr>
-            <th>Year</th>
-            <th>Consumption (m³)</th>
-            <th>Euros</th>
-        </tr>
-    </thead>
-    <tbody>
-        {yearlyWaterConsumptions.filter(item => item.m3 && item.euros).map((item, index) => (
-            <tr key={index}>
-                <td>{item.year}</td>
-                <td>{item.m3}</td>
-                <td>{item.euros}</td>
-            </tr>
-        ))}
-    </tbody>
-</Table>
+                <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Consumption (m³)</th>
+                        <th>Euros</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredData.filter(item => item.m3 && item.euros).map((item, index) => (
+                        <tr key={index}>
+                            <td>{item.year}</td>
+                            <td>{item.m3}</td>
+                            <td>{item.euros}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
 
-   
-            {showDeleteConfirm && (
-                <DeleteConfirmationWater
-    deleteItem={() => {
-        deleteWaterConsumption(id, deletingItem.month, deletingItem.year)
-            .then(() => {
-                refreshData();
-                setShowDeleteConfirm(false);
-            });
-    }}
-    setShowDeleteConfirm={setShowDeleteConfirm}
-    deletingItem={deletingItem}
-/>
-)}
+            {loading && <p>Loading...</p>}
         </div>
     );
 };
