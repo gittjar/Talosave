@@ -20,7 +20,7 @@ const colorMap = {
     2018: 'gold',
     2019: 'lightblue',
     2020: 'goldenrod',
-    2021: 'lightcyan',
+    2021: 'mediumseagreen',
     2022: 'lightcoral',
     2023: 'orange',
     2024: 'pink',

@@ -5,6 +5,7 @@ import ShowElectricityConsumption from '../consumptions/ShowElectricityConsumpti
 import ShowHeatingConsumption from '../consumptions/ShowHeatingConsumption';
 import { BarChart } from 'react-bootstrap-icons';
 import ShowWaterConsumption from '../consumptions/ShowWaterConsumption';
+const image_house1 = '/assets/images/IMG_2727.WEBP';
 
 const ConsumptionDetails = () => {
   const { id } = useParams();
@@ -36,8 +37,18 @@ const ConsumptionDetails = () => {
 
 <Tab.Content>
 <Tab.Pane eventKey="0">
-            <h1>Kohteen kulutuslukemat</h1>
-            <section>Kuva tähän</section>
+            <h4>Kohteen kulutuslukemat</h4>
+            <figure>
+  <img 
+    src={image_house1} 
+    style={{
+      borderRadius: '10px', // This gives the image a border radius
+      width: '50%', // This makes the image a bit smaller
+      height: 'auto' // This maintains the aspect ratio of the image
+    }} 
+  />
+</figure>
+
           </Tab.Pane>
 
   <Tab.Pane eventKey="1">

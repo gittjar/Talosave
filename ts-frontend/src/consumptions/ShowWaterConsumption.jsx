@@ -15,6 +15,9 @@ const ShowWaterConsumption = () => {
     const [selectedYears, setSelectedYears] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showYearlyForm, setShowYearlyForm] = useState(false);
+    const [sortConfig, setSortConfig] = useState({ key: 'year', direction: 'ascending' });
+    const [activeButton, setActiveButton] = useState('');
+
 
     const fetchYearlyWaterConsumptions = async (propertyId) => {
         const token = localStorage.getItem('userToken'); // Get the token from local storage
@@ -67,19 +70,39 @@ const ShowWaterConsumption = () => {
     const validData = filteredData.filter(item => !isNaN(item.m3) && !isNaN(item.euros));
     const maxEuros = validData.length > 0 ? Math.max(...validData.map(item => item.euros)) : 0;
 
+    const sortedData = React.useMemo(() => {
+        let sortableData = [...filteredData];
+        sortableData = sortableData.filter(item => !isNaN(item.m3) && !isNaN(item.euros)); // Filter out invalid data
+        sortableData.sort((a, b) => {
+            if (a[sortConfig.key] < b[sortConfig.key]) {
+                return sortConfig.direction === 'ascending' ? -1 : 1;
+            }
+            if (a[sortConfig.key] > b[sortConfig.key]) {
+                return sortConfig.direction === 'ascending' ? 1 : -1;
+            }
+            return 0;
+        });
+        return sortableData;
+    }, [filteredData, sortConfig]);
+
+
 
     return (
         <div>
             <h2>Vedenkulutus</h2>
 
             <section>
-                <button onClick={() => setShowYearlyForm(prevShowForm => !prevShowForm)} className='edit-link'>
-                    <PlusLg /> Add Yearly Water Consumption
-                </button>
-                {showYearlyForm && <AddYearlyWaterForm propertyId={id} refreshData={fetchYearlyData} />}
-            </section>
+    <button onClick={() => setShowYearlyForm(prevShowForm => !prevShowForm)} className='edit-link'>
+        <PlusLg /> {showYearlyForm ? 'Sulje vuosittainen vedenkulutus' : 'Lisää vuosittainen vedenkulutus'}
+    </button>
+    {showYearlyForm && <AddYearlyWaterForm propertyId={id} refreshData={fetchYearlyData} />}
+</section>
 
-            <h3>Vuosittainen vedenkulutus</h3>
+<hr />
+
+
+
+
             <section className='water-labels-year'>
             {yearlyWaterConsumptions.filter(item => item.m3).map(item => (
     <button
@@ -100,33 +123,45 @@ const ShowWaterConsumption = () => {
             </section>
             <VictoryChart domainPadding={20} theme={VictoryTheme.material}>
     <VictoryAxis
-        tickValues={validData.map(item => item.year)}
+        tickValues={sortedData.map(item => item.year.toString())}
     />
     <VictoryAxis
         dependentAxis
-        tickValues={validData.length > 0 ? Array.from({length: 5}, (_, i) => (validData.map(item => item.m3).reduce((a, b) => Math.max(a, b)) / 4) * i) : [0]}
+        tickValues={sortedData.length > 0 ? Array.from({length: 5}, (_, i) => (sortedData.map(item => item.m3).reduce((a, b) => Math.max(a, b)) / 4) * i) : [0]}
         tickFormat={(t) => t.toFixed(1)}
-
-   />
-<VictoryBar
-    data={validData}
-    x="year"
-    y="m3"
-    style={{
-        data: {
-            fill: ({ datum }) => colorMap.getColor(datum.year)
-        }
-    }}
-    labels={({ datum }) => `Year: ${datum.year}\nm³: ${datum.m3.toFixed(1)}\nEuros: ${datum.euros}`}
-    labelComponent={<VictoryTooltip/>}
-/>
-  <VictoryLabel
-    text="m³"
-    x={30} // Adjust this value to position the label correctly
-    y={30}  // Adjust this value to position the label correctly
-    textAnchor="middle"
-/>
+    />
+    <VictoryBar
+        data={sortedData.map(item => ({ ...item, year: item.year.toString() }))}
+        x="year"
+        y="m3"
+        sortKey={undefined} // Disable sorting
+        style={{
+            data: {
+                fill: ({ datum }) => colorMap.getColor(parseInt(datum.year))
+            }
+        }}
+        labels={({ datum }) => `Year: ${datum.year}\nm³: ${datum.m3.toFixed(1)}\nEuros: ${datum.euros}`}
+        labelComponent={<VictoryTooltip
+            style={{ fontSize: 8, padding: 10 }}
+            cornerRadius={10}
+            flyoutStyle={{ fill: 'lightgrey', stroke: 'black', strokeWidth: 1, filter: 'drop-shadow( 2px 2px black)' }}
+        />}
+    />
+    <VictoryLabel
+        text="m³"
+        x={30} // Adjust this value to position the label correctly
+        y={30}  // Adjust this value to position the label correctly
+        textAnchor="middle"
+    />
 </VictoryChart>
+
+<div>
+    <button className={`link-black ${activeButton === 'cheapest' ? 'active' : ''}`} onClick={() => {setSortConfig({ key: 'euros', direction: 'ascending' }); setActiveButton('cheapest');}}>Cheapest</button>
+    <button className={`link-black ${activeButton === 'expensive' ? 'active' : ''}`} onClick={() => {setSortConfig({ key: 'euros', direction: 'descending' }); setActiveButton('expensive');}}>Most expensive</button>
+    <button className={`link-black ${activeButton === 'oldest' ? 'active' : ''}`} onClick={() => {setSortConfig({ key: 'year', direction: 'ascending' }); setActiveButton('oldest');}}>Oldest year</button>
+    <button className={`link-black ${activeButton === 'newest' ? 'active' : ''}`} onClick={() => {setSortConfig({ key: 'year', direction: 'descending' }); setActiveButton('newest');}}>Newest year</button>
+</div>
+
             <Table striped bordered hover>
                 <thead>
                     <tr>
@@ -136,7 +171,7 @@ const ShowWaterConsumption = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredData.filter(item => item.m3 && item.euros).map((item, index) => (
+                    {sortedData.filter(item => item.m3 && item.euros).map((item, index) => (
                         <tr key={index}>
                             <td>{item.year}</td>
                             <td>{item.m3}</td>
