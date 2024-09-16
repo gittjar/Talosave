@@ -6,6 +6,7 @@ import AddYearlyWaterForm from '../forms/AddYearlyWaterForm';
 import { PlusLg } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import colorMap from '../components/colorMap';
+import DeleteConfirmationWater from '../notifications/DeleteConfirmationWaterYearly';
 import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryLabel, VictoryTooltip, VictoryBar } from 'victory';
 
 
@@ -18,6 +19,8 @@ const ShowWaterConsumption = () => {
     const [showYearlyForm, setShowYearlyForm] = useState(false);
     const [sortConfig, setSortConfig] = useState({ key: 'year', direction: 'ascending' });
     const [activeButton, setActiveButton] = useState('');
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [deletingItem, setDeletingItem] = useState(null);
 
 
     const fetchYearlyWaterConsumptions = async (propertyId) => {
@@ -44,6 +47,36 @@ const ShowWaterConsumption = () => {
         }
     }
 
+    const deleteYearlyWaterConsumption = async (propertyId, year) => {
+        const token = localStorage.getItem('userToken'); // Get the token from local storage
+    
+        return new Promise(async (resolve, reject) => {
+            try {
+                const response = await fetch(`${config.baseURL}/api/waterconsumptions/yearly`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ propertyid: propertyId, year })
+                });
+    
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+    
+                // Remove the deleted record from the state
+                setYearlyWaterConsumptions(prevData => prevData.filter(item => item.year !== year));
+                toast.success('Vuosi: ' + year + ' poistettu onnistuneesti.');
+                resolve();
+            } catch (error) {
+                console.error('Error deleting yearly water consumption:', error);
+                toast.error('Failed to delete yearly water data.');
+                reject();
+            }
+        });
+    }
+
     useEffect(() => {
         console.log('Property ID:', id); // Log the property ID
         setLoading(true); // Set loading to true before fetching data
@@ -56,6 +89,11 @@ const ShowWaterConsumption = () => {
         setSelectedYears(yearlyData.filter(item => item.m3).map(item => item.year)); // Select all years with M3 data by default
         setLoading(false);
     }
+
+    const handleDeleteClick = (item) => {
+        setDeletingItem(item);
+        setShowDeleteConfirm(true);
+    };
 
     const handleYearCheck = (year) => {
         setSelectedYears(prevYears => {
@@ -192,6 +230,7 @@ const ShowWaterConsumption = () => {
                         <th>Year</th>
                         <th>Consumption (m³)</th>
                         <th>Euros</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -200,10 +239,22 @@ const ShowWaterConsumption = () => {
                             <td>{item.year}</td>
                             <td>{item.m3}</td>
                             <td>{item.euros}</td>
+                            <td>
+                            <button className='delete-link' onClick={() => handleDeleteClick(item)}>Delete</button>                            </td>
                         </tr>
                     ))}
                 </tbody>
             </Table>
+
+            <DeleteConfirmationWater 
+                show={showDeleteConfirm}
+                deleteItem={() => {
+                    deleteYearlyWaterConsumption(id, deletingItem.year)
+                        .then(() => setShowDeleteConfirm(false));
+                }} 
+                setShowDeleteConfirm={setShowDeleteConfirm} 
+                deletingItem={deletingItem} 
+            />
 
             {loading && <p>Loading...</p>}
         </div>

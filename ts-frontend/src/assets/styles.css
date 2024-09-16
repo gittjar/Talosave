@@ -429,9 +429,9 @@ th, td {
 }
 
 .kwh-labels-year, .water-labels-year {
-    display: flex;
-    flex-direction: row;
-    gap: 0.1rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    gap: 0.15rem;
     padding-left: 0rem;
     padding-top: 0.25rem;
     padding-bottom: 1.25rem;
