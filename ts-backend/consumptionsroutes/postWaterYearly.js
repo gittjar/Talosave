@@ -34,23 +34,35 @@ const verifyToken = (req, res, next) => {
 
     try {
         const sqlRequest = new sql.Request();
-        await sqlRequest
+        const checkYear = await sqlRequest
             .input('propertyid', sql.Int, propertyid)
             .input('year', sql.Int, year)
-            .input('m3', sql.Float, m3)
-            .input('euros', sql.Float, euros)
             .query(`
-                INSERT INTO TS_WaterConsumption (propertyid, year, m3, euros)
-                VALUES (@propertyid, @year, @m3, @euros)
+                SELECT year FROM TS_WaterConsumption WHERE propertyid = @propertyid AND year = @year
             `);
+
+        if (checkYear.recordset.length > 0) {
+            res.status(400).send('Year already exists for this property.');
+            console.error('Year already exists for this property.');
+            console.log('ERROR Year:', year);
+        } else {
+            await sqlRequest
+                .input('m3', sql.Float, m3)
+                .input('euros', sql.Float, euros)
+                .query(`
+                    INSERT INTO TS_WaterConsumption (propertyid, year, m3, euros)
+                    VALUES (@propertyid, @year, @m3, @euros)
+                `);
 
         res.sendStatus(201);
         console.log('Yearly water data added successfully. Property ID: ', propertyid, ' Year: ', year, ' m3: ', m3, ' Euros: ', euros);
+    } 
     } catch (err) {
-        console.error('Error executing query:', err); // Log the error
+        console.error('Error executing query:', err);
         res.status(500).send(err.message);
     }
-});
+}
+);
  
 
 module.exports = router;

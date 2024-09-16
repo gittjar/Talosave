@@ -431,10 +431,10 @@ th, td {
 .kwh-labels-year, .water-labels-year {
     display: flex;
     flex-direction: row;
-    gap: 0.4rem;
-    padding-left: 3rem;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    gap: 0.1rem;
+    padding-left: 0rem;
+    padding-top: 0.25rem;
+    padding-bottom: 1.25rem;
 }
 
 .kwh-box, .mwh-box, .m3-box {

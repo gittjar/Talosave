@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 import colorMap from '../components/colorMap';
 import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryLabel, VictoryTooltip, VictoryBar } from 'victory';
 
+
 const ShowWaterConsumption = () => {
 
     const { id } = useParams(); // Get the property ID from the URL
@@ -121,7 +122,29 @@ const ShowWaterConsumption = () => {
     </button>
 ))}
             </section>
-            <VictoryChart domainPadding={20} theme={VictoryTheme.material}>
+            <div style={{
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    borderRadius: '10px',
+}}>
+    <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundImage: `url(/assets/images/IMG_2727.WEBP)`,
+        backgroundSize: 'cover',
+        borderRadius: '10px',
+        opacity: 0.1, // Adjust this value to make the background image lighter or darker
+        zIndex: 1
+    }}></div>
+            <VictoryChart domainPadding={20} theme={VictoryTheme.material}
+                     style={{
+                        parent: { background: 'none', position: 'relative', zIndex: 2 } // This makes the chart background transparent
+                    }}
+            >
     <VictoryAxis
         tickValues={sortedData.map(item => item.year.toString())}
     />
@@ -154,6 +177,7 @@ const ShowWaterConsumption = () => {
         textAnchor="middle"
     />
 </VictoryChart>
+</div>
 
 <div>
     <button className={`link-black ${activeButton === 'cheapest' ? 'active' : ''}`} onClick={() => {setSortConfig({ key: 'euros', direction: 'ascending' }); setActiveButton('cheapest');}}>Cheapest</button>
