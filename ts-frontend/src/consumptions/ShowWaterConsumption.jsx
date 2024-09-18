@@ -7,6 +7,7 @@ import { PlusLg } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import colorMap from '../components/colorMap';
 import DeleteConfirmationWater from '../notifications/DeleteConfirmationWaterYearly';
+import EditWaterYearlyForm from '../forms/EditWaterYearlyForm';
 import { VictoryChart, VictoryLine, VictoryAxis, VictoryTheme, VictoryLabel, VictoryTooltip, VictoryBar } from 'victory';
 
 
@@ -21,10 +22,14 @@ const ShowWaterConsumption = () => {
     const [activeButton, setActiveButton] = useState('');
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [deletingItem, setDeletingItem] = useState(null);
+    const [showEditForm, setShowEditForm] = useState(false);
+    const [editingItem, setEditingItem] = useState(null);
+
 
 
     const fetchYearlyWaterConsumptions = async (propertyId) => {
         const token = localStorage.getItem('userToken'); // Get the token from local storage
+    
     
         try {
             const response = await fetch(`${config.baseURL}/api/waterconsumptions/${propertyId}`, {
@@ -46,6 +51,55 @@ const ShowWaterConsumption = () => {
             return []; // Return an empty array in case of error
         }
     }
+
+
+// PUT request to update the yearly water consumption
+const updateYearlyWaterConsumption = async (propertyid, year, m3, euros) => {
+    console.log('In updateYearlyWaterConsumption:', { propertyid, year, m3, euros }); // Log the values
+    // Retrieve the JWT token from storage
+    const token = localStorage.getItem('userToken'); // Replace this with the correct code to retrieve the JWT
+    console.log('Token:', token); // Log the token
+
+    // Check if the token is in the correct format
+    if (!token || token.split('.').length !== 3) {
+        throw new Error('Invalid JWT');
+    }
+
+    // Prepare the request body
+    const requestBody = {
+        propertyid: parseInt(propertyid, 10),
+        year: parseInt(year, 10),
+        m3: parseFloat(m3),
+        euros: parseFloat(euros)
+    };
+
+    console.log('Request body:', requestBody); // Log the request body
+
+    // Make the PUT request
+    const response = await fetch(`${config.baseURL}/api/waterconsumptions/yearly`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(requestBody)
+    });
+
+    console.log('Response:', response); // Log the response
+
+    // Check if the request was successful
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    // Handle the response from the server
+    const data = await response.json();
+    console.log('Response data:', data); // Log the response data
+
+    return data;
+}
+
+
 
     const deleteYearlyWaterConsumption = async (propertyId, year) => {
         const token = localStorage.getItem('userToken'); // Get the token from local storage
@@ -105,6 +159,12 @@ const ShowWaterConsumption = () => {
         });
     }
 
+    const handleEditClick = (item) => {
+        setEditingItem(item);
+        setShowEditForm(true);
+        console.log('Editing:', item);
+    };
+
     const filteredData = yearlyWaterConsumptions.filter(item => selectedYears.includes(item.year));
     const validData = filteredData.filter(item => !isNaN(item.m3) && !isNaN(item.euros));
     const maxEuros = validData.length > 0 ? Math.max(...validData.map(item => item.euros)) : 0;
@@ -123,7 +183,6 @@ const ShowWaterConsumption = () => {
         });
         return sortableData;
     }, [filteredData, sortConfig]);
-
 
 
     return (
@@ -224,6 +283,8 @@ const ShowWaterConsumption = () => {
     <button className={`link-black ${activeButton === 'newest' ? 'active' : ''}`} onClick={() => {setSortConfig({ key: 'year', direction: 'descending' }); setActiveButton('newest');}}>Newest year</button>
 </div>
 
+{showEditForm && <EditWaterYearlyForm waterYearly={editingItem} updateYearlyWaterConsumption={updateYearlyWaterConsumption} />}
+
             <Table striped bordered hover>
                 <thead>
                     <tr>
@@ -240,12 +301,14 @@ const ShowWaterConsumption = () => {
                             <td>{item.m3}</td>
                             <td>{item.euros}</td>
                             <td>
+                            <button className='edit-link' onClick={() => handleEditClick(item)}>Edit</button>
                             <button className='delete-link' onClick={() => handleDeleteClick(item)}>Delete</button>                            </td>
                         </tr>
                     ))}
                 </tbody>
             </Table>
 
+                                    
             <DeleteConfirmationWater 
                 show={showDeleteConfirm}
                 deleteItem={() => {
