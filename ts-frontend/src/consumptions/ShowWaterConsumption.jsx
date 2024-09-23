@@ -27,10 +27,9 @@ const ShowWaterConsumption = () => {
 
 
 
+
     const fetchYearlyWaterConsumptions = async (propertyId) => {
         const token = localStorage.getItem('userToken'); // Get the token from local storage
-    
-    
         try {
             const response = await fetch(`${config.baseURL}/api/waterconsumptions/${propertyId}`, {
                 headers: {
@@ -51,7 +50,6 @@ const ShowWaterConsumption = () => {
             return []; // Return an empty array in case of error
         }
     }
-
 
 // PUT request to update the yearly water consumption
 const updateYearlyWaterConsumption = async (propertyid, year, m3, euros) => {
@@ -87,17 +85,25 @@ const updateYearlyWaterConsumption = async (propertyid, year, m3, euros) => {
 
     console.log('Response:', response); // Log the response
 
-    // Check if the request was successful
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
+
 
     // Handle the response from the server
     const data = await response.json();
+    toast.dark('Vuosi ' + year + ' päivitetty onnistuneesti.');
     console.log('Response data:', data); // Log the response data
-
     return data;
 }
+
+const handleEditSubmit = async (propertyid, year, m3, euros) => {
+    try {
+        await updateYearlyWaterConsumption(propertyid, year, m3, euros);
+        await fetchYearlyData();
+        setShowEditForm(false); // This line should close the form
+    } catch (error) {
+        console.error('Error updating yearly water consumption:', error);
+        toast.error('Failed to update yearly water data.');
+    }
+};
 
 
 
@@ -194,13 +200,8 @@ const updateYearlyWaterConsumption = async (propertyid, year, m3, euros) => {
         <PlusLg /> {showYearlyForm ? 'Sulje vuosittainen vedenkulutus' : 'Lisää vuosittainen vedenkulutus'}
     </button>
     {showYearlyForm && <AddYearlyWaterForm propertyId={id} refreshData={fetchYearlyData} />}
-</section>
-
+    </section>
 <hr />
-
-
-
-
             <section className='water-labels-year'>
             {yearlyWaterConsumptions.filter(item => item.m3).map(item => (
     <button
@@ -283,7 +284,12 @@ const updateYearlyWaterConsumption = async (propertyid, year, m3, euros) => {
     <button className={`link-black ${activeButton === 'newest' ? 'active' : ''}`} onClick={() => {setSortConfig({ key: 'year', direction: 'descending' }); setActiveButton('newest');}}>Newest year</button>
 </div>
 
-{showEditForm && <EditWaterYearlyForm waterYearly={editingItem} updateYearlyWaterConsumption={updateYearlyWaterConsumption} />}
+{showEditForm && 
+<EditWaterYearlyForm waterYearly={editingItem} 
+updateYearlyWaterConsumption={updateYearlyWaterConsumption}
+onSubmit={handleEditSubmit}
+setShowEditForm={setShowEditForm}
+/>}
 
             <Table striped bordered hover>
                 <thead>
