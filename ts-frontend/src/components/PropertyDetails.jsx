@@ -18,7 +18,6 @@ import { HouseDoor, Tools, CardChecklist, BarChartFill, HouseCheck } from 'react
 import ResearchPage from './ResearchPage.jsx';
 import ChangeOwnerForm from '../forms/ChangeOwnerForm.jsx';
 
-
 export const PropertyContext = createContext();
 
 const PropertyDetails = () => {
@@ -103,13 +102,9 @@ const PropertyDetails = () => {
     setIsAddTodoFormVisible(false);
   };
 
-  const toggleAddTodoForm = () => {
-    setIsAddTodoFormVisible(!isAddTodoFormVisible);
-  };
+  const toggleAddTodoForm = () => {setIsAddTodoFormVisible(!isAddTodoFormVisible);};
 
-  const toggleAddRenovationForm = () => {
-    setIsAddRenovationFormOpen(!isAddRenovationFormOpen);
-  };
+  const toggleAddRenovationForm = () => { setIsAddRenovationFormOpen(!isAddRenovationFormOpen);};
 
   const handleDeleteProperty = async () => {
     try {
@@ -233,10 +228,6 @@ const PropertyDetails = () => {
       });
   };
 
-
-
-
-
   return (
     <div>
       {isEditing ? (
@@ -343,13 +334,12 @@ const PropertyDetails = () => {
       </Tab.Pane>
       <Tab.Pane eventKey="2">
       <div>
-
-      {isAddRenovationFormOpen ? (
-      <AddRenovationForm propertyId={id} refreshData={refreshData} closeForm={closeForm} />
-      ) : (
-        <button className='primary-button mx-3 mb-3' onClick={toggleAddRenovationForm}><PencilSquare /> Lisää remontti</button>
-      )}
-      <PropertyRenovations propertyId={id} />
+        {isAddRenovationFormOpen ? (
+          <AddRenovationForm propertyId={id} refreshData={refreshData} closeForm={toggleAddRenovationForm}/>
+        ) : (
+          <button className='primary-button mx-3 mb-3' onClick={toggleAddRenovationForm}><PencilSquare /> Lisää remontti</button>
+        )}
+        <PropertyRenovations propertyId={id} refreshData={refreshData} />
       </div>
       </Tab.Pane>
       <Tab.Pane eventKey="3">

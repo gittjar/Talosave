@@ -8,26 +8,19 @@ import EditRenovationForm from '../forms/EditRenovationForm.jsx';
 import Accordion from 'react-bootstrap/Accordion';
 import { XLg, PencilSquare, WrenchAdjustable, SlashLg, ChevronRight } from 'react-bootstrap-icons';
 import Badge from 'react-bootstrap/Badge'; // Import Badge from react-bootstrap
+import { toast } from 'react-toastify';
 
-
-const PropertyRenovations = ({ propertyId }) => {
+const PropertyRenovations = ({ propertyId, refreshData }) => {
   const [renovations, setRenovations] = useState([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDeleteDetailsConfirm, setShowDeleteDetailsConfirm] = useState(false);
   const [renovationToDelete, setRenovationToDelete] = useState(null);
-  //const [showForm, setShowForm] = useState(false);
-  //const [renovation, setRenovation] = useState(null); // Assume this is your renovation data
   const [showFormId, setShowFormId] = useState(null);
   const [showEditForm, setShowEditForm] = useState(false);
   const handleShowForm = (id) => setShowFormId(id);
   const handleCloseForm = () => setShowFormId(null);
 
-
-
   useEffect(() => {
-
-  
-
     const token = localStorage.getItem('userToken'); // Assuming you store your token in localStorage
 
     fetch(`${config.baseURL}/api/renovations/${propertyId}`, {
@@ -40,10 +33,25 @@ const PropertyRenovations = ({ propertyId }) => {
       .catch(error => console.error('Error:', error));
   }, [propertyId]);
 
-  
+  const fetchRenovations = () => {
+    const token = localStorage.getItem('userToken'); // Assuming you store your token in localStorage
+
+    fetch(`${config.baseURL}/api/renovations/${propertyId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        setRenovations(data);
+        if (refreshData) {
+          refreshData();
+        }
+      })
+      .catch(error => console.error('Error:', error));
+  };
 
   const handleDeleteDetails = () => {
-
     const token = localStorage.getItem('userToken');
 
     fetch(`${config.baseURL}/api/renovationdetails/${renovationToDelete.id}`, {
@@ -54,11 +62,12 @@ const PropertyRenovations = ({ propertyId }) => {
     })
       .then(() => {
         deleteRenovation(renovationToDelete.id);
+        toast.success('Remontin tiedot poistettu onnistuneesti!');
       })
+      .then(fetchRenovations)
       .catch(error => console.error('Error:', error));
   };
 
-  
   const handleDeleteProperty = () => {
     const token = localStorage.getItem('userToken');
 
@@ -73,6 +82,7 @@ const PropertyRenovations = ({ propertyId }) => {
           setShowDeleteDetailsConfirm(true);
         } else {
           deleteRenovation(renovationToDelete.id);
+          fetchRenovations();
         }
       })
       .catch(error => console.error('Error:', error));
@@ -88,7 +98,7 @@ const PropertyRenovations = ({ propertyId }) => {
       }
     })
       .then(() => {
-        // Remove the deleted renovation from the state
+        toast.success('Remontti poistettu onnistuneesti!');
         setRenovations(renovations.filter(renovation => renovation.id !== id));
       })
       .catch(error => console.error('Error:', error));
@@ -96,7 +106,7 @@ const PropertyRenovations = ({ propertyId }) => {
 
   const handleEditRenovation = (updatedRenovation) => {
     const token = localStorage.getItem('userToken');
-  
+
     fetch(`${config.baseURL}/api/renovations/${updatedRenovation.id}`, {
       method: 'PUT',
       headers: {
@@ -106,21 +116,20 @@ const PropertyRenovations = ({ propertyId }) => {
       body: JSON.stringify(updatedRenovation)
     })
       .then(() => {
-        // Update the renovation in the state
         setRenovations(renovations.map(renovation => renovation.id === updatedRenovation.id ? updatedRenovation : renovation));
         setShowEditForm(false);
         handleCloseForm();
+        toast.success('Remontin tiedot päivitetty onnistuneesti!');
       })
+      .then(fetchRenovations)
       .catch(error => console.error('Error:', error));
   };
-
-  
 
   return (
     <div className='renovations'>
       {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={handleDeleteProperty} setShowDeleteConfirm={setShowDeleteConfirm} />}
       {showDeleteDetailsConfirm && <DeleteDetailsConfirmation handleDeleteDetails={handleDeleteDetails} setShowDeleteDetailsConfirm={setShowDeleteDetailsConfirm} />}
-      
+
       {renovations.length > 0 ? (
         <Card className="card">
           <Card.Header className="card-header">
@@ -141,7 +150,7 @@ const PropertyRenovations = ({ propertyId }) => {
               .sort(([yearA], [yearB]) => yearB - yearA)
               .map(([year, renovations], index) => {
                 const totalCostForYear = renovations.reduce((total, renovation) => total + (renovation.cost || 0), 0);
-  
+
                 return (
                   <Accordion.Item eventKey={index.toString()} key={index}>
                     <Accordion.Header>
@@ -219,7 +228,6 @@ const PropertyRenovations = ({ propertyId }) => {
       )}
     </div>
   );
-
 };
-  export default PropertyRenovations;
 
+export default PropertyRenovations;

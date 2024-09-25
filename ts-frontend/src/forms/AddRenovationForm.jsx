@@ -1,7 +1,7 @@
 // Import useEffect and useState hooks from React
 import { useState, useEffect } from 'react';
 import config from '../configuration/config.js';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Create a custom toast
@@ -64,12 +64,14 @@ const AddRenovationForm = ({ propertyId, refreshData, closeForm }) => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
+      // Show the Toast
+      console.log('Show the Toast');
+      toast.success('Uusi remontti lisätty onnistuneesti!');
+
       refreshData();
       closeForm();
 
-       // Show the Toast
-       console.log('Show the Toast');
-       toast.success('Uusi remontti lisätty onnistuneesti!');
+  
 
 
       // Clear the form fields
@@ -92,10 +94,11 @@ const AddRenovationForm = ({ propertyId, refreshData, closeForm }) => {
     <>
 <form onSubmit={handleSubmit}>
 <div>
-<ToastContainer />
 
+<div>
     <label htmlFor="propertyid">Kiinteistö ID: </label>
     <span id="propertyid"> {propertyid}</span>
+  </div>
   </div>
 
   <div>
