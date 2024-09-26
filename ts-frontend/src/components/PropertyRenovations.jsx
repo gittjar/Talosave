@@ -9,6 +9,7 @@ import Accordion from 'react-bootstrap/Accordion';
 import { XLg, PencilSquare, WrenchAdjustable, SlashLg, ChevronRight } from 'react-bootstrap-icons';
 import Badge from 'react-bootstrap/Badge'; // Import Badge from react-bootstrap
 import { toast } from 'react-toastify';
+import AddRenovationForm from '../forms/AddRenovationForm.jsx';
 
 const PropertyRenovations = ({ propertyId, refreshData }) => {
   const [renovations, setRenovations] = useState([]);
@@ -19,6 +20,8 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
   const [showEditForm, setShowEditForm] = useState(false);
   const handleShowForm = (id) => setShowFormId(id);
   const handleCloseForm = () => setShowFormId(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+
 
   useEffect(() => {
     const token = localStorage.getItem('userToken'); // Assuming you store your token in localStorage
@@ -119,6 +122,7 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
         setRenovations(renovations.map(renovation => renovation.id === updatedRenovation.id ? updatedRenovation : renovation));
         setShowEditForm(false);
         handleCloseForm();
+        closeForm();
         toast.success('Remontin tiedot päivitetty onnistuneesti!');
       })
       .then(fetchRenovations)
@@ -127,9 +131,15 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
 
   return (
     <div className='renovations'>
-      {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={handleDeleteProperty} setShowDeleteConfirm={setShowDeleteConfirm} />}
-      {showDeleteDetailsConfirm && <DeleteDetailsConfirmation handleDeleteDetails={handleDeleteDetails} setShowDeleteDetailsConfirm={setShowDeleteDetailsConfirm} />}
+    {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={handleDeleteProperty} setShowDeleteConfirm={setShowDeleteConfirm} />}
+    {showDeleteDetailsConfirm && <DeleteDetailsConfirmation handleDeleteDetails={handleDeleteDetails} setShowDeleteDetailsConfirm={setShowDeleteDetailsConfirm} />}
 
+    <button onClick={() => setShowAddForm(!showAddForm)} className='primary-button mx-3 mb-3'>
+      {showAddForm ? 'Sulje remontin lisäyslomake' : 'Avaa remontin lisäyslomake'}
+    </button>
+<div className='renovation-header mx-3 mb-3'>
+    {showAddForm && <AddRenovationForm  propertyId={propertyId} refreshData={fetchRenovations} closeForm={() => setShowAddForm(false)} />}
+    </div>
       {renovations.length > 0 ? (
         <Card className="card">
           <Card.Header className="card-header">
@@ -152,9 +162,14 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                 const totalCostForYear = renovations.reduce((total, renovation) => total + (renovation.cost || 0), 0);
 
                 return (
+
+         
+                
                   <Accordion.Item eventKey={index.toString()} key={index}>
+
+
                     <Accordion.Header>
-                      <div className='otsikko'>
+                      <div className='otsikko-renovations'>
                         <div className='renovation-year mb-1'>
                           {year}
                         </div> 

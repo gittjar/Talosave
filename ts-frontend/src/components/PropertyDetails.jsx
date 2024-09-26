@@ -58,11 +58,9 @@ const PropertyDetails = () => {
   const [newLongitude, setNewLongitude] = useState('');
 
   const [refreshKey, setRefreshKey] = useState(0);
-  const [showRenovations, setShowRenovations] = useState(false);
   const [isOpen, setIsOpen] = useState(false); 
   const [isAddRenovationFormOpen, setIsAddRenovationFormOpen] = useState(false);
   const [isFormVisible, setIsFormVisible] = useState(false);
-  const [showTodos, setShowTodos] = useState(false);
   const [isAddTodoFormVisible, setIsAddTodoFormVisible] = useState(false);
 
   const [isChangeOwnerFormVisible, setIsChangeOwnerFormVisible] = useState(false);
@@ -91,10 +89,6 @@ const PropertyDetails = () => {
     return <div>Loading...</div>;
   }
 
-  const goBack = () => {
-    navigate(-1);
-  };
-
   const closeForm = () => {
     setIsAddRenovationFormOpen(false);
     setIsFormVisible(false); // Hide the form after it's submitted
@@ -103,8 +97,6 @@ const PropertyDetails = () => {
   };
 
   const toggleAddTodoForm = () => {setIsAddTodoFormVisible(!isAddTodoFormVisible);};
-
-  const toggleAddRenovationForm = () => { setIsAddRenovationFormOpen(!isAddRenovationFormOpen);};
 
   const handleDeleteProperty = async () => {
     try {
@@ -333,14 +325,10 @@ const PropertyDetails = () => {
         <HouseBasicInformation property={property} />
       </Tab.Pane>
       <Tab.Pane eventKey="2">
-      <div>
-        {isAddRenovationFormOpen ? (
-          <AddRenovationForm propertyId={id} refreshData={refreshData} closeForm={toggleAddRenovationForm}/>
-        ) : (
-          <button className='primary-button mx-3 mb-3' onClick={toggleAddRenovationForm}><PencilSquare /> Lisää remontti</button>
-        )}
+      <section className='renovations'>
         <PropertyRenovations propertyId={id} refreshData={refreshData} />
-      </div>
+    </section>
+
       </Tab.Pane>
       <Tab.Pane eventKey="3">
       <section className='todos'>
