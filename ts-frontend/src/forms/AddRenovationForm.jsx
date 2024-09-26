@@ -54,7 +54,8 @@ const AddRenovationForm = ({ propertyId, refreshData, closeForm }) => {
           construction_company,
           renovation,
           date : dateObj,
-          cost
+          cost,
+          userid
          
         })
       });

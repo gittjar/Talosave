@@ -247,7 +247,11 @@
   }
   
 
-
+.otsikko-renovations {
+   font-size: 1.1rem;
+    font-weight: 700;
+    color: #13579b !important;   
+}
 
 
 /* Button styles */
