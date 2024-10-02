@@ -8,7 +8,6 @@ import AddRenovationForm from '../forms/AddRenovationForm.jsx';
 import PropertyEditForm from '../forms/PropertyEditForm.jsx';
 import DeleteConfirmation from '../notifications/DeleteConfirmation.jsx';
 import PropertyRenovations from './PropertyRenovations.jsx';
-import AddTodoForm from '../forms/AddTodoForm.jsx';
 import Todos from './Todos.jsx';
 import HouseBasicInformation from './HouseBasicInformation.jsx';
 import { XLg, PencilSquare, BuildingUp } from 'react-bootstrap-icons';
@@ -96,7 +95,6 @@ const PropertyDetails = () => {
     setIsAddTodoFormVisible(false);
   };
 
-  const toggleAddTodoForm = () => {setIsAddTodoFormVisible(!isAddTodoFormVisible);};
 
   const handleDeleteProperty = async () => {
     try {
@@ -332,11 +330,7 @@ const PropertyDetails = () => {
       </Tab.Pane>
       <Tab.Pane eventKey="3">
       <section className='todos'>
-          {isAddTodoFormVisible ? (
-          <AddTodoForm propertyId={id} refreshData={refreshData} closeForm={closeForm}/>
-        ) : (
-          <button className='edit-link' onClick={toggleAddTodoForm}>Lisää tehtävä</button>
-        )}
+
         <Todos propertyId={id} refreshData={refreshData} closeForm={closeForm}/>
     </section>
       </Tab.Pane>

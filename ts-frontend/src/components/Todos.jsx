@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import config from '../configuration/config.js';
 import DeleteConfirmation from '../notifications/DeleteConfirmation.jsx';
 import EditTodoForm from '../forms/EditTodoForm.jsx';
+import AddTodoForm from '../forms/AddTodoForm.jsx';
+
 
 // Function to generate random light greycolor
 const getRandomColor = () => {
@@ -24,6 +26,8 @@ const Todos = ({ propertyId }) => {
     const [refreshTodos, setRefreshTodos] = useState(false); 
     const [activeButton, setActiveButton] = useState(null);
     const [colorMap, setColorMap] = useState({});
+    const [isAddTodoFormVisible, setIsAddTodoFormVisible] = useState(false);
+
 
     const handleShowForm = (id) => {
         setShowFormId(id);
@@ -34,6 +38,9 @@ const Todos = ({ propertyId }) => {
         setShowFormId(null);
         setShowEditForm(false);
     }
+
+    const toggleAddTodoForm = () => {setIsAddTodoFormVisible(!isAddTodoFormVisible);};
+    const closeForm = () => {setIsAddTodoFormVisible(false);};
 
 
     useEffect(() => {
@@ -119,7 +126,9 @@ const Todos = ({ propertyId }) => {
 
 
     
-  
+    const refreshData = () => {
+      setRefreshTodos(!refreshTodos);
+    };
 
     const handleDeleteTodo = () => {
         const token = localStorage.getItem('userToken');
@@ -183,7 +192,16 @@ const Todos = ({ propertyId }) => {
     
 
     return (
+<div>
+      {isAddTodoFormVisible ? (
+        <AddTodoForm propertyId={propertyId} refreshData={refreshData} closeForm={closeForm}/>
+      ) : (
+        <button className='edit-link' onClick={toggleAddTodoForm}>Lisää tehtävä</button>
+      )}
+
         <section className='todopage'> 
+
+
         <h4>Tehtäviä</h4>
         <button className={`link-black ${activeButton === 'sortNewest' ? 'active' : ''}`} onClick={() => {sortNewest(); setActiveButton('sortNewest');}}>Uusin</button>
 <button className={`link-black ${activeButton === 'sortOldest' ? 'active' : ''}`} onClick={() => {sortOldest(); setActiveButton('sortOldest');}}>Vanhin</button>
@@ -223,8 +241,8 @@ const Todos = ({ propertyId }) => {
                 <td>{todo.cost} €</td>
                 <td>{new Date(todo.date).toLocaleDateString()}</td>                        
                 <td>
-                    <button className='edit-link' onClick={() => handleEditTodo(todo.id)}>Muokkaa</button>
-                    <button className='delete-link' onClick={() => handleShowDeleteConfirm(todo)}>Poista</button>
+                    <button className='edit-link bg-white mx-1 rounded' onClick={() => handleEditTodo(todo.id)}>Muokkaa</button>
+                    <button className='delete-link bg-white mx-1 rounded' onClick={() => handleShowDeleteConfirm(todo)}>Poista</button>
                 </td>
             </tr>
         );
@@ -247,6 +265,7 @@ const Todos = ({ propertyId }) => {
                 />
             )}
         </section>
+        </div>
     );
 }
 
