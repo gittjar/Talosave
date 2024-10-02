@@ -131,58 +131,9 @@ useEffect(() => {
 </div>
 
 
-<section className='d-flex'>
+<section className=''>
 <article className='m-4'>
-            <Table>
-                <thead>
-                    <tr>
-                        <th>Month</th>
-                        <th>Year</th>
-                        <th>kWh</th>
-                        <th>MWh</th>
-                        <th>M3</th>
-                        <th>Liters</th>
-                        <th>Euros</th>
-                        <th>Actions</th>
 
-                    </tr>
-                </thead>
-                <tbody>
-  {heatingConsumptions.filter(item => selectedYears.includes(item.year)).map((item, index) => (
-    <tr key={index} style={{backgroundColor: colorMap.getColor(item.year)}}>
-<td>{item.month}</td>
-<td>{item.year}</td>
-<td>{item.kwh.toFixed(1)}</td>
-<td>{item.mwh.toFixed(1)}</td>
-<td>{item.m3.toFixed(1)}</td>
-<td>{item.liters.toFixed(1)}</td>
-<td>{item.euros.toFixed(1)}</td>
-      <td>
-
-      <button
-  className="delete-link"
-  onClick={() => {
-    setDeletingItem(item);
-    setShowDeleteConfirm(true);
-  }}
->
-  Poista
-</button>
-
-
-{showDeleteConfirm && 
-  <DeleteConfirmationHeating 
-    handleDeleteProperty={() => deleteHeatingConsumption(deletingItem.propertyid, deletingItem.month, deletingItem.year)} 
-    setShowDeleteConfirm={setShowDeleteConfirm} 
-    deletingItem={deletingItem}
-  />
-}
-      </td>
-
-    </tr>
-  ))}
-</tbody>
-            </Table>
             </article>
 
 
@@ -266,6 +217,58 @@ useEffect(() => {
                     ))}
                     </VictoryChart>
     </article>
+
+    <Table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Year</th>
+                        <th>kWh</th>
+                        <th>MWh</th>
+                        <th>M3</th>
+                        <th>Liters</th>
+                        <th>Euros</th>
+                        <th>Actions</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+  {heatingConsumptions.filter(item => selectedYears.includes(item.year)).map((item, index) => (
+    <tr key={index} style={{backgroundColor: colorMap.getColor(item.year)}}>
+<td>{item.month}</td>
+<td>{item.year}</td>
+<td>{item.kwh.toFixed(1)}</td>
+<td>{item.mwh.toFixed(1)}</td>
+<td>{item.m3.toFixed(1)}</td>
+<td>{item.liters.toFixed(1)}</td>
+<td>{item.euros.toFixed(1)}</td>
+      <td>
+
+      <button
+  className="delete-link"
+  onClick={() => {
+    setDeletingItem(item);
+    setShowDeleteConfirm(true);
+  }}
+>
+  Poista
+</button>
+
+
+{showDeleteConfirm && 
+  <DeleteConfirmationHeating 
+    handleDeleteProperty={() => deleteHeatingConsumption(deletingItem.propertyid, deletingItem.month, deletingItem.year)} 
+    setShowDeleteConfirm={setShowDeleteConfirm} 
+    deletingItem={deletingItem}
+  />
+}
+      </td>
+
+    </tr>
+  ))}
+</tbody>
+            </Table>
+            
 </section>
         </div>
     );

@@ -58,8 +58,7 @@ const ResearchPage = ({ propertyId }) => {
 
       ))}
       </ListGroup>
-      {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={deleteFile} setShowDeleteConfirm={setShowDeleteConfirm} />}
-    </div>
+      {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={deleteFile} setShowDeleteConfirm={setShowDeleteConfirm} fileName={files.find(file => file._id === fileToDelete)?.name} />}    </div>
   );
 };
 

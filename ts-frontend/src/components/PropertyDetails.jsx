@@ -4,7 +4,6 @@ import { useProperties } from '../hooks/PropertyProvider.jsx';
 import { createContext } from 'react';
 import axios from 'axios';
 import config from '../configuration/config.js';
-import AddRenovationForm from '../forms/AddRenovationForm.jsx';
 import PropertyEditForm from '../forms/PropertyEditForm.jsx';
 import DeleteConfirmation from '../notifications/DeleteConfirmation.jsx';
 import PropertyRenovations from './PropertyRenovations.jsx';
@@ -356,7 +355,8 @@ const PropertyDetails = () => {
   {showDeleteConfirm && (
   <DeleteConfirmation 
     handleDeleteProperty={handleDeleteProperty} 
-    setShowDeleteConfirm={setShowDeleteConfirm} 
+    setShowDeleteConfirm={setShowDeleteConfirm}
+    fileName={property.propertyname}
   />
 )}
 

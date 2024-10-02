@@ -47,8 +47,8 @@ const UrlUpload = ({ propertyId, onUpload }) => { // receive propertyId as a pro
 
   return (
     <form ref={formRef} onSubmit={submitUrl}>
-      <input type="text" className='mb-1' onChange={handleNameChange} placeholder="Lisää tiedoston nimi" />
-      <input type="text" className='mb-1' onChange={handleUrlChange} placeholder="Lisää URL" />
+      <input type="text" className='mb-1' onChange={handleNameChange} placeholder="Lisää tiedoston nimi" required/>
+      <input type="text" className='mb-1' onChange={handleUrlChange} placeholder="Lisää URL" required/>
       <button type="submit" className='primary-button'>Lisää linkki</button>
     </form>
   );
