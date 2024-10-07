@@ -93,6 +93,31 @@
     margin-right: 3%;
 }
 
+/*Carousel*/
+.custom-carousel .carousel-indicators {
+    display: none; /* Hide the default indicators */
+  }
+  
+  .custom-indicators {
+    display: flex;
+    justify-content: left;
+    gap: 5px;
+    position: relative;
+    bottom: 20px; /* Adjust this to position the custom indicators */
+  }
+  
+  .custom-indicator {
+    background-color: #ece9fc;
+    width: 3rem;
+    height: 0.5rem;
+    border:rgb(0, 0, 0) 1px solid   !important;
+    cursor: pointer;
+  }
+  
+  .custom-indicator.active {
+    background-color: #0906dd;
+  }
+
 
 /*INFORMATIONS*/
 
