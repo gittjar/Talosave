@@ -5,15 +5,12 @@ import EditTodoForm from '../forms/EditTodoForm.jsx';
 import AddTodoForm from '../forms/AddTodoForm.jsx';
 
 
-// Function to generate random light greycolor
 const getRandomColor = () => {
-  const letters = 'ABCDEF';
   let color = '#';
-  let part = '';
-  for (let i = 0; i < 2; i++) {
-    part += letters[Math.floor(Math.random() * 6)];
+  for (let i = 0; i < 3; i++) {
+    let part = Math.floor(Math.random() * 128 + 127).toString(16); // Generate a random number between 127 and 255 and convert it to hexadecimal
+    color += part.length < 2 ? '0' + part : part; // Ensure each part has two digits
   }
-  color += part + part + part; // same value for red, green, blue
   return color;
 };
 
@@ -237,12 +234,14 @@ const Todos = ({ propertyId }) => {
         return (
           <tr key={todo.id} style={{ backgroundColor }} className={`panel ${todo.isCompleted ? 'panel-success' : 'panel-danger'} ${addBottomLine ? 'bottom-line' : ''}`}>
           <td>{todo.action}</td>
-                <td>{todo.isCompleted ? 'Kyllä' : 'Ei'}</td>
-                <td>{todo.cost} €</td>
+                    <td style={{ backgroundColor: todo.isCompleted ? 'lightgreen' : 'lightcoral' }}>
+            {todo.isCompleted ? 'Kyllä' : 'Ei'}
+          </td>
+                <td className='bg-dark text-light'>{todo.cost} €</td>
                 <td>{new Date(todo.date).toLocaleDateString()}</td>                        
-                <td>
-                    <button className='edit-link bg-white mx-1 rounded' onClick={() => handleEditTodo(todo.id)}>Muokkaa</button>
-                    <button className='delete-link bg-white mx-1 rounded' onClick={() => handleShowDeleteConfirm(todo)}>Poista</button>
+                <td className='bg-light'>
+                    <button className='edit-link' onClick={() => handleEditTodo(todo.id)}>Muokkaa</button>
+                    <button className='delete-link' onClick={() => handleShowDeleteConfirm(todo)}>Poista</button>
                 </td>
             </tr>
         );
