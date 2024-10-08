@@ -118,6 +118,19 @@
     background-color: #0906dd;
   }
 
+  .carousel-caption {
+    position: absolute;
+    right: 0;
+    bottom: 20px;
+    left: 0;
+    z-index: 10;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    color: #fff;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
 
 /*INFORMATIONS*/
 
@@ -572,6 +585,22 @@ th, td {
         padding: 0.5rem;
         font-size: x-small;
     }
+
+    .custom-indicator {
+        background-color: #ece9fc;
+        width: 2rem;
+        height: 0.3rem;
+        border:rgb(0, 0, 0) 1px solid   !important;
+        cursor: pointer;
+      }
+
+      .custom-indicators {
+        display: flex;
+        justify-content: left;
+        gap: 5px;
+        position: relative;
+        bottom: 5px; /* Adjust this to position the custom indicators */
+      }
 
     .card-grid {
         display: flex;

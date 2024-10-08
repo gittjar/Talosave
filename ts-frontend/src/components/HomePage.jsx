@@ -11,12 +11,12 @@ const HomePage = () => {
   };
 
   const handleClick = () => {
-    setShowInfo(true);
+    setShowInfo(prevShowInfo => !prevShowInfo);
   };
 
   return (
     <div>
-            <div className="custom-indicators mt-2">
+      <div className="custom-indicators mt-2">
         {[...Array(4)].map((_, i) => (
           <div
             key={i}
@@ -33,6 +33,9 @@ const HomePage = () => {
             src="../assets/images/IMG_2727.WEBP"
             alt="First slide"
           />
+          <div className="carousel-caption d-none d-md-block">
+            <h5>Tallenna rakennuksen tietoja</h5>
+          </div>
         </Carousel.Item>
         <Carousel.Item>
           <img
@@ -40,6 +43,9 @@ const HomePage = () => {
             src="../assets/images/IMG_2728.WEBP"
             alt="Second slide"
           />
+          <div className="carousel-caption d-none d-md-block">
+            <h5>Tallenna ja seuraa kulutustietoja</h5>
+          </div>
         </Carousel.Item>
         <Carousel.Item>
           <img
@@ -47,6 +53,9 @@ const HomePage = () => {
             src="../assets/images/IMG_2729.WEBP"
             alt="Third slide"
           />
+          <div className="carousel-caption d-none d-md-block">
+            <h5>Pidä kirjaa tehtävistä</h5>
+          </div>
         </Carousel.Item>
         <Carousel.Item>
           <img
@@ -54,9 +63,15 @@ const HomePage = () => {
             src="../assets/images/IMG_2730.WEBP"
             alt="Fourth slide"
           />
+          <div className="carousel-caption d-none d-md-block">
+            <h5>Kirjaa remontit, summat, ajankohdat ja lisätiedot</h5>
+          </div>
         </Carousel.Item>
       </Carousel>
 
+      <button className="btn primary-button" onClick={handleClick}>
+        {showInfo ? 'Piilota info' : 'Näytä info'}
+      </button>
       {showInfo && (
         <div className="info-screen">
           <h3>Hello! Kokeile ohjelmaa siirtymällä <Link to="/login">login</Link> sivulle!</h3>

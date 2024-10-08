@@ -14,6 +14,7 @@ import ConsumptionDetails from './components/ConsumptionDetails.jsx';
 import ShowElectricityConsumption from './consumptions/ShowElectricityConsumption';
 import ResearchPage from './components/ResearchPage';
 import UserSettings from './components/UserSettings.jsx';
+import ProgramInfoPage from './components/ProgramInfoPage.jsx';
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
               <Route path="/consumptions/:id" element={<ConsumptionDetails />} />
               <Route path="/electricity/:id" element={<ShowElectricityConsumption />} />
               <Route path="/research" element={<ResearchPage />} />
+              <Route path="/program-info" element={<ProgramInfoPage />} />
               <Route path="/" element={<HomePage />} />
               <Route path="*" element={<LoginPage />} />
             </Routes>

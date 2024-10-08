@@ -53,8 +53,8 @@ const NavBar = () => {
             <NavDropdown title="Valikko" id="basic-nav-dropdown">
               <NavDropdown.Item href="#action/3.1" disabled>Link 1</NavDropdown.Item>
               <NavDropdown.Item href="#action/3.2" disabled>Link 2</NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.3">Ohjelman tiedot</NavDropdown.Item>
-              <NavDropdown.Divider />
+              <NavDropdown.Item as={Link} to="/program-info">Ohjelman tiedot</NavDropdown.Item>
+            <NavDropdown.Divider />
               <NavDropdown.Item href="#action/3.4">Copyright JarnoK 2024</NavDropdown.Item>
             </NavDropdown>
           </Nav>
