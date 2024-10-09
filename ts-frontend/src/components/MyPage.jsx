@@ -23,7 +23,7 @@ const MyPage = () => {
 
     return (
       <div>
-        <h1>Kohteet</h1>
+        <h2 className='text-black'>Minun kohteet</h2>
       <section className='card-grid'>
         {properties.map(property => (
             <div className="card-property bg-light text-muted" key={property.id}>

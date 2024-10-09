@@ -328,7 +328,7 @@ const PropertyDetails = () => {
 
       </Tab.Pane>
       <Tab.Pane eventKey="3">
-      <section className='todos'>
+      <section className=''>
 
         <Todos propertyId={id} refreshData={refreshData} closeForm={closeForm}/>
     </section>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 const EditTodoForm = ({ todo, handleUpdateTodo, handleCloseForm }) => {
   const [updatedTodo, setUpdatedTodo] = useState(todo);
@@ -15,6 +16,7 @@ const EditTodoForm = ({ todo, handleUpdateTodo, handleCloseForm }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     handleUpdateTodo(updatedTodo.id, updatedTodo);
+    toast.success('Tehtävä päivitetty : ' + updatedTodo.action);
   };
 
   return (

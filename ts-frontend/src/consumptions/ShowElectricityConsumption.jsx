@@ -17,6 +17,7 @@ const ShowElectricityConsumption = () => {
   const [years, setYears] = useState([]);
   const [showForm, setShowForm] = useState(false);
 
+
   const fetchElectricityConsumptions = async () => {
     const token = localStorage.getItem('userToken'); 
 
@@ -51,6 +52,25 @@ const ShowElectricityConsumption = () => {
   const closeForm = () => {
     setShowForm(false);
   };
+
+ const deleteElectricityConsumption = async (id) => {
+    const token = localStorage.getItem('userToken');
+
+    try {
+      await axios.delete(`${config.baseURL}/api/electricconsumptions/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      toast.success('Sähködata poistettu!');
+
+      refreshData();
+    } catch (error) {
+      console.error('Error deleting electricity consumption:', error);
+      toast.error('Sähködataa ei voitu poistaa.');
+    }
+};
 
   
 
@@ -161,7 +181,7 @@ if (years.length === 0) {
 
   return (
     <div>
-      <section className='electricity-head'>
+      <section >
     <h3>Sähkönkulutus</h3>
     <button className="edit-link" onClick={handleButtonClick}>
     <PlusLg></PlusLg> {showForm ? 'Sulje' : 'Lisää sähködataa'}
@@ -237,6 +257,7 @@ width={550} // Set the chart width here
         <th>Month</th>
         <th>kWh</th>
         <th>Euros</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -246,6 +267,9 @@ width={550} // Set the chart width here
           <td>{consumption.month}</td>
           <td>{consumption.kwh.toFixed(2)}</td>
           <td>{consumption.euros.toFixed(2)}</td>
+          <td>
+            <button className='delete-link' onClick={() => deleteElectricityConsumption(consumption.id)}>Poista</button>
+          </td>
         </tr>
       ))}
       {Object.entries(totals).map(([year, total]) => (

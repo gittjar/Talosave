@@ -189,7 +189,7 @@ const Todos = ({ propertyId }) => {
     
 
     return (
-<div>
+<div >
       {isAddTodoFormVisible ? (
         <AddTodoForm propertyId={propertyId} refreshData={refreshData} closeForm={closeForm}/>
       ) : (
@@ -233,11 +233,11 @@ const Todos = ({ propertyId }) => {
 
         return (
           <tr key={todo.id} style={{ backgroundColor }} className={`panel ${todo.isCompleted ? 'panel-success' : 'panel-danger'} ${addBottomLine ? 'bottom-line' : ''}`}>
-          <td>{todo.action}</td>
+          <td className='bg-light'>{todo.action}</td>
                     <td style={{ backgroundColor: todo.isCompleted ? 'lightgreen' : 'lightcoral' }}>
             {todo.isCompleted ? 'Kyllä' : 'Ei'}
           </td>
-                <td className='bg-dark text-light'>{todo.cost} €</td>
+                <td className='bg-light'>{todo.cost} €</td>
                 <td>{new Date(todo.date).toLocaleDateString()}</td>                        
                 <td className='bg-light'>
                     <button className='edit-link' onClick={() => handleEditTodo(todo.id)}>Muokkaa</button>
