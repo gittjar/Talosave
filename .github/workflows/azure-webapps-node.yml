@@ -6,7 +6,7 @@ on:
 env:
   AZURE_WEBAPP_NAME: talosave-backend            # set this to your application's name
   AZURE_WEBAPP_PACKAGE_PATH: './ts-backend'      # set this to the path to your web app project, defaults to the repository root
-  NODE_VERSION: '20.x'                            # set this to the node version to use
+  NODE_VERSION: '22.x'                           # set this to the node version to use
 
 permissions:
   contents: read
@@ -25,6 +25,7 @@ jobs:
 
     - name: npm install, build, and test
       run: |
+        cd ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
         npm install
         npm run build --if-present
         npm run test --if-present
@@ -33,7 +34,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: node-app
-        path: .
+        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
   deploy:
     permissions:
@@ -49,6 +50,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: node-app
+        path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
     - name: Azure Login
       uses: azure/login@v1
