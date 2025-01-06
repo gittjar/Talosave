@@ -10,7 +10,11 @@ const serveStaticFiles = require('./middleware/staticFiles');
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://my-frontend-domain.com'], // Allow requests from these origins
+  methods: 'GET,POST,PUT,DELETE,OPTIONS', // Allowed methods
+  allowedHeaders: 'Content-Type,Authorization' // Allowed headers
+}));
 serveStaticFiles(app);
 
 // Routes
