@@ -314,7 +314,9 @@ const PropertyDetails = () => {
     <Tab.Content>
       <Tab.Pane eventKey="1">
           <button onClick={handleEditClick} className="edit-link" title="Muokkaa tietoja"><PencilSquare /> Muokkaa</button>
+          <br />
           <button onClick={() => setShowDeleteConfirm(true)} className="delete-link" title="Poista kohde"><XLg /> Poista</button>
+          <br />
           <button onClick={() => setIsChangeOwnerFormVisible(!isChangeOwnerFormVisible)} className='edit-link' title='Vaihda omistaja'><BuildingUp /> Siirrä omistajuus</button>
           
           {isChangeOwnerFormVisible && <ChangeOwnerForm propertyId={id} />}

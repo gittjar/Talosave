@@ -35,7 +35,7 @@ const NavBar = () => {
     <nav className='navibar'>
     <Navbar expand="lg" className="bg-body-tertiary navibar-color">
       <Container>
-        <Navbar.Brand as={Link} to="/home">TaloSave App (v.1.0)</Navbar.Brand>
+        <Navbar.Brand as={Link} to="/home">TaloSave App Beta (v.1.0)</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
@@ -50,12 +50,14 @@ const NavBar = () => {
             ) : (
               <Nav.Link as={Link} to="/login">Login</Nav.Link>
             )}
-            <NavDropdown title="Valikko" id="basic-nav-dropdown">
-              <NavDropdown.Item href="#action/3.1" disabled>Link 1</NavDropdown.Item>
-              <NavDropdown.Item href="#action/3.2" disabled>Link 2</NavDropdown.Item>
+            <NavDropdown title="Käyttöehdot" id="basic-nav-dropdown">
+              
+              <NavDropdown.Item href="#action/3.1" disabled hidden>Link 1</NavDropdown.Item>
+              <NavDropdown.Item as={Link} to="/data-protection">Tietosuoja</NavDropdown.Item>
+              <NavDropdown.Divider />
+
               <NavDropdown.Item as={Link} to="/program-info">Ohjelman tiedot</NavDropdown.Item>
-            <NavDropdown.Divider />
-              <NavDropdown.Item href="#action/3.4">Copyright JarnoK 2024</NavDropdown.Item>
+              <NavDropdown.Item href="#action/3.4" hidden>Copyright JarnoK 2024</NavDropdown.Item>
             </NavDropdown>
           </Nav>
         </Navbar.Collapse>
@@ -64,6 +66,7 @@ const NavBar = () => {
 
     </Navbar>
     </nav>
+
   );
 };
 
