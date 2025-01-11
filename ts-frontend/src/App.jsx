@@ -16,6 +16,7 @@ import ResearchPage from './components/ResearchPage';
 import UserSettings from './components/UserSettings.jsx';
 import ProgramInfoPage from './components/ProgramInfoPage.jsx';
 import DataProtection from './components/DataProtection.jsx';
+import ElectricityPrice from './components/ElectricityPrice.jsx';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
               <Route path="/research" element={<ResearchPage />} />
               <Route path="/program-info" element={<ProgramInfoPage />} />
               <Route path="/data-protection" element={<DataProtection />} />
+              <Route path="/electricity-price" element={<ElectricityPrice />} />
               <Route path="/" element={<HomePage />} />
               <Route path="*" element={<LoginPage />} />
             </Routes>

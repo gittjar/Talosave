@@ -25,9 +25,13 @@ const ShowHeatingConsumption = () => {
 
     
     const fetchHeatingConsumptions = async (propertyId) => {
-        const token = localStorage.getItem('userToken'); // Get the token from local storage
-        console.log('Token:', token); // Log the token
-      
+        const token = localStorage.getItem('userToken'); 
+        //  Get the token from local storage
+        //
+        //  console.log('Token:', token); // Log the token
+        //
+        //
+        //
         try {
           const response = await fetch(`${config.baseURL}/api/heatingconsumptions/${propertyId}`, {
             headers: {

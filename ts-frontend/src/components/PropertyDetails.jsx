@@ -15,6 +15,7 @@ import ConsumptionDetails from './ConsumptionDetails.jsx';
 import { HouseDoor, Tools, CardChecklist, BarChartFill, HouseCheck } from 'react-bootstrap-icons';
 import ResearchPage from './ResearchPage.jsx';
 import ChangeOwnerForm from '../forms/ChangeOwnerForm.jsx';
+import ElectricityPrice from './ElectricityPrice.jsx';
 
 export const PropertyContext = createContext();
 
@@ -308,6 +309,9 @@ const PropertyDetails = () => {
       <Nav.Item>
         <Nav.Link eventKey="6" className='navlinkpills' >Verot ja muut maksut</Nav.Link>
       </Nav.Item>
+      <Nav.Item>
+        <Nav.Link eventKey="7" className='navlinkpills' >Pörssisähkö</Nav.Link>
+      </Nav.Item>
     </Nav>
    
 
@@ -348,6 +352,10 @@ const PropertyDetails = () => {
       <Tab.Pane eventKey="6">
       <h1>Verot ja muut maksut</h1>
       <p>Tähän tulee verotietojen tiedot, oma komponentti</p>
+      </Tab.Pane>
+      <Tab.Pane eventKey="7">
+      <h1>Pörssisähkö</h1>
+      <ElectricityPrice />
       </Tab.Pane>
     </Tab.Content>
   </Tab.Container>
