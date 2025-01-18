@@ -99,7 +99,7 @@ const ElectricityPrice = () => {
             style={{
               axis: { stroke: '#00ffcc' },
               tickLabels: { fill: '#00ffcc' },
-              grid: { stroke: '#333333' }
+              grid: { stroke: '#333333' },
             }}
             tickFormat={(x) => `${new Date(x).getHours()}:00\n${new Date(x).toLocaleDateString()}`}
           />
@@ -126,9 +126,9 @@ const ElectricityPrice = () => {
               data={formattedPrices}
               style={{
                 data: {
-                  fill: ({ datum }) => datum.isCurrentHour ? 'darkblue' : (datum.y > 20 ? 'red' : '#00ffcc'),
-                  width: 15,
-                  padding: 10
+                  fill: ({ datum }) => datum.isCurrentHour ? 'orange' : (datum.y > 20 ? 'red' : '#00ffcc'),
+                  width: 5,
+                  padding: 15
                 },
                 labels: { fill: '#ffffff', fontSize: 10, padding: 15 }
               }}

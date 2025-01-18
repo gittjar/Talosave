@@ -42,7 +42,7 @@ const HomePage = () => {
         <Carousel.Item>
           <img
             className="d-block w-100 img-fluid"
-            src="/assets/images/IMG_2727.WEBP"
+            src="/assets/images/kuva001.jpg"
             alt="First slide"
           />
           <div className="carousel-caption d-none d-md-block">
@@ -52,7 +52,7 @@ const HomePage = () => {
         <Carousel.Item>
           <img
             className="d-block w-100 img-fluid"
-            src="/assets/images/IMG_2728.WEBP"
+            src="/assets/images/kuva002.jpg"
             alt="Second slide"
           />
           <div className="carousel-caption d-none d-md-block">
@@ -62,7 +62,7 @@ const HomePage = () => {
         <Carousel.Item>
           <img
             className="d-block w-100 img-fluid"
-            src="/assets/images/IMG_2729.WEBP"
+            src="/assets/images/kuva003.jpg"
             alt="Third slide"
           />
           <div className="carousel-caption d-none d-md-block">
@@ -72,7 +72,7 @@ const HomePage = () => {
         <Carousel.Item>
           <img
             className="d-block w-100 img-fluid"
-            src="/assets/images/IMG_2730.WEBP"
+            src="/assets/images/kuva004.jpg"
             alt="Fourth slide"
           />
           <div className="carousel-caption d-none d-md-block">

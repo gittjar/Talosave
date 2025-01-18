@@ -1,0 +1,17 @@
+{
+    "routes": [
+      {
+        "route": "/api/*",
+        "allowedRoles": ["anonymous"],
+        "rewrite": "https://api.porssisahko.net/api/*"
+      }
+    ],
+    "navigationFallback": {
+      "rewrite": "/index.html"
+    },
+    "responseOverrides": {
+      "404": {
+        "rewrite": "/index.html"
+      }
+    }
+  }
