@@ -11,7 +11,7 @@ const serveStaticFiles = require('./middleware/staticFiles');
 // Middleware
 app.use(express.json());
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://my-frontend-domain.com'], // Allow requests from these origins
+  origin: ['http://localhost:5173', 'https://talosave-frontend.azurewebsites.net'], // Allow requests from these origins
   methods: 'GET,POST,PUT,DELETE,OPTIONS', // Allowed methods
   allowedHeaders: 'Content-Type,Authorization' // Allowed headers
 }));
