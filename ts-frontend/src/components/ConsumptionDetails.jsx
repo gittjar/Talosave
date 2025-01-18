@@ -5,7 +5,7 @@ import ShowElectricityConsumption from '../consumptions/ShowElectricityConsumpti
 import ShowHeatingConsumption from '../consumptions/ShowHeatingConsumption';
 import { BarChart } from 'react-bootstrap-icons';
 import ShowWaterConsumption from '../consumptions/ShowWaterConsumption';
-const image_house1 = '/assets/images/IMG_2727.WEBP';
+const image_house1 = '../src/assets/images/IMG_2727.WEBP';
 
 const ConsumptionDetails = () => {
   const { id } = useParams();
