@@ -28,7 +28,7 @@ const MyPage = () => {
         {properties.map(property => (
             <div className="card-property bg-light text-muted" key={property.id}>
  
-          <img src="src/assets/images/house-1.jpeg" className="card-img-top" />
+          <img src="/assets/images/house-1.jpeg" className="card-img-top" />
           <div className="card-header">
             {property.propertyname}
   </div>
