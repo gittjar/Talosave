@@ -15,8 +15,20 @@ const HomePage = () => {
   };
 
   return (
+
     <div>
-      <div className="custom-indicators mt-2">
+
+<button className="btn primary-button" onClick={handleClick}>
+    {showInfo ? 'Piilota info' : 'Näytä info'}
+  </button>
+  {showInfo && (
+    <div className="info-screen">
+      <h3>Hello! Kokeile ohjelmaa siirtymällä <Link to="/login">login</Link> sivulle!</h3>
+      <h4 className='text-warning'> käyttäjätunnus: smith <br></br>salasana: salasana</h4>
+    </div>
+  )}
+
+      <div className="custom-indicators mt-4">
         {[...Array(4)].map((_, i) => (
           <div
             key={i}
@@ -69,15 +81,7 @@ const HomePage = () => {
         </Carousel.Item>
       </Carousel>
 
-      <button className="btn primary-button" onClick={handleClick}>
-        {showInfo ? 'Piilota info' : 'Näytä info'}
-      </button>
-      {showInfo && (
-        <div className="info-screen">
-          <h3>Hello! Kokeile ohjelmaa siirtymällä <Link to="/login">login</Link> sivulle!</h3>
-          <h4 className='text-warning'> käyttäjätunnus: smith <br></br>salasana: salasana</h4>
-        </div>
-      )}
+
     </div>
   );
 };
