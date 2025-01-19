@@ -614,6 +614,31 @@ th, td {
     margin-right: 0;
   }
 
+
+  .kwh-labels-year, .water-labels-year {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.2rem;
+    padding-left: 0.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .kwh-box, .mwh-box, .m3-box {
+    padding: 0.3rem !important;
+    font-size: 0.8rem !important; /* Slightly larger font for readability */
+    padding-right: 1rem !important;
+    box-shadow: 1px 2px rgba(0, 0, 0, 0.1); /* Lighter shadow for mobile */
+    
+  }
+
+  .year-checkbox {
+    width: 25px;
+    height: 1.2rem;
+    margin: 8px;
+  }
+
+
+
   .primary-button, .secondary-button, .danger-button {
     margin: 0.1rem  !important;
     font-size: 1rem     !important;
@@ -625,11 +650,12 @@ th, td {
   .edit-link, .delete-link, .link-black, .link-black.active
   
   {
-      font-size: 0.75rem !important;
+      font-size: 0.5rem !important;
+      font-weight: 700 !important;
   }
 
   h1, h2, h3, h4, h5, h6 {
-      font-size: 0.9rem !important;
+      font-size: 0.8rem !important;
   }
 
   .todos {

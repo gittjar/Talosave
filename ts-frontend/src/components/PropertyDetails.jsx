@@ -112,10 +112,12 @@ const PropertyDetails = () => {
     }
   };
 
+  // PUT
   const handleUpdateProperty = async () => {
     try {
-      const token = localStorage.getItem('userToken'); 
-      await axios.put(`${config.baseURL}/api/put/${id}`, {
+      const token = localStorage.getItem('userToken');
+      console.log('Token:', token); // Log the token
+      console.log('PUT request data:', {
         propertyname: newPropertyName,
         street_address: newStreetAddress,
         post_number: newPostNumber,
@@ -145,16 +147,48 @@ const PropertyDetails = () => {
         userid: newUserid,
         latitude: newLatitude,
         longitude: newLongitude,
-
-
+      });
+  
+      await axios.put(`${config.baseURL}/api/putProperty/${id}`, {
+        propertyname: newPropertyName,
+        street_address: newStreetAddress,
+        post_number: newPostNumber,
+        city: newCity,
+        land: newLand,
+        house_type: newHouseType,
+        building_year: newBuildingYear,
+        total_sqm: newTotalSqm,
+        living_sqm: newLivingSqm,
+        created_at: newCreatedAt,
+        description: newDescription,
+        room_list: newRoomList,
+        floors: newFloors,
+        dataconnection: newDataconnection,
+        TV_system: newTVSystem,
+        drain: newDrain,
+        water: newWater,
+        electricity: newElectricity,
+        main_heat_system: newMainHeatSystem,
+        sauna: newSauna,
+        pipes: newPipes,
+        roof_type: newRoofType,
+        ground: newGround,
+        property_id: newPropertyId,
+        rasite: newRasite,
+        ranta: newRanta,
+        userid: newUserid,
+        latitude: newLatitude,
+        longitude: newLongitude,
       }, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
+  
       fetchProperties(); // Fetch properties again after a property is updated
       setIsEditing(false); // Switch back to the normal mode
       setRefreshKey(oldKey => oldKey + 1); // Trigger a refresh of the property details
+      refreshData(); // Refresh the property details
     } catch (error) {
       console.error('Failed to update property:', error);
     }
@@ -217,6 +251,8 @@ const PropertyDetails = () => {
         console.error('Error refreshing property details:', error);
       });
   };
+
+  
 
   return (
     <div>
