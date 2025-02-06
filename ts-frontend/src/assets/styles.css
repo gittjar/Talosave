@@ -82,7 +82,7 @@
 
 .property-details {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     gap: 0.4rem;
     padding-top: 1rem;
     padding-bottom: 1rem;
@@ -174,24 +174,24 @@
 
 /* renovation cards */
 
-.card {
-    border: 3px solid rgba(69,60,223,1); /* primary color */
-    color: #f8f9fa; /* light color */
-    border-radius: 3px; /* rounded corners */
-    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.3); /* shadow effect */
-    transition: 0.3s; /* animation to hover over the card */
+.renocard {
+    border: 3px solid rgba(69,60,223,1); 
+    color: #f8f9fa; 
+    border-radius: 3px; 
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.3); 
+    transition: 0.3s; 
     margin-left: 1rem;
     margin-right: 1rem;
     margin-bottom: 1rem;
     width: 60rem !important;
   }
   
-  .card:hover {
+  .renocard:hover {
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.6); 
     
   }
   
-  .card-header {
+  .renocard-header {
     border-bottom: 1px solid #f8f9fa; /* light color */
     padding: 10px;
     text-align: center;
@@ -412,18 +412,18 @@
     gap: 0.4rem;
     width: 100%;
 }
-/*
+
 .todopage {
     padding: 1rem;
-    margin: 0;
+    margin-left: 0.2rem;
     border: #101011 1px solid;
     box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.25);
     border-radius: 4px;
-    width: 100%;
+    width: 95%;
 }
-*/
-/* Table styles */
 
+/* Table styles */
+/*
 .todo-table {
     border-collapse: collapse;
     font-size: 0.9rem;
@@ -451,7 +451,7 @@
     text-align: left;
     font-size: 0.8rem;
     
-}
+} */
 
 th, td {
     padding: 8px;

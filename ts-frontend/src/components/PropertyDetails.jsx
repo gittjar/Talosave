@@ -325,8 +325,9 @@ const PropertyDetails = () => {
 
         <section className='property-details'>
           
+         
             <Tab.Container id="left-tabs-example" defaultActiveKey="first">
-    <Nav variant="pills" className="flex-column nav-propertydetails">
+    <Nav variant="pills" className="justify-content-center nav-propertydetails">
       <Nav.Item>
         <Nav.Link eventKey="1" className='navlinkpills'><HouseDoor></HouseDoor> {property.propertyname}</Nav.Link>
       </Nav.Item>
@@ -349,6 +350,7 @@ const PropertyDetails = () => {
         <Nav.Link eventKey="7" className='navlinkpills' >Pörssisähkö</Nav.Link>
       </Nav.Item>
     </Nav>
+   
    
 
     <Tab.Content>

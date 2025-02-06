@@ -141,7 +141,7 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
     {showAddForm && <AddRenovationForm  propertyId={propertyId} refreshData={fetchRenovations} closeForm={() => setShowAddForm(false)} />}
     </div>
       {renovations.length > 0 ? (
-        <Card className="card">
+        <Card className="renocard">
           <Card.Header className="card-header">
             <h4>Remontit ja muutostyöt</h4>
           </Card.Header>

@@ -24,7 +24,7 @@ const Todos = ({ propertyId }) => {
     const [activeButton, setActiveButton] = useState(null);
     const [colorMap, setColorMap] = useState({});
     const [isAddTodoFormVisible, setIsAddTodoFormVisible] = useState(false);
-
+    const [viewMode, setViewMode] = useState('list'); // 'list' or 'cards'
 
     const handleShowForm = (id) => {
         setShowFormId(id);
@@ -185,88 +185,103 @@ const Todos = ({ propertyId }) => {
         setTodoToDelete(null);
       }
 
-
-    
-
-    return (
-<div >
-      {isAddTodoFormVisible ? (
-        <AddTodoForm propertyId={propertyId} refreshData={refreshData} closeForm={closeForm}/>
-      ) : (
-        <button className='edit-link' onClick={toggleAddTodoForm}>Lisää tehtävä</button>
-      )}
-
-        <section className='todopage'> 
-
-
-        <h4>Tehtäviä</h4>
-        <button className={`link-black ${activeButton === 'sortNewest' ? 'active' : ''}`} onClick={() => {sortNewest(); setActiveButton('sortNewest');}}>Uusin</button>
-<button className={`link-black ${activeButton === 'sortOldest' ? 'active' : ''}`} onClick={() => {sortOldest(); setActiveButton('sortOldest');}}>Vanhin</button>
-<button className={`link-black ${activeButton === 'sortCheapest' ? 'active' : ''}`} onClick={() => {sortCheapest(); setActiveButton('sortCheapest');}}>Halvin</button>
-<button className={`link-black ${activeButton === 'sortExpensive' ? 'active' : ''}`} onClick={() => {sortExpensive(); setActiveButton('sortExpensive');}}>Kallein</button>
-<button className={`link-black ${activeButton === 'sortDone' ? 'active' : ''}`} onClick={() => {sortDone(); setActiveButton('sortDone');}}>Tehty</button>
-<button className={`link-black ${activeButton === 'sortNotDone' ? 'active' : ''}`} onClick={() => {sortNotDone(); setActiveButton('sortNotDone');}}>Tekemättä</button>
-
-        <table className='todo-table'>
-
-
-            <thead>
-                <tr>
-                    <th>Todo</th>
-                    <th>Tehty</th>
-                    <th>Hinta
-
-           
-                    </th>
-                    <th>Päiväys
-       
-                    </th>
-                    <th>Muokkaa</th>
-                </tr>
-            </thead>
-                <tbody>
-                {todos.map((todo, index) => {
-        const currentYear = new Date(todo.date).getFullYear();
-        const nextYear = index < todos.length - 1 ? new Date(todos[index + 1].date).getFullYear() : null;
-        const addBottomLine = nextYear && currentYear !== nextYear;
-        const backgroundColor = colorMap[currentYear];
-
-        return (
-          <tr key={todo.id} style={{ backgroundColor }} className={`panel ${todo.isCompleted ? 'panel-success' : 'panel-danger'} ${addBottomLine ? 'bottom-line' : ''}`}>
-          <td className='bg-light'>{todo.action}</td>
-                    <td style={{ backgroundColor: todo.isCompleted ? 'lightgreen' : 'lightcoral' }}>
-            {todo.isCompleted ? 'Kyllä' : 'Ei'}
-          </td>
-                <td className='bg-light'>{todo.cost} €</td>
-                <td>{new Date(todo.date).toLocaleDateString()}</td>                        
-                <td className='bg-light'>
-                    <button className='edit-link' onClick={() => handleEditTodo(todo.id)}>Muokkaa</button>
-                    <button className='delete-link' onClick={() => handleShowDeleteConfirm(todo)}>Poista</button>
-                </td>
-            </tr>
-        );
-    })}
-                </tbody>
-          
-
-        </table>
-        {showEditForm && (
-      <EditTodoForm 
-        todo={todos.find(todo => todo.id === showFormId)} 
-        handleUpdateTodo={handleUpdateTodo} 
-        handleCloseForm={handleCloseForm}
-      />
-    )}
-            {showDeleteConfirm && (
-                <DeleteConfirmation 
-                    handleDeleteProperty={handleDeleteTodo} 
-                    setShowDeleteConfirm={setShowDeleteConfirm} 
-                />
+      return (
+          <div>
+            {isAddTodoFormVisible ? (
+              <AddTodoForm propertyId={propertyId} refreshData={refreshData} closeForm={closeForm} />
+            ) : (
+              <button className='edit-link' onClick={toggleAddTodoForm}>Lisää tehtävä</button>
             )}
-        </section>
-        </div>
-    );
-}
-
-
-export default Todos;
+      
+            <section className='todopage'>
+              <h4>Tehtäviä</h4>
+              <button className={`link-black ${activeButton === 'sortNewest' ? 'active' : ''}`} onClick={() => { sortNewest(); setActiveButton('sortNewest'); }}>Uusin</button>
+              <button className={`link-black ${activeButton === 'sortOldest' ? 'active' : ''}`} onClick={() => { sortOldest(); setActiveButton('sortOldest'); }}>Vanhin</button>
+              <button className={`link-black ${activeButton === 'sortCheapest' ? 'active' : ''}`} onClick={() => { sortCheapest(); setActiveButton('sortCheapest'); }}>Halvin</button>
+              <button className={`link-black ${activeButton === 'sortExpensive' ? 'active' : ''}`} onClick={() => { sortExpensive(); setActiveButton('sortExpensive'); }}>Kallein</button>
+              <button className={`link-black ${activeButton === 'sortDone' ? 'active' : ''}`} onClick={() => { sortDone(); setActiveButton('sortDone'); }}>Tehty</button>
+              <button className={`link-black ${activeButton === 'sortNotDone' ? 'active' : ''}`} onClick={() => { sortNotDone(); setActiveButton('sortNotDone'); }}>Tekemättä</button>
+      
+              <button className={`link-black ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')}>List View</button>
+              <button className={`link-black ${viewMode === 'cards' ? 'active' : ''}`} onClick={() => setViewMode('cards')}>Card View</button>
+      
+              {viewMode === 'list' ? (
+                <table className='table table-striped'>
+                  <thead className='thead-dark'>
+                    <tr>
+                      <th>Todo</th>
+                      <th>Tehty</th>
+                      <th>Hinta</th>
+                      <th>Päiväys</th>
+                      <th>Muokkaa</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {todos.map((todo, index) => {
+                      const currentYear = new Date(todo.date).getFullYear();
+                      const nextYear = index < todos.length - 1 ? new Date(todos[index + 1].date).getFullYear() : null;
+                      const addBottomLine = nextYear && currentYear !== nextYear;
+                      const backgroundColor = colorMap[currentYear];
+      
+                      return (
+                        <tr key={todo.id} style={{ backgroundColor }} className={`panel ${todo.isCompleted ? 'panel-success' : 'panel-danger'} ${addBottomLine ? 'bottom-line' : ''}`}>
+                          <td className='bg-light'>{todo.action}</td>
+                          <td style={{ backgroundColor: todo.isCompleted ? 'lightgreen' : 'lightcoral' }}>
+                            {todo.isCompleted ? 'Kyllä' : 'Ei'}
+                          </td>
+                          <td className='bg-light'>{todo.cost} €</td>
+                          <td>{new Date(todo.date).toLocaleDateString()}</td>
+                          <td className='bg-light'>
+                            <button className='edit-link' onClick={() => handleEditTodo(todo.id)}>Muokkaa</button>
+                            <button className='delete-link' onClick={() => handleShowDeleteConfirm(todo)}>Poista</button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              ) : (
+                <div className='row'>
+                {todos.map((todo, index) => {
+                  const currentYear = new Date(todo.date).getFullYear();
+                  const nextYear = index < todos.length - 1 ? new Date(todos[index + 1].date).getFullYear() : null;
+                  const addBottomLine = nextYear && currentYear !== nextYear;
+                  const backgroundColor = colorMap[currentYear];
+              
+                  return (
+                    <div key={todo.id} className={`col-12 col-sm-6 col-md-4 col-lg-3 mb-3`}>
+                      <div className='card' style={{ backgroundColor }}>
+                        <div className='card-body'>
+                          <h5 className='card-title'>{todo.action}</h5>
+                          <p className='card-text'>Tehty: {todo.isCompleted ? 'Kyllä' : 'Ei'}</p>
+                          <p className='card-text'>Hinta: {todo.cost} €</p>
+                          <p className='card-text'>Päiväys: {new Date(todo.date).toLocaleDateString()}</p>
+                          <button className='edit-link' onClick={() => handleEditTodo(todo.id)}>Muokkaa</button>
+                          <button className='delete-link' onClick={() => handleShowDeleteConfirm(todo)}>Poista</button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              )}
+      
+              {showEditForm && (
+                <EditTodoForm
+                  todo={todos.find(todo => todo.id === showFormId)}
+                  handleUpdateTodo={handleUpdateTodo}
+                  handleCloseForm={handleCloseForm}
+                />
+              )}
+              {showDeleteConfirm && (
+                <DeleteConfirmation
+                  handleDeleteProperty={handleDeleteTodo}
+                  setShowDeleteConfirm={setShowDeleteConfirm}
+                />
+              )}
+            </section>
+          </div>
+        );
+      };
+      
+      export default Todos;
