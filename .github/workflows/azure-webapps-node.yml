@@ -51,14 +51,14 @@ jobs:
 
     - name: Upload backend artifact for deployment job
       if: ${{ github.event.inputs.deploy_target == 'backend' || github.event.inputs.deploy_target == 'both' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: backend-app
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH_BACKEND }}
 
     - name: Upload frontend artifact for deployment job
       if: ${{ github.event.inputs.deploy_target == 'frontend' || github.event.inputs.deploy_target == 'both' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: frontend-app
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH_FRONTEND }}/dist
@@ -75,7 +75,7 @@ jobs:
 
     steps:
     - name: Download backend artifact from build job
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: backend-app
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH_BACKEND }}
@@ -104,7 +104,7 @@ jobs:
 
     steps:
     - name: Download frontend artifact from build job
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: frontend-app
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH_FRONTEND }}/dist
