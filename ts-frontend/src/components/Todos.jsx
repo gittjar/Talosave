@@ -25,20 +25,30 @@ const Todos = ({ propertyId }) => {
     const [colorMap, setColorMap] = useState({});
     const [isAddTodoFormVisible, setIsAddTodoFormVisible] = useState(false);
     const [viewMode, setViewMode] = useState('list'); // 'list' or 'cards'
+    const [showAddForm, setShowAddForm] = useState(false);
+    const handleOpenForm = () => setShowAddForm(true);
+
+const handleCloseForm = () => {
+  setShowAddForm(false);
+  //setShowFormId(null);
+  setShowEditForm(false);
+};
 
     const handleShowForm = (id) => {
         setShowFormId(id);
         setShowEditForm(true);
     }
 
+    
+/*
     const handleCloseForm = () => {
         setShowFormId(null);
         setShowEditForm(false);
-    }
-
+    }*/
+/*
     const toggleAddTodoForm = () => {setIsAddTodoFormVisible(!isAddTodoFormVisible);};
     const closeForm = () => {setIsAddTodoFormVisible(false);};
-
+*/
 
     useEffect(() => {
       const token = localStorage.getItem('userToken');
@@ -187,11 +197,15 @@ const Todos = ({ propertyId }) => {
 
       return (
           <div>
-            {isAddTodoFormVisible ? (
-              <AddTodoForm propertyId={propertyId} refreshData={refreshData} closeForm={closeForm} />
-            ) : (
-              <button className='edit-link' onClick={toggleAddTodoForm}>Lisää tehtävä</button>
-            )}
+              <button className='primary-button mb-2' onClick={handleOpenForm}>Lisää uusi tehtävä</button>
+              <AddTodoForm
+                propertyId={propertyId}
+                refreshData={refreshData}
+                closeForm={handleCloseForm}
+                show={showAddForm}
+              />
+
+
       
             <section className='todopage'>
               <h4>Tehtäviä</h4>
@@ -273,6 +287,8 @@ const Todos = ({ propertyId }) => {
                   handleCloseForm={handleCloseForm}
                 />
               )}
+
+              
               {showDeleteConfirm && (
                 <DeleteConfirmation
                   handleDeleteProperty={handleDeleteTodo}

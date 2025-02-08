@@ -327,7 +327,7 @@ const PropertyDetails = () => {
           
          
             <Tab.Container id="left-tabs-example" defaultActiveKey="first">
-    <Nav variant="pills" className="justify-content-center nav-propertydetails">
+    <Nav variant="pills" className="nav nav-propertydetails">
       <Nav.Item>
         <Nav.Link eventKey="1" className='navlinkpills'><HouseDoor></HouseDoor> {property.propertyname}</Nav.Link>
       </Nav.Item>
