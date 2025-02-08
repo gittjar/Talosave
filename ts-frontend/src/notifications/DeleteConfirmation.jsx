@@ -1,16 +1,20 @@
 import { Modal, Button } from 'react-bootstrap';
 
-
-const DeleteConfirmation = ({ handleDeleteProperty, setShowDeleteConfirm, fileName }) => {
-  // optional chaining operator
-  const title = fileName ? (
+const DeleteConfirmation = ({ handleDeleteProperty, setShowDeleteConfirm, fileName, todoTitle }) => {
+  const title = todoTitle ? (
+    <>
+      Poistetaanko tehtävä
+      <br />
+      "{todoTitle}"?
+    </>
+  ) : fileName ? (
     <>
       Poistetaanko
       <br />
       {fileName}?
     </>
   ) : 'Poistetaanko tämä?';
-  
+
   return (
     <Modal show={true} onHide={() => setShowDeleteConfirm(false)}>
       <Modal.Header closeButton>
