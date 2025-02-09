@@ -600,8 +600,9 @@ th, td {
       }
 
     .card-grid {
-        display: flex;
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.3rem;
     }
     .create-user-form, .login-form, .property-edit-form {
         width: 100%;

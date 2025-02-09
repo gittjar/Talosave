@@ -241,7 +241,10 @@ const handleCloseForm = () => {
 
       <section className='todopage'>
         <h4>Tehtäviä</h4>
-        <p>Tehtävien määrä: {filteredTodos.length}</p>
+        <section className='d-flex justify-content-between'>
+        <span>Tehtävien määrä: {filteredTodos.length}</span>
+        <p>Tehtävien hinta yhteensä: {filteredTodos.reduce((acc, todo) => acc + parseFloat(todo.cost), 0)} €</p>
+        </section>
         <hr></hr>
         <section className='d-flex justify-content-between mb-3'>
           <section className='d-flex'>
@@ -321,9 +324,17 @@ const handleCloseForm = () => {
                 <div key={todo.id} className={`col-12 col-sm-6 col-md-4 col-lg-3 mb-3`}>
                   <div className='card' style={{ backgroundColor }}>
                     <div className='card-body'>
-                      <h5 className='card-title'>{todo.action}</h5>
-                      <p className='card-text'>Tehty: {todo.isCompleted ? 'Kyllä' : 'Ei'}</p>
-                      <p className='card-text'>Hinta: {todo.cost} €</p>
+                      <section className='d-flex justify-content-between'>
+                      <h5 className='card-title p-1'>{todo.action}</h5> 
+                      <h5 className='card-title'>
+                        <span className=' border border-dark p-1 rounded'>
+                        {new Date(todo.date).getFullYear()}</span></h5>
+                      </section>
+
+                      
+                        Tehty: <span className={`card-text ${todo.isCompleted ? 'bg-success p-1 rounded' : 'bg-warning p-1 rounded'}`}>{todo.isCompleted ? 'Kyllä' : 'Ei'}
+                      </span>                      
+<p className='card-text'>Hinta: {todo.cost} €</p>
                       <p className='card-text'>Päiväys: {new Date(todo.date).toLocaleDateString()}</p>
                       <section className=''>
                         <button className='edit-link bg-light rounded p-1' onClick={() => handleEditTodo(todo.id)}>Muokkaa</button>
