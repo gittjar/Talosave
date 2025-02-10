@@ -134,9 +134,10 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
     {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={handleDeleteProperty} setShowDeleteConfirm={setShowDeleteConfirm} />}
     {showDeleteDetailsConfirm && <DeleteDetailsConfirmation handleDeleteDetails={handleDeleteDetails} setShowDeleteDetailsConfirm={setShowDeleteDetailsConfirm} />}
 
-    <button onClick={() => setShowAddForm(!showAddForm)} className='primary-button mx-3 mb-3'>
-      {showAddForm ? 'Sulje remontin lisäyslomake' : 'Avaa remontin lisäyslomake'}
-    </button>
+    <button onClick={() => setShowAddForm(!showAddForm)} className='primary-button mb-1 mx-3'>
+  Remontin lisäyslomake
+</button>
+
 <div className='renovation-header mx-3 mb-3'>
     {showAddForm && <AddRenovationForm  propertyId={propertyId} refreshData={fetchRenovations} closeForm={() => setShowAddForm(false)} />}
     </div>
