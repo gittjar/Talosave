@@ -26,9 +26,9 @@ const MyPage = () => {
         <h2 className='text-black'>Minun kohteet</h2>
       <section className='card-grid'>
         {properties.map(property => (
-            <div className="card-property bg-light text-muted" key={property.id}>
+            <div className="card-property bg-light text-muted" key={`property-${property.id || property.propertyid}`}>
  
-          <img src="/assets/images/house-1.jpeg" className="card-img-top" />
+          <img src="/assets/images/house-1.jpeg" className="card-img-top" alt={`${property.propertyname} image`} />
           <div className="card-header">
             {property.propertyname}
   </div>
