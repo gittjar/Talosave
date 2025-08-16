@@ -6,7 +6,7 @@ import DeleteConfirmation from '../notifications/DeleteConfirmation';
 import DeleteDetailsConfirmation from '../notifications/DeleteDetailsConfirmation';
 import EditRenovationForm from '../forms/EditRenovationForm.jsx';
 import Accordion from 'react-bootstrap/Accordion';
-import { XLg, PencilSquare, WrenchAdjustable, SlashLg, ChevronRight } from 'react-bootstrap-icons';
+import { XLg, PencilSquare, WrenchAdjustable } from 'react-bootstrap-icons';
 import Badge from 'react-bootstrap/Badge'; // Import Badge from react-bootstrap
 import { toast } from 'react-toastify';
 import AddRenovationForm from '../forms/AddRenovationForm.jsx';
@@ -131,22 +131,34 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
 
   return (
     <div className='renovations'>
-    {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={handleDeleteProperty} setShowDeleteConfirm={setShowDeleteConfirm} />}
-    {showDeleteDetailsConfirm && <DeleteDetailsConfirmation handleDeleteDetails={handleDeleteDetails} setShowDeleteDetailsConfirm={setShowDeleteDetailsConfirm} />}
+      {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={handleDeleteProperty} setShowDeleteConfirm={setShowDeleteConfirm} />}
+      {showDeleteDetailsConfirm && <DeleteDetailsConfirmation handleDeleteDetails={handleDeleteDetails} setShowDeleteDetailsConfirm={setShowDeleteDetailsConfirm} />}
 
-    <button onClick={() => setShowAddForm(!showAddForm)} className='primary-button mb-1 mx-3'>
-  Remontin lisäyslomake
-</button>
+      {/* Modern Header Section */}
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 p-3 bg-light rounded shadow-sm">
+        <h3 className="mb-2 mb-md-0 text-primary d-flex align-items-center">
+          <WrenchAdjustable className="me-2" size={24} />
+          Remontit ja muutostyöt
+        </h3>
+        <button 
+          onClick={() => setShowAddForm(!showAddForm)} 
+          className="btn btn-primary d-flex align-items-center"
+        >
+          <span className="me-2">+</span>
+          Lisää remontti
+        </button>
+      </div>
 
-<div className='renovation-header mx-3 mb-3'>
-    {showAddForm && <AddRenovationForm  propertyId={propertyId} refreshData={fetchRenovations} closeForm={() => setShowAddForm(false)} />}
-    </div>
+      {/* Add Form Container */}
+      {showAddForm && (
+        <div className="mb-4">
+          <AddRenovationForm propertyId={propertyId} refreshData={fetchRenovations} closeForm={() => setShowAddForm(false)} />
+        </div>
+      )}
+
       {renovations.length > 0 ? (
-        <Card className="renocard">
-          <Card.Header className="card-header">
-            <h4>Remontit ja muutostyöt</h4>
-          </Card.Header>
-          <Accordion>
+        <div className="renovation-accordion">
+          <Accordion flush>
             {
               Object.entries(
                 renovations.reduce((groups, renovation) => {
@@ -161,86 +173,127 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
               .sort(([yearA], [yearB]) => yearB - yearA)
               .map(([year, renovations], index) => {
                 const totalCostForYear = renovations.reduce((total, renovation) => total + (renovation.cost || 0), 0);
+                const isOver10YearsOld = renovations.some(renovation => {
+                  const renovationYear = new Date(renovation.date).getFullYear();
+                  const currentYear = new Date().getFullYear();
+                  return (currentYear - renovationYear) >= 10;
+                });
 
                 return (
-
-         
-                
-                  <Accordion.Item eventKey={index.toString()} key={index}>
-
-
-                    <Accordion.Header>
-                      <div className='otsikko-renovations'>
-                        <div className='renovation-year mb-1'>
-                          {year}
-                        </div> 
-                        <SlashLg></SlashLg>
-                        <div className='renovation-kpl'>
-                         {renovations.length} <WrenchAdjustable></WrenchAdjustable>
-                           
+                  <Accordion.Item eventKey={index.toString()} key={index} className="mb-3 border-0 shadow-sm">
+                    <Accordion.Header className="renovation-year-header">
+                      <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center w-100 me-3">
+                        {/* Year and Stats Row */}
+                        <div className="d-flex align-items-center mb-2 mb-md-0">
+                          <Badge bg="primary" className="fs-6 me-3 px-3 py-2">
+                            {year}
+                          </Badge>
+                          <div className="d-flex align-items-center text-muted">
+                            <span className="me-3 d-flex align-items-center">
+                              <WrenchAdjustable className="me-1" size={16} />
+                              {renovations.length} remonttia
+                            </span>
+                            {isOver10YearsOld && (
+                              <Badge bg="warning" text="dark" className="me-2">
+                                +10v
+                              </Badge>
+                            )}
+                          </div>
                         </div>
-                        <SlashLg></SlashLg>
-                        <p className="renovation-payment"> 
-                          {totalCostForYear} €
-                        </p>
-                      </div>
-                      <div className='over-10yrs-badge mx-2'>
-                        {(() => {
-                          const isOver10YearsOld = renovations.some(renovation => {
-                            const renovationYear = new Date(renovation.date).getFullYear();
-                            const currentYear = new Date().getFullYear();
-                            const differenceInYears = currentYear - renovationYear;
-                            return differenceInYears >= 10.01;
-                          });
-
-                          return isOver10YearsOld ? <Badge bg="warning">+10v</Badge> : null;
-                        })()}
+                        
+                        {/* Cost Display */}
+                        <div className="text-end">
+                          <Badge bg="success" className="fs-6 px-3 py-2">
+                            {totalCostForYear.toLocaleString('fi-FI')} €
+                          </Badge>
+                        </div>
                       </div>
                     </Accordion.Header>
-                    <Accordion.Body>
-                      <Accordion>
-                        {renovations.sort((a, b) => new Date(b.date) - new Date(a.date)).map((renovation, index) => (
-                          <Accordion.Item eventKey={index.toString()} key={index}>
-                            <Accordion.Header>
-                              <span className="cost">
-                                {renovation.cost !== 0 && renovation.cost !== null ? `${renovation.cost} €` : null}
-                              </span>
-                              <div className=''>
-                              <div className="renovation-card">
-                                  <span className="company-name">{renovation.construction_company}</span>
-                                  <ChevronRight></ChevronRight>
-                                  <span className="renovation-name">{renovation.renovation}</span>
-                                  <ChevronRight></ChevronRight>
-                                  <span className='renovation-date'>{new Date(renovation.date).toLocaleDateString('fi-FI')}</span>
-                                </div>
-                                <article className='edit-delete-icons'>
-                                  <span className='edit-link' onClick={() => handleShowForm(renovation.id)}>
-                                    <PencilSquare></PencilSquare>  Muokkaa
-                                  </span>
-                                  <span className='delete-link' onClick={() => { setRenovationToDelete(renovation); setShowDeleteConfirm(true); }}>
-                                    <XLg></XLg> Poista
-                                  </span>
-                                </article>
-                              </div>
-                            </Accordion.Header>
-                            <Accordion.Body>
-                              {showFormId === renovation.id && (
-                                <EditRenovationForm renovation={renovation} handleEditRenovation={handleEditRenovation} />
-                              )}
-                              <RenovationDetails renovationId={renovation.id} />
-                            </Accordion.Body>
-                          </Accordion.Item>
+                    
+                    <Accordion.Body className="p-0">
+                      <div className="renovation-items">
+                        {renovations.sort((a, b) => new Date(b.date) - new Date(a.date)).map((renovation, renovationIndex) => (
+                          <div key={renovationIndex} className="renovation-item border-bottom">
+                            <Accordion>
+                              <Accordion.Item eventKey="0" className="border-0">
+                                <Accordion.Header className="renovation-detail-header">
+                                  <div className="d-flex flex-column flex-md-row justify-content-between align-items-start w-100 me-3">
+                                    {/* Main Info */}
+                                    <div className="renovation-main-info mb-2 mb-md-0 flex-grow-1">
+                                      <h6 className="mb-1 text-dark fw-bold">
+                                        {renovation.renovation}
+                                      </h6>
+                                      <div className="d-flex flex-column flex-sm-row text-muted small">
+                                        <span className="me-3 mb-1 mb-sm-0">
+                                          <strong>Urakoitsija:</strong> {renovation.construction_company || 'Ei määritelty'}
+                                        </span>
+                                        <span className="me-3">
+                                          <strong>Päivämäärä:</strong> {new Date(renovation.date).toLocaleDateString('fi-FI')}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    
+                                    {/* Cost and Actions */}
+                                    <div className="d-flex flex-column flex-sm-row align-items-start align-items-sm-center">
+                                      {renovation.cost !== 0 && renovation.cost !== null && (
+                                        <Badge bg="outline-success" text="success" className="me-2 mb-2 mb-sm-0 px-2 py-1">
+                                          {renovation.cost.toLocaleString('fi-FI')} €
+                                        </Badge>
+                                      )}
+                                      
+                                      <div className="d-flex gap-2">
+                                        <button
+                                          className="btn btn-outline-primary btn-sm d-flex align-items-center"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleShowForm(renovation.id);
+                                          }}
+                                        >
+                                          <PencilSquare size={14} className="me-1" />
+                                          <span className="d-none d-sm-inline">Muokkaa</span>
+                                        </button>
+                                        <button
+                                          className="btn btn-outline-danger btn-sm d-flex align-items-center"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setRenovationToDelete(renovation);
+                                            setShowDeleteConfirm(true);
+                                          }}
+                                        >
+                                          <XLg size={14} className="me-1" />
+                                          <span className="d-none d-sm-inline">Poista</span>
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </Accordion.Header>
+                                
+                                <Accordion.Body className="bg-light">
+                                  {showFormId === renovation.id && (
+                                    <div className="mb-3">
+                                      <EditRenovationForm renovation={renovation} handleEditRenovation={handleEditRenovation} />
+                                    </div>
+                                  )}
+                                  <RenovationDetails renovationId={renovation.id} />
+                                </Accordion.Body>
+                              </Accordion.Item>
+                            </Accordion>
+                          </div>
                         ))}
-                      </Accordion>
+                      </div>
                     </Accordion.Body>
                   </Accordion.Item>
                 );
               })
             }
           </Accordion>
-        </Card>
+        </div>
       ) : (
-        <p>No renovations found for this property.</p>
+        <div className="text-center py-5">
+          <WrenchAdjustable size={48} className="text-muted mb-3" />
+          <h5 className="text-muted">Ei remontteja löytynyt</h5>
+          <p className="text-muted">Lisää ensimmäinen remontti ylläolevalla painikkeella.</p>
+        </div>
       )}
     </div>
   );
