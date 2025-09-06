@@ -1037,3 +1037,119 @@ th, td {
 .feature-card:nth-child(2) { animation-delay: 0.2s; }
 .feature-card:nth-child(3) { animation-delay: 0.3s; }
 .feature-card:nth-child(4) { animation-delay: 0.4s; }
+
+/* ===== CONSUMPTION DETAILS STYLES ===== */
+
+/* Override main container for consumption details */
+.main .consumption-details {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+/* Consumption Header */
+.consumption-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    border-radius: 1.5rem;
+    margin: 1rem;
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15);
+}
+
+/* Navigation Cards */
+.consumption-nav-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border-radius: 1rem !important;
+}
+
+.consumption-nav-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.consumption-nav-card.active {
+    border: 2px solid #0d6efd !important;
+    background: linear-gradient(135deg, #f8f9ff 0%, #e7f3ff 100%);
+}
+
+.consumption-nav-card.active .consumption-icon {
+    transform: scale(1.1);
+}
+
+.consumption-icon {
+    width: 60px;
+    height: 60px;
+    transition: all 0.3s ease;
+}
+
+/* Content Cards */
+.content-card,
+.overview-card {
+    border-radius: 1rem !important;
+    margin-bottom: 2rem;
+}
+
+.overview-card {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.overview-icon {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.05); opacity: 1; }
+}
+
+.coming-soon-content {
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .consumption-header {
+        margin: 0.5rem;
+        text-align: center;
+    }
+    
+    .display-6 {
+        font-size: 1.5rem !important;
+    }
+    
+    .consumption-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .overview-image img {
+        max-width: 300px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .consumption-header {
+        margin: 0.25rem;
+        padding: 2rem 0 !important;
+    }
+    
+    .consumption-nav-card {
+        margin-bottom: 1rem;
+    }
+    
+    .consumption-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .overview-image img {
+        max-width: 250px !important;
+    }
+}
