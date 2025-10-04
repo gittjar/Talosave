@@ -1287,3 +1287,113 @@ th, td {
         font-size: 0.875rem;
     }
 }
+
+/* ===== USER SETTINGS STYLES ===== */
+
+/* Override main container for user settings page */
+.main .user-settings {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #f8f9fa !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    min-height: 100vh;
+}
+
+.user-settings-card {
+    border-radius: 1rem !important;
+    background: white !important;
+    border: 1px solid #dee2e6 !important;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.user-settings-icon {
+    width: 60px;
+    height: 60px;
+    background: #f8f9fa;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border: 2px solid #e9ecef;
+}
+
+.user-settings-icon .text-primary {
+    color: #0d6efd !important;
+}
+
+.user-info .info-item {
+    padding: 1rem 0;
+    border-bottom: 1px solid #f1f3f4;
+    transition: all 0.2s ease;
+}
+
+.user-info .info-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.user-info .info-item:hover {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    margin: 0 -0.5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.user-info .info-value {
+    font-weight: 500;
+    color: #495057;
+    font-size: 1rem;
+    margin-top: 0.25rem;
+}
+
+.edit-form {
+    background: #f8f9fa;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    border: 1px solid #e9ecef;
+}
+
+.edit-form h5 {
+    color: #495057;
+    font-weight: 600;
+}
+
+/* Responsive adjustments for user settings */
+@media (max-width: 768px) {
+    .user-settings-card {
+        margin: 1rem;
+        max-width: none;
+    }
+    
+    .user-settings-icon {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .edit-form {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .main .user-settings {
+        padding: 1rem !important;
+    }
+    
+    .user-settings-card .card-body {
+        padding: 2rem 1.5rem !important;
+    }
+    
+    .user-info .info-item {
+        padding: 0.75rem 0;
+    }
+    
+    .user-info .info-value {
+        font-size: 0.95rem;
+    }
+}
