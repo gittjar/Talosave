@@ -25,21 +25,19 @@
     "mongoose": "^8.9.3",
     "mssql": "^11.0.1",
     "multer": "^2.0.1",
-    "multer-gridfs-storage": "^5.0.2"
+    "multer-gridfs-storage": "^5.0.2",
+    "nodemailer": "^7.0.6"
   },
   "devDependencies": {
     "jest": "^29.0.0"
   },
-    "jest": {
-      "testMatch": [
-        "**/__tests__/**/*.[jt]s?(x)",
-        "**/?(*.)+(spec|test).[tj]s?(x)"
-      ],
-      "testPathIgnorePatterns": [
-        "/node_modules/"
-      ]
-    }
-  
+  "jest": {
+    "testMatch": [
+      "**/__tests__/**/*.[jt]s?(x)",
+      "**/?(*.)+(spec|test).[tj]s?(x)"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  }
 }
-
-
