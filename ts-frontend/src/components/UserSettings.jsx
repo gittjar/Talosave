@@ -122,6 +122,16 @@ const UserSettings = () => {
                                         <div className="info-item mb-3">
                                             <div className="d-flex align-items-center mb-2">
                                                 <Person size={16} className="text-primary me-2" />
+                                                <small className="text-muted fw-medium">Käyttäjä ID</small>
+                                            </div>
+                                            <div className="info-value">
+                                                {user.userid}
+                                            </div>
+                                        </div>
+
+                                        <div className="info-item mb-3">
+                                            <div className="d-flex align-items-center mb-2">
+                                                <Person size={16} className="text-primary me-2" />
                                                 <small className="text-muted fw-medium">Käyttäjätunnus</small>
                                             </div>
                                             <div className="info-value">
