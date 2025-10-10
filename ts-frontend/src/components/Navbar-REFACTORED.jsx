@@ -1,3 +1,4 @@
+// components/Navbar.jsx - REFACTORED VERSION
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Container, Nav, Navbar, NavDropdown, Badge } from 'react-bootstrap';
@@ -100,11 +101,7 @@ const NavBar = () => {
 
             {/* Info Dropdown */}
             <NavDropdown 
-              title={
-                <span>
-                  <InfoCircle size={16} />
-                </span>
-              }
+              title={<InfoCircle size={16} />}
               id="info-dropdown" 
               className="info-dropdown"
               align="end"

@@ -1,8 +1,6 @@
 // MyPage.jsx
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { useProperties } from '../hooks/PropertyProvider.jsx';
-import { createContext } from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
 import { 
@@ -14,15 +12,9 @@ import {
   HouseDoor
 } from 'react-bootstrap-icons';
 
-export const PropertyContext = createContext();
-
 const MyPage = () => {
-    const { properties, fetchProperties } = useProperties();
+    const { properties, loading, fetchProperties } = useProperties();
     const navigate = useNavigate(); 
-
-    useEffect(() => {
-      fetchProperties();
-    }, [fetchProperties]);
 
     const handleAddProperty = () => {
         navigate('/add-property'); 

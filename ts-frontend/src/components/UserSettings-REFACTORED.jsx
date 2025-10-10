@@ -1,3 +1,4 @@
+// components/UserSettings.jsx - REFACTORED VERSION
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Button, Spinner, Alert } from 'react-bootstrap';
@@ -34,7 +35,6 @@ const UserSettings = () => {
             <Container fluid className="min-vh-100 d-flex align-items-center justify-content-center">
                 <Row className="w-100 justify-content-center">
                     <Col xs={12} sm={10} md={8} lg={6} xl={5}>
-                        {/* User Settings Card */}
                         <Card className="user-settings-card shadow-sm border-0">
                             <Card.Body className="p-4">
                                 {/* Header */}
@@ -61,9 +61,7 @@ const UserSettings = () => {
                                                 <Person size={16} className="text-primary me-2" />
                                                 <small className="text-muted fw-medium">Käyttäjä ID</small>
                                             </div>
-                                            <div className="info-value">
-                                                {user.userid}
-                                            </div>
+                                            <div className="info-value">#{user.userid}</div>
                                         </div>
 
                                         <div className="info-item mb-3">
@@ -71,9 +69,7 @@ const UserSettings = () => {
                                                 <Person size={16} className="text-primary me-2" />
                                                 <small className="text-muted fw-medium">Käyttäjätunnus</small>
                                             </div>
-                                            <div className="info-value">
-                                                {user.username}
-                                            </div>
+                                            <div className="info-value">{user.username}</div>
                                         </div>
 
                                         <div className="info-item mb-3">
@@ -81,9 +77,7 @@ const UserSettings = () => {
                                                 <PersonFill size={16} className="text-primary me-2" />
                                                 <small className="text-muted fw-medium">Koko nimi</small>
                                             </div>
-                                            <div className="info-value">
-                                                {user.fullname || 'Ei määritelty'}
-                                            </div>
+                                            <div className="info-value">{user.fullname || 'Ei määritelty'}</div>
                                         </div>
 
                                         <div className="info-item mb-3">
@@ -91,9 +85,7 @@ const UserSettings = () => {
                                                 <Envelope size={16} className="text-primary me-2" />
                                                 <small className="text-muted fw-medium">Sähköposti</small>
                                             </div>
-                                            <div className="info-value">
-                                                {user.email || 'Ei määritelty'}
-                                            </div>
+                                            <div className="info-value">{user.email || 'Ei määritelty'}</div>
                                         </div>
 
                                         <div className="info-item mb-4">
@@ -101,12 +93,9 @@ const UserSettings = () => {
                                                 <Telephone size={16} className="text-primary me-2" />
                                                 <small className="text-muted fw-medium">Puhelin</small>
                                             </div>
-                                            <div className="info-value">
-                                                {user.phone || 'Ei määritelty'}
-                                            </div>
+                                            <div className="info-value">{user.phone || 'Ei määritelty'}</div>
                                         </div>
 
-                                        {/* Edit Button */}
                                         <div className="d-grid mb-3">
                                             <Button 
                                                 variant="primary" 

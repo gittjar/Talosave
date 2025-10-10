@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import config from '../configuration/config';
 import { useParams } from 'react-router-dom';
 import Table from 'react-bootstrap/Table';
 import colorMap from '../components/colorMap';
@@ -8,46 +6,37 @@ import { toast } from 'react-toastify';
 import { PlusLg } from 'react-bootstrap-icons';
 import AddElectricityForm from '../forms/AddElectricityForm';
 import { VictoryBar, VictoryChart, VictoryAxis, VictoryLabel, VictoryTooltip, VictoryGroup, VictoryArea } from 'victory';
+import { useConsumption } from '../hooks/useConsumption.js';
 
 const ShowElectricityConsumption = () => {
   const { id } = useParams(); // Get the property ID from the URL
-  const [electricityConsumptions, setElectricityConsumptions] = useState([]);
   const [selectedYears, setSelectedYears] = useState([]); 
-  const [loading, setLoading] = useState(true);
   const [years, setYears] = useState([]);
   const [showForm, setShowForm] = useState(false);
-
-
-  const fetchElectricityConsumptions = async () => {
-    const token = localStorage.getItem('userToken'); 
-
-    try {
-      const response = await axios.get(`${config.baseURL}/api/electricconsumptions/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      setElectricityConsumptions(response.data);
-
-      // Get unique years from the data
-      const uniqueYears = [...new Set(response.data.map(item => item.year))];
-      setYears(uniqueYears);
-
-      setLoading(false);
-    } catch (error) {
-      console.error('Error fetching electricity consumptions:', error);
-      // Handle error as needed
-    }
-  };
+  
+  const { 
+    consumptions: electricityConsumptions, 
+    loading, 
+    fetchConsumptions: fetchElectricityConsumptions,
+    addConsumption,
+    deleteConsumption
+  } = useConsumption('electricity');
 
   const refreshData = async () => {
-    await fetchElectricityConsumptions();
+    await fetchElectricityConsumptions(id);
   };
 
   useEffect(() => {
-    fetchElectricityConsumptions();
-  }, [id]);
+    if (id) {
+      fetchElectricityConsumptions(id);
+    }
+  }, [id, fetchElectricityConsumptions]);
+
+  useEffect(() => {
+    // Get unique years from the data
+    const uniqueYears = [...new Set(electricityConsumptions.map(item => item.year))];
+    setYears(uniqueYears);
+  }, [electricityConsumptions]);
 
   const closeForm = () => {
     setShowForm(false);

@@ -1,106 +1,126 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import config from '../configuration/config.js';
+import React from 'react';
 import { toast } from 'react-toastify';
+import { useConsumption } from '../hooks/useConsumption.js';
+import { useForm } from '../hooks/useForm.js';
 
 const AddWaterForm = ({ propertyId, refreshData, closeForm }) => {
-  const [propertyid, setPropertyid] = useState(propertyId);    
-  const [month, setMonth] = useState('');
-  const [year, setYear] = useState('');
-  const [liters, setLiters] = useState('');
-  const [euros, setEuros] = useState('');
-  const [userid, setUserid] = useState(null);
-  const [submitted, setSubmitted] = useState(false);
-
-  useEffect(() => {
-    const storedUserId = localStorage.getItem('userId');
-    if (storedUserId) {
-      setUserid(storedUserId);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (submitted && month === '' && year === '' && liters === '' && euros === '') {
-      if (typeof closeForm === 'function') {
-        closeForm();
+  const { addConsumption, loading } = useConsumption('water');
+  
+  const { values, handleChange, handleSubmit, reset } = useForm(
+    {
+      propertyid: propertyId,
+      month: '',
+      year: '',
+      liters: '',
+      euros: '',
+      userid: localStorage.getItem('userId') || ''
+    },
+    async (formData) => {
+      // Validation
+      if (isNaN(formData.year) || formData.year < 2000) {
+        toast.error('Year must be a number and after 2000');
+        throw new Error('Invalid year');
       }
-    }
-  }, [month, year, liters, euros, submitted]);
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+      if (isNaN(formData.month) || formData.month < 1 || formData.month > 12) {
+        toast.error('Month must be a number between 1 and 12');
+        throw new Error('Invalid month');
+      }
 
-    const token = localStorage.getItem('userToken');
+      if (isNaN(formData.liters) || formData.liters < 0 || formData.liters > 50000) {
+        toast.error('Liters must be a number between 0 and 50,000');
+        throw new Error('Invalid liters');
+      }
 
-    // Validate the input values
-    
-        if (isNaN(year) || year < 2000) {
-            toast.error('Year must be a number and after 2000');
-            return;
+      if (isNaN(formData.euros) || formData.euros < 0 || formData.euros > 10000) {
+        toast.error('Euros must be a number between 0 and 10,000');
+        throw new Error('Invalid euros');
+      }
+
+      try {
+        await addConsumption(formData);
+        toast.success('Veden kulutustiedot lisätty onnistuneesti!');
+        
+        if (refreshData) {
+          await refreshData();
         }
-
-        if (isNaN(liters) || liters < 0 || liters > 50000) {
-            toast.error('Liters must be a number and between 0 and 50000 per month');
-            return;
+        
+        reset();
+        if (closeForm) {
+          closeForm();
         }
-
-        if (isNaN(month) || month < 1 || month > 12) {
-            toast.error('Month must be a number and between 1 and 12');
-            return;
-        }
-
-        if (isNaN(euros) || euros < 0 || euros > 10000) {
-            toast.error('Euros must be a number and between 0 and 10000 per month');
-            return;
-        }
-
-    try {
-      const response = await axios({
-        method: 'post',
-        url: `${config.baseURL}/api/waterconsumptions`,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        data: {
-          propertyid,
-          month,
-          year,
-          liters,
-          euros,
-          userid
-        }
-      });
-
-      console.log(response.data);   
-      refreshData();
-      setMonth('');
-      setYear('');
-      setLiters('');
-      setEuros('');
-      setSubmitted(true);
-      toast.success('Veden kulutustiedot lisätty onnistuneesti!');
-    } catch (error) {
-      // Handle errors
+      } catch (error) {
         console.error('Error adding water data:', error);
         toast.error('Error adding water data');
+        throw error;
+      }
     }
-  };
+  );
 
   return (
     <form onSubmit={handleSubmit}>
-      {/* Form fields here, similar to before but for water data */}
-      <span type="number" value={propertyid} onChange={e => setPropertyid(e.target.value)} placeholder="Property ID" required />
-      <br></br>
-      <input className='m-1 w-25' type="number" value={month} onChange={e => setMonth(e.target.value)} placeholder="Month" required />
-      <br></br>
-      <input className='m-1 w-25' type="number" value={year} onChange={e => setYear(e.target.value)} placeholder="Year" required />
-      <br></br>
-      <input className='m-1 w-25' type="number" value={liters} onChange={e => setLiters(e.target.value)} placeholder="Liters" required />
-      <br></br>
-      <input className='m-1 w-25' type="number" value={euros} onChange={e => setEuros(e.target.value)} placeholder="Euros" required />
-      <br></br>
-      <button type="submit" className='primary-button m-1'>Lisää</button>
+      <input 
+        type="hidden" 
+        name="propertyid" 
+        value={values.propertyid} 
+      />
+      <input 
+        type="hidden" 
+        name="userid" 
+        value={values.userid} 
+      />
+      
+      <input 
+        className='m-1 w-25' 
+        type="number" 
+        name="month"
+        value={values.month} 
+        onChange={handleChange} 
+        placeholder="Month" 
+        required 
+      />
+      <br />
+      
+      <input 
+        className='m-1 w-25' 
+        type="number" 
+        name="year"
+        value={values.year} 
+        onChange={handleChange} 
+        placeholder="Year" 
+        required 
+      />
+      <br />
+      
+      <input 
+        className='m-1 w-25' 
+        type="number" 
+        name="liters"
+        value={values.liters} 
+        onChange={handleChange} 
+        placeholder="Liters" 
+        required 
+      />
+      <br />
+      
+      <input 
+        className='m-1 w-25' 
+        type="number" 
+        name="euros"
+        value={values.euros} 
+        onChange={handleChange} 
+        placeholder="Euros" 
+        required 
+      />
+      <br />
+      
+      <button 
+        type="submit" 
+        className='primary-button m-1' 
+        disabled={loading}
+      >
+        {loading ? 'Lisätään...' : 'Lisää'}
+      </button>
     </form>
   );
 };

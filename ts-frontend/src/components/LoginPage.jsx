@@ -1,43 +1,39 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert, FloatingLabel, Spinner } from 'react-bootstrap';
 import { PersonCheck, Eye, EyeSlash, House } from 'react-bootstrap-icons';
-import config from '../configuration/config';
+import { useAuth } from '../hooks/useAuth.js';
+import { useApi } from '../hooks/useApi.js';
+import { useForm } from '../hooks/useForm.js';
 
 const LoginPage = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    try {
-      const response = await axios.post(`${config.baseURL}/api/login`, {
-        username,
-        password,
-      });
-
-      if (response.status === 404) {
-        setError('Käyttäjää ei löytynyt');
-      } else {
-        localStorage.setItem('userToken', response.data.token);
-        localStorage.setItem('userId', response.data.id);
-        localStorage.setItem('username', username);
-
-        navigate('/mypage');
+  const { login } = useAuth();
+  const { loading, error, post, clearError } = useApi();
+  
+  const { values, handleChange, handleSubmit } = useForm(
+    { username: '', password: '' },
+    async (formData) => {
+      try {
+        const response = await post('/api/login', formData);
+        
+        if (response.token) {
+          login(response.token, formData.username);
+          navigate('/mypage');
+        }
+      } catch (error) {
+        throw new Error('Väärä käyttäjätunnus tai salasana!');
       }
-    } catch (error) {
-      setError('Väärä käyttäjätunnus tai salasana!');
-    } finally {
-      setLoading(false);
     }
+  );
+
+  const onSubmit = (e) => {
+    const validationRules = {
+      username: { required: true },
+      password: { required: true }
+    };
+    handleSubmit(e, validationRules);
   };
 
   return (
@@ -59,20 +55,21 @@ const LoginPage = () => {
 
                 {/* Error Alert */}
                 {error && (
-                  <Alert variant="danger" className="mb-4" dismissible onClose={() => setError(null)}>
+                  <Alert variant="danger" className="mb-4" dismissible onClose={clearError}>
                     {error}
                   </Alert>
                 )}
 
                 {/* Login Form */}
-                <Form onSubmit={handleSubmit}>
+                <Form onSubmit={onSubmit}>
                   <div className="mb-3">
                     <FloatingLabel controlId="floatingUsername" label="Käyttäjätunnus">
                       <Form.Control 
                         type="text" 
+                        name="username"
                         placeholder="Käyttäjätunnus"
-                        value={username} 
-                        onChange={e => setUsername(e.target.value)}
+                        value={values.username} 
+                        onChange={handleChange}
                         required
                         className="login-input"
                       />
@@ -83,9 +80,10 @@ const LoginPage = () => {
                     <FloatingLabel controlId="floatingPassword" label="Salasana">
                       <Form.Control 
                         type={showPassword ? "text" : "password"}
+                        name="password"
                         placeholder="Salasana"
-                        value={password} 
-                        onChange={e => setPassword(e.target.value)}
+                        value={values.password} 
+                        onChange={handleChange}
                         required
                         className="login-input pe-5"
                       />

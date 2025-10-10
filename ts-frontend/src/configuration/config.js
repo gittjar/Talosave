@@ -1,11 +1,10 @@
 // config.js
 const config = {
-  
-  //  https://corsproxy.io/?url=https://talosave-backend.azurewebsites.net
-   baseURL: 'https://talosave-backend.azurewebsites.net'
-   // baseURL: 'http://localhost:3000'
-
-  };
+  // Automatically detect environment and use appropriate backend URL
+  baseURL: import.meta.env.PROD 
+    ? 'https://talosave-backend.azurewebsites.net'  // Production (Azure)
+    : 'http://localhost:3000'                        // Development (Local)
+};
   
   export default config;
 
