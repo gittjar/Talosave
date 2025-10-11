@@ -32,7 +32,11 @@ export const useConsumption = (consumptionType) => {
   const addConsumption = useCallback(async (consumptionData) => {
     try {
       const result = await post(getEndpoint(), consumptionData);
-      await fetchConsumptions(consumptionData.propertyId);
+      // Use propertyid (lowercase) from the data, fallback to propertyId (camelCase)
+      const propertyId = consumptionData.propertyid || consumptionData.propertyId;
+      if (propertyId) {
+        await fetchConsumptions(propertyId);
+      }
       return result;
     } catch (error) {
       // Pass through the original error for specific error handling

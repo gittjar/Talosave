@@ -30,22 +30,22 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
         throw new Error('Invalid month');
       }
 
-      if (isNaN(formData.kwh) || formData.kwh < 0 || formData.kwh > 50000) {
+      if (formData.kwh && (isNaN(formData.kwh) || formData.kwh < 0 || formData.kwh > 50000)) {
         toast.error('kWh must be a number between 0 and 50,000');
         throw new Error('Invalid kWh');
       }
 
-      if (isNaN(formData.mwh) || formData.mwh < 0 || formData.mwh > 100) {
+      if (formData.mwh && (isNaN(formData.mwh) || formData.mwh < 0 || formData.mwh > 100)) {
         toast.error('MWh must be a number between 0 and 100');
         throw new Error('Invalid mWh');
       }
 
-      if (isNaN(formData.m3) || formData.m3 < 0 || formData.m3 > 100) {
+      if (formData.m3 && (isNaN(formData.m3) || formData.m3 < 0 || formData.m3 > 100)) {
         toast.error('m3 must be a number between 0 and 100');
         throw new Error('Invalid m3');
       }
 
-      if (isNaN(formData.liters) || formData.liters < 0 || formData.liters > 10000) {
+      if (formData.liters && (isNaN(formData.liters) || formData.liters < 0 || formData.liters > 10000)) {
         toast.error('Liters must be a number between 0 and 10,000');
         throw new Error('Invalid liters');
       }
@@ -56,7 +56,17 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
       }
 
       try {
-        await addConsumption(formData);
+        // Convert empty strings to null for optional numeric fields
+        const cleanedData = {
+          ...formData,
+          kwh: formData.kwh || 0,
+          mwh: formData.mwh || null,
+          m3: formData.m3 || null,
+          liters: formData.liters || null,
+          euros: formData.euros || 0
+        };
+        
+        await addConsumption(cleanedData);
         toast.success('Heating consumption added');
         
         if (refreshData) {
@@ -140,10 +150,9 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
             type="number" 
             id="mwh" 
             name="mwh"
-            className="form-control required" 
+            className="form-control" 
             value={values.mwh} 
-            onChange={handleChange} 
-            required
+            onChange={handleChange}
           />
         </div>
 
@@ -153,10 +162,9 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
             type="number" 
             id="m3" 
             name="m3"
-            className="form-control required" 
+            className="form-control" 
             value={values.m3} 
-            onChange={handleChange} 
-            required
+            onChange={handleChange}
           />
         </div>
 
@@ -166,10 +174,9 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
             type="number" 
             id="liters" 
             name="liters"
-            className="form-control required" 
+            className="form-control" 
             value={values.liters} 
-            onChange={handleChange} 
-            required
+            onChange={handleChange}
           />
         </div>
 

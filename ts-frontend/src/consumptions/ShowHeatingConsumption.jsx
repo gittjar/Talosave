@@ -241,11 +241,11 @@ useEffect(() => {
     <tr key={index} style={{backgroundColor: colorMap.getColor(item.year)}}>
 <td>{item.month}</td>
 <td>{item.year}</td>
-<td>{item.kwh.toFixed(1)}</td>
-<td>{item.mwh.toFixed(1)}</td>
-<td>{item.m3.toFixed(1)}</td>
-<td>{item.liters.toFixed(1)}</td>
-<td>{item.euros.toFixed(1)}</td>
+<td>{item.kwh ? item.kwh.toFixed(1) : '0.0'}</td>
+<td>{item.mwh ? item.mwh.toFixed(1) : '-'}</td>
+<td>{item.m3 ? item.m3.toFixed(1) : '-'}</td>
+<td>{item.liters ? item.liters.toFixed(1) : '-'}</td>
+<td>{item.euros ? item.euros.toFixed(1) : '0.0'}</td>
       <td>
 
       <button
