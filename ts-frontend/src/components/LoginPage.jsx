@@ -20,6 +20,10 @@ const LoginPage = () => {
         
         if (response.token) {
           login(response.token, formData.username);
+          // Store user ID if provided in response
+          if (response.id) {
+            localStorage.setItem('userId', response.id.toString());
+          }
           navigate('/mypage');
         }
       } catch (error) {

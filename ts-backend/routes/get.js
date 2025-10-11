@@ -28,12 +28,17 @@ const verifyToken = (req, res, next) => {
 
   router.get('/', verifyToken, async (req, res) => {
     const userid = req.user.id; // Get userid from the token
+    console.log('GET /api/get - User ID from token:', userid);
+    
     try {
         const sqlRequest = new sql.Request();
         const result = await sqlRequest
             .input('userid', sql.Int, userid)
             .query('SELECT * FROM TS_Properties WHERE userid = @userid');
-       // console.log('Query result:', result); // Log the query result
+        
+        console.log('Query result count:', result.recordset.length);
+        console.log('Query result:', result.recordset);
+        
         res.json(result.recordset);
     } catch (err) {
         console.error('Error executing query:', err); // Log the error
