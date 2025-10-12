@@ -9,8 +9,8 @@ import DeleteConfirmation from '../notifications/DeleteConfirmation.jsx';
 import PropertyRenovations from './PropertyRenovations.jsx';
 import Todos from './Todos.jsx';
 import HouseBasicInformation from './HouseBasicInformation.jsx';
-import { XLg, PencilSquare, BuildingUp } from 'react-bootstrap-icons';
-import { Tab, Nav } from 'react-bootstrap';
+import { XLg, PencilSquare, BuildingUp, List } from 'react-bootstrap-icons';
+import { Tab, Nav, Navbar, Offcanvas, Button } from 'react-bootstrap';
 import ConsumptionDetails from './ConsumptionDetails.jsx';
 import { HouseDoor, Tools, CardChecklist, BarChartFill, HouseCheck } from 'react-bootstrap-icons';
 import ResearchPage from './ResearchPage.jsx';
@@ -26,6 +26,8 @@ const PropertyDetails = () => {
   const navigate = useNavigate();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [showMobileNav, setShowMobileNav] = useState(false);
+  const [activeKey, setActiveKey] = useState("1");
   const [newPropertyName, setNewPropertyName] = useState('');
   const [newStreetAddress, setNewStreetAddress] = useState('');
   const [newPostNumber, setNewPostNumber] = useState('');
@@ -227,6 +229,57 @@ const PropertyDetails = () => {
     setIsEditing(true);
   };
 
+  // Navigation items configuration
+  const navigationItems = [
+    {
+      key: "1",
+      icon: <HouseDoor />,
+      label: property?.propertyname || "Kohde",
+      shortLabel: "Tiedot"
+    },
+    {
+      key: "2", 
+      icon: <Tools />,
+      label: "Remontit",
+      shortLabel: "Remontit"
+    },
+    {
+      key: "3",
+      icon: <CardChecklist />,
+      label: "Tehtävät", 
+      shortLabel: "Tehtävät"
+    },
+    {
+      key: "4",
+      icon: <BarChartFill />,
+      label: "Kulutus",
+      shortLabel: "Kulutus"
+    },
+    {
+      key: "5",
+      icon: <HouseCheck />,
+      label: "Tutkimukset",
+      shortLabel: "Tutkimukset"
+    },
+    {
+      key: "6",
+      icon: null,
+      label: "Verot ja muut maksut",
+      shortLabel: "Verot"
+    },
+    {
+      key: "7",
+      icon: null,
+      label: "Pörssisähkö",
+      shortLabel: "Sähkö"
+    }
+  ];
+
+  const handleNavSelect = (selectedKey) => {
+    setActiveKey(selectedKey);
+    setShowMobileNav(false); // Close mobile menu when item is selected
+  };
+
   const handleCancelClick = () => {
     setIsEditing(false);
   };
@@ -324,32 +377,67 @@ const PropertyDetails = () => {
       ) : (
 
         <section className='property-details'>
-          
-         
-            <Tab.Container id="left-tabs-example" defaultActiveKey="first">
-    <Nav variant="pills" className="nav nav-propertydetails">
-      <Nav.Item>
-        <Nav.Link eventKey="1" className='navlinkpills'><HouseDoor></HouseDoor> {property.propertyname}</Nav.Link>
-      </Nav.Item>
-      <Nav.Item>
-        <Nav.Link eventKey="2" className='navlinkpills'><Tools></Tools> Remontit</Nav.Link>
-      </Nav.Item>
-      <Nav.Item>
-        <Nav.Link eventKey="3" className='navlinkpills'><CardChecklist></CardChecklist> Tehtävät</Nav.Link>
-      </Nav.Item>
-      <Nav.Item>
-        <Nav.Link eventKey="4" className='navlinkpills'><BarChartFill></BarChartFill> Kulutus</Nav.Link>
-      </Nav.Item>
-      <Nav.Item>
-        <Nav.Link eventKey="5" className='navlinkpills'><HouseCheck></HouseCheck> Tutkimukset</Nav.Link>
-      </Nav.Item>
-      <Nav.Item>
-        <Nav.Link eventKey="6" className='navlinkpills' >Verot ja muut maksut</Nav.Link>
-      </Nav.Item>
-      <Nav.Item>
-        <Nav.Link eventKey="7" className='navlinkpills' >Pörssisähkö</Nav.Link>
-      </Nav.Item>
-    </Nav>
+          <Tab.Container activeKey={activeKey} onSelect={handleNavSelect}>
+            {/* Mobile Navigation */}
+            <div className="d-lg-none mb-3">
+              <div className="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+                <h5 className="mb-0">
+                  {navigationItems.find(item => item.key === activeKey)?.icon}
+                  <span className="ms-2">
+                    {navigationItems.find(item => item.key === activeKey)?.shortLabel}
+                  </span>
+                </h5>
+                <Button
+                  variant="outline-primary"
+                  onClick={() => setShowMobileNav(true)}
+                  aria-label="Avaa navigaatio"
+                >
+                  <List size={20} />
+                </Button>
+              </div>
+            </div>
+
+            {/* Desktop Navigation */}
+            <Nav variant="pills" className="nav nav-propertydetails d-none d-lg-flex">
+              {navigationItems.map(item => (
+                <Nav.Item key={item.key}>
+                  <Nav.Link eventKey={item.key} className='navlinkpills'>
+                    {item.icon} {item.label}
+                  </Nav.Link>
+                </Nav.Item>
+              ))}
+            </Nav>
+
+            {/* Mobile Off-canvas Menu */}
+            <Offcanvas 
+              show={showMobileNav} 
+              onHide={() => setShowMobileNav(false)}
+              placement="start"
+              className="d-lg-none"
+            >
+              <Offcanvas.Header closeButton>
+                <Offcanvas.Title>Navigaatio</Offcanvas.Title>
+              </Offcanvas.Header>
+              <Offcanvas.Body>
+                <Nav className="flex-column" activeKey={activeKey} onSelect={handleNavSelect}>
+                  {navigationItems.map(item => (
+                    <Nav.Item key={item.key} className="mb-2">
+                      <Nav.Link 
+                        eventKey={item.key} 
+                        className="d-flex align-items-center p-3 rounded"
+                        style={{
+                          backgroundColor: activeKey === item.key ? '#e7f3ff' : 'transparent',
+                          border: activeKey === item.key ? '1px solid #0d6efd' : '1px solid transparent'
+                        }}
+                      >
+                        <span className="me-3">{item.icon}</span>
+                        <span>{item.label}</span>
+                      </Nav.Link>
+                    </Nav.Item>
+                  ))}
+                </Nav>
+              </Offcanvas.Body>
+            </Offcanvas>
    
    
 

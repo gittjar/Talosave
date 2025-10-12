@@ -1,6 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { VictoryChart, VictoryLine, VictoryBar, VictoryAxis, VictoryTooltip, VictoryVoronoiContainer } from 'victory';
+import { 
+  Container, 
+  Row, 
+  Col, 
+  Card, 
+  Button, 
+  ButtonGroup, 
+  Alert,
+  Badge,
+  Spinner
+} from 'react-bootstrap';
+import { 
+  Lightning, 
+  BarChart, 
+  GraphUp, 
+  ArrowLeft,
+  Clock,
+  ArrowUp,
+  ArrowDown,
+  Activity
+} from 'react-bootstrap-icons';
+import { VictoryChart, VictoryLine, VictoryBar, VictoryAxis, VictoryTooltip, VictoryVoronoiContainer, VictoryArea } from 'victory';
 
 // Using Finnish electricity price API (Nordpool/Entso-e alternative)
 const ELECTRICITY_API_URL = 'https://api.porssisahko.net/v1/latest-prices.json';
@@ -56,12 +77,14 @@ function generateMockPriceData() {
 const ElectricityPrice = () => {
   const [prices, setPrices] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [chartType, setChartType] = useState('line');
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPrice = async () => {
       try {
+        setLoading(true);
         setError(null); // Clear previous errors
         const data = await fetchLatestPriceData();
         
@@ -79,6 +102,8 @@ const ElectricityPrice = () => {
         
         // Set fallback mock data
         setPrices(generateMockPriceData());
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -119,101 +144,303 @@ const ElectricityPrice = () => {
     };
   });
 
-  const toggleChartType = () => {
-    setChartType(chartType === 'line' ? 'bar' : 'line');
+  // Calculate statistics
+  const calculateStats = () => {
+    if (prices.length === 0) return null;
+    
+    const priceValues = prices.map(p => p.price);
+    const currentPrice = prices.find(p => {
+      const priceDate = new Date(p.startDate);
+      return priceDate.getHours() === currentHour && priceDate.toDateString() === currentDate;
+    });
+    
+    return {
+      current: currentPrice?.price || 0,
+      min: Math.min(...priceValues),
+      max: Math.max(...priceValues),
+      avg: priceValues.reduce((a, b) => a + b, 0) / priceValues.length,
+      trend: priceValues[priceValues.length - 1] > priceValues[0] ? 'up' : 'down'
+    };
   };
 
-  const buttonStyle = {
-    marginBottom: '20px',
-    padding: '10px',
-    backgroundColor: '#00ffcc',
-    color: '#1e1e1e',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    transition: 'background-color 0.3s, color 0.3s'
+  const stats = calculateStats();
+
+  const renderStatsCards = () => {
+    if (!stats) return null;
+    
+    return (
+      <Row className="mb-4">
+        <Col md={3}>
+          <Card className="text-center h-100 border-0 shadow-sm">
+            <Card.Body>
+              <Lightning size={24} className="text-warning mb-2" />
+              <Card.Title className="h5">{stats.current.toFixed(2)} snt/kWh</Card.Title>
+              <Card.Text className="text-muted small">Nykyinen hinta</Card.Text>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={3}>
+          <Card className="text-center h-100 border-0 shadow-sm">
+            <Card.Body>
+              <ArrowDown size={24} className="text-success mb-2" />
+              <Card.Title className="h5">{stats.min.toFixed(2)} snt/kWh</Card.Title>
+              <Card.Text className="text-muted small">Päivän halvin</Card.Text>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={3}>
+          <Card className="text-center h-100 border-0 shadow-sm">
+            <Card.Body>
+              <ArrowUp size={24} className="text-danger mb-2" />
+              <Card.Title className="h5">{stats.max.toFixed(2)} snt/kWh</Card.Title>
+              <Card.Text className="text-muted small">Päivän kallein</Card.Text>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={3}>
+          <Card className="text-center h-100 border-0 shadow-sm">
+            <Card.Body>
+              <Activity size={24} className="text-info mb-2" />
+              <Card.Title className="h5">{stats.avg.toFixed(2)} snt/kWh</Card.Title>
+              <Card.Text className="text-muted small">Keskiarvo</Card.Text>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    );
   };
 
-  const buttonHoverStyle = {
-    backgroundColor: '#bbffcc',
-    color: '#1e1e1e',
-  };
+  if (loading) {
+    return (
+      <Container fluid className="py-4">
+        <Row className="mb-4">
+          <Col>
+            <div className="d-flex align-items-center">
+              <Button 
+                variant="outline-secondary"
+                onClick={() => navigate('/home')}
+                className="me-3 d-flex align-items-center"
+                size="sm"
+              >
+                <ArrowLeft className="me-1" />
+                Takaisin
+              </Button>
+              <h2 className="h3 mb-0">
+                <Lightning className="me-2 text-warning" />
+                Sähkön hinta
+              </h2>
+            </div>
+          </Col>
+        </Row>
+        
+        <Row>
+          <Col className="text-center py-5">
+            <Spinner animation="border" variant="primary" />
+            <p className="mt-3 text-muted">Ladataan hintatietoja...</p>
+          </Col>
+        </Row>
+      </Container>
+    );
+  }
 
   return (
-    <div style={{ padding: '20px', backgroundColor: '#1e1e1e', color: '#ffffff', borderRadius: '10px' }}>
-      <h3 style={{ color: '#00ffcc' }}>Sähkön hinta</h3>
-      <button
-        onClick={toggleChartType}
-        style={buttonStyle}
-        onMouseEnter={(e) => {
-          e.target.style.backgroundColor = buttonHoverStyle.backgroundColor;
-          e.target.style.color = buttonHoverStyle.color;
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.backgroundColor = buttonStyle.backgroundColor;
-          e.target.style.color = buttonStyle.color;
-        }}
-      >
-        Vaihda kaavio
-      </button>
-      {prices.length > 0 ? (
-        <VictoryChart
-          containerComponent={<VictoryVoronoiContainer />}
-          style={{
-            parent: {
-              background: '#1e1e1e',
-              border: '1px solid #00ffcc',
-              borderRadius: '10px',
-              padding: '25px'
-            }
-          }}
-        >
-          <VictoryAxis
-            style={{
-              axis: { stroke: '#00ffcc' },
-              tickLabels: { fill: '#00ffcc' },
-              grid: { stroke: '#333333' },
-            }}
-            tickFormat={(x) => `${new Date(x).getHours()}:00\n${new Date(x).toLocaleDateString()}`}
-          />
-          <VictoryAxis
-            dependentAxis
-            style={{
-              axis: { stroke: '#00ffcc' },
-              tickLabels: { fill: '#00ffcc' },
-              grid: { stroke: '#333333' }
-            }}
-          />
-          {chartType === 'line' ? (
-            <VictoryLine
-              data={formattedPrices}
-              style={{
-                data: { stroke: '#00ffcc', strokeWidth: 2 },
-                labels: { fill: '#ffffff', fontSize: 10, padding: 10 }
-              }}
-              labels={({ datum }) => datum.label}
-              labelComponent={<VictoryTooltip style={{ fill: '#000' }} />}
-            />
-          ) : (
-            <VictoryBar
-              data={formattedPrices}
-              style={{
-                data: {
-                  fill: ({ datum }) => datum.isCurrentHour ? 'orange' : (datum.y > 20 ? 'red' : '#00ffcc'),
-                  width: 5,
-                  padding: 15
-                },
-                labels: { fill: '#ffffff', fontSize: 10, padding: 15 }
-              }}
-              labels={({ datum }) => datum.label}
-              labelComponent={<VictoryTooltip style={{ fill: '#000' }} />}
-            />
-          )}
-        </VictoryChart>
-      ) : (
-        <p>Ladataan...</p>
+    <Container fluid className="py-4">
+      {/* Header */}
+      <Row className="mb-4">
+        <Col>
+          <div className="d-flex justify-content-between align-items-center">
+            <div className="d-flex align-items-center">
+              <Button 
+                variant="outline-secondary"
+                onClick={() => navigate('/home')}
+                className="me-3 d-flex align-items-center"
+                size="sm"
+              >
+                <ArrowLeft className="me-1" />
+                Takaisin
+              </Button>
+              <h2 className="h3 mb-0">
+                <Lightning className="me-2 text-warning" />
+                Sähkön hinta
+              </h2>
+            </div>
+            
+            <div className="d-flex align-items-center">
+              <Clock className="me-2 text-muted" />
+              <Badge bg="info" className="me-3">
+                Päivitetty: {new Date().toLocaleTimeString()}
+              </Badge>
+              <ButtonGroup size="sm">
+                <Button 
+                  variant={chartType === 'line' ? 'primary' : 'outline-primary'}
+                  onClick={() => setChartType('line')}
+                >
+                  <GraphUp className="me-1" />
+                  Viiva
+                </Button>
+                <Button 
+                  variant={chartType === 'bar' ? 'primary' : 'outline-primary'}
+                  onClick={() => setChartType('bar')}
+                >
+                  <BarChart className="me-1" />
+                  Pylväs
+                </Button>
+                <Button 
+                  variant={chartType === 'area' ? 'primary' : 'outline-primary'}
+                  onClick={() => setChartType('area')}
+                >
+                  <Activity className="me-1" />
+                  Alue
+                </Button>
+              </ButtonGroup>
+            </div>
+          </div>
+        </Col>
+      </Row>
+
+      {/* Error Alert */}
+      {error && (
+        <Row className="mb-4">
+          <Col>
+            <Alert variant="warning" className="d-flex align-items-center">
+              <Lightning className="me-2" />
+              <div>
+                <strong>Varoitus:</strong> {error}
+                <br />
+                <small>Käytetään esimerkki hintatietoja. Todellinen hinta voi poiketa.</small>
+              </div>
+            </Alert>
+          </Col>
+        </Row>
       )}
-    </div>
+
+      {/* Statistics Cards */}
+      {renderStatsCards()}
+
+      {/* Price Chart */}
+      <Row>
+        <Col>
+          <Card className="border-0 shadow-sm">
+            <Card.Header className="bg-white border-0 py-3">
+              <h5 className="mb-0">
+                <Activity className="me-2" />
+                Sähkön hinta tänään (snt/kWh)
+              </h5>
+            </Card.Header>
+            <Card.Body>
+              {formattedPrices.length > 0 ? (
+                <VictoryChart
+                  containerComponent={<VictoryVoronoiContainer />}
+                  padding={{ top: 20, bottom: 80, left: 80, right: 50 }}
+                  height={400}
+                  style={{
+                    parent: {
+                      backgroundColor: '#ffffff'
+                    }
+                  }}
+                >
+                  <VictoryAxis
+                    style={{
+                      axis: { stroke: '#6c757d' },
+                      tickLabels: { 
+                        fill: '#6c757d', 
+                        fontSize: 12, 
+                        angle: -45,
+                        textAnchor: 'end'
+                      },
+                      grid: { stroke: '#e9ecef', strokeWidth: 1 },
+                    }}
+                    tickFormat={(x) => {
+                      const date = new Date(x);
+                      return `${date.getHours().toString().padStart(2, '0')}:00`;
+                    }}
+                    tickCount={12}
+                  />
+                  <VictoryAxis
+                    dependentAxis
+                    style={{
+                      axis: { stroke: '#6c757d' },
+                      tickLabels: { fill: '#6c757d', fontSize: 12 },
+                      grid: { stroke: '#e9ecef', strokeWidth: 1 },
+                      axisLabel: { padding: 50, fontSize: 14, fill: '#495057' }
+                    }}
+                    label="Hinta (snt/kWh)"
+                  />
+                  
+                  {chartType === 'line' && (
+                    <VictoryLine
+                      data={formattedPrices}
+                      style={{
+                        data: { 
+                          stroke: '#0d6efd', 
+                          strokeWidth: 3,
+                          strokeLinecap: 'round'
+                        }
+                      }}
+                      labelComponent={<VictoryTooltip 
+                        style={{ fill: 'white', fontSize: 12 }}
+                        flyoutStyle={{ fill: '#212529', stroke: '#0d6efd' }}
+                      />}
+                    />
+                  )}
+                  
+                  {chartType === 'bar' && (
+                    <VictoryBar
+                      data={formattedPrices}
+                      style={{
+                        data: {
+                          fill: ({ datum }) => {
+                            if (datum.isCurrentHour) return '#ffc107';
+                            if (datum.y > stats.avg * 1.2) return '#dc3545';
+                            if (datum.y < stats.avg * 0.8) return '#198754';
+                            return '#0d6efd';
+                          }
+                        }
+                      }}
+                      labelComponent={<VictoryTooltip 
+                        style={{ fill: 'white', fontSize: 12 }}
+                        flyoutStyle={{ fill: '#212529' }}
+                      />}
+                    />
+                  )}
+                  
+                  {chartType === 'area' && (
+                    <VictoryArea
+                      data={formattedPrices}
+                      style={{
+                        data: { 
+                          fill: '#0d6efd', 
+                          fillOpacity: 0.3,
+                          stroke: '#0d6efd', 
+                          strokeWidth: 2
+                        }
+                      }}
+                      labelComponent={<VictoryTooltip 
+                        style={{ fill: 'white', fontSize: 12 }}
+                        flyoutStyle={{ fill: '#212529', stroke: '#0d6efd' }}
+                      />}
+                    />
+                  )}
+                </VictoryChart>
+              ) : (
+                <div className="text-center py-5">
+                  <Spinner animation="border" variant="primary" />
+                  <p className="mt-3 text-muted">Ladataan kaaviotietoja...</p>
+                </div>
+              )}
+            </Card.Body>
+            <Card.Footer className="bg-light text-muted">
+              <small>
+                Hinnat päivittyvät tunnin välein. Värikoodit: 
+                <Badge bg="warning" className="mx-1">Nykyinen tunti</Badge>
+                <Badge bg="success" className="mx-1">Halpa (&lt;80% keskiarvosta)</Badge>
+                <Badge bg="danger" className="mx-1">Kallis (&gt;120% keskiarvosta)</Badge>
+              </small>
+            </Card.Footer>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 
