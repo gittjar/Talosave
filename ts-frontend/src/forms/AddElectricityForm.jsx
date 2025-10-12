@@ -16,10 +16,27 @@ const AddElectricityForm = ({ propertyId, refreshData, closeForm }) => {
       userid: localStorage.getItem('userId') || ''
     },
     async (formData) => {
+      // Get current date
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear();
+      const currentMonth = currentDate.getMonth() + 1; // getMonth() returns 0-11, so add 1
+
       // Validation
       if (isNaN(formData.year) || formData.year < 2000) {
         toast.error('Year must be a number and after 2000');
         throw new Error('Invalid year');
+      }
+
+      // Prevent future dates
+      if (formData.year > currentYear) {
+        toast.error('Cannot add data for future years');
+        throw new Error('Future year not allowed');
+      }
+
+      // If current year, prevent future months
+      if (formData.year == currentYear && formData.month > currentMonth) {
+        toast.error('Cannot add data for future months');
+        throw new Error('Future month not allowed');
       }
 
       if (isNaN(formData.month) || formData.month < 1 || formData.month > 12) {
@@ -80,6 +97,8 @@ const AddElectricityForm = ({ propertyId, refreshData, closeForm }) => {
         value={values.month} 
         onChange={handleChange} 
         placeholder="Month" 
+        min="1"
+        max="12"
         required 
       />
       <br />
@@ -91,6 +110,8 @@ const AddElectricityForm = ({ propertyId, refreshData, closeForm }) => {
         value={values.year} 
         onChange={handleChange} 
         placeholder="Year" 
+        min="2000"
+        max={new Date().getFullYear()}
         required 
       />
       <br />
@@ -102,6 +123,9 @@ const AddElectricityForm = ({ propertyId, refreshData, closeForm }) => {
         value={values.kwh} 
         onChange={handleChange} 
         placeholder="Kwh" 
+        min="0"
+        max="50000"
+        step="0.01"
         required 
       />
       <br />
@@ -113,6 +137,9 @@ const AddElectricityForm = ({ propertyId, refreshData, closeForm }) => {
         value={values.euros} 
         onChange={handleChange} 
         placeholder="Euros" 
+        min="0"
+        max="10000"
+        step="0.01"
         required 
       />
       <br />
