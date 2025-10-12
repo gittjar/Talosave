@@ -12,18 +12,25 @@ export const useAuth = () => {
   }, []);
 
   const checkAuthStatus = () => {
+    console.log('Checking auth status...');
     const token = localStorage.getItem('userToken');
     const username = localStorage.getItem('username');
+    
+    console.log('Auth tokens:', { token: !!token, username });
     
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
         const currentTime = Date.now() / 1000;
         
+        console.log('Token info:', { exp: decodedToken.exp, current: currentTime, valid: decodedToken.exp > currentTime });
+        
         if (decodedToken.exp < currentTime) {
           // Token expired
+          console.log('Token expired, logging out');
           logout();
         } else {
+          console.log('Setting user as logged in');
           setIsLoggedIn(true);
           setUser({ username });
         }
@@ -32,6 +39,7 @@ export const useAuth = () => {
         logout();
       }
     } else {
+      console.log('No token found, user not logged in');
       setIsLoggedIn(false);
       setUser(null);
     }
