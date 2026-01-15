@@ -1,5 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext.jsx';
 import { PropertyProvider } from './hooks/PropertyProvider.jsx';
 import NavBar from './components/Navbar';
 import Toast from './notifications/Toast.jsx';
@@ -25,61 +26,63 @@ function App() {
   return (
     <>
       <Toast />
-      <Router>
-        <NavBar />
-        <section className="main">
-          <Suspense fallback={<div>Loading...</div>}>
-            <Routes>
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/home" element={<HomePage />} />
-              <Route path="/create-user" element={<CreateUser />} />
-              <Route path="/program-info" element={<ProgramInfoPage />} />
-              <Route path="/data-protection" element={<DataProtection />} />
-              <Route path="/electricity-price" element={<ElectricityPrice />} />
-              <Route path="/" element={<HomePage />} />
-              
-              {/* Property-dependent routes wrapped in PropertyProvider */}
-              <Route path="/mypage" element={
-                <PropertyProvider>
-                  <PrivateRoute><MyPage /></PrivateRoute>
-                </PropertyProvider>
-              } />
-              <Route path="/usersettings" element={
-                <PropertyProvider>
-                  <PrivateRoute><UserSettings /></PrivateRoute>
-                </PropertyProvider>
-              } />
-              <Route path="/add-property" element={
-                <PropertyProvider>
-                  <AddPropertyForm />
-                </PropertyProvider>
-              } />
-              <Route path="/properties/:id" element={
-                <PropertyProvider>
-                  <PropertyDetails />
-                </PropertyProvider>
-              } />
-              <Route path="/consumptions/:id" element={
-                <PropertyProvider>
-                  <ConsumptionDetails />
-                </PropertyProvider>
-              } />
-              <Route path="/electricity/:id" element={
-                <PropertyProvider>
-                  <ShowElectricityConsumption />
-                </PropertyProvider>
-              } />
-              <Route path="/research" element={
-                <PropertyProvider>
-                  <ResearchPage />
-                </PropertyProvider>
-              } />
-              
-              <Route path="*" element={<LoginPage />} />
-            </Routes>
-          </Suspense>
-        </section>
-      </Router>
+      <AuthProvider>
+        <Router>
+          <NavBar />
+          <section className="main">
+            <Suspense fallback={<div>Loading...</div>}>
+              <Routes>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/home" element={<HomePage />} />
+                <Route path="/create-user" element={<CreateUser />} />
+                <Route path="/program-info" element={<ProgramInfoPage />} />
+                <Route path="/data-protection" element={<DataProtection />} />
+                <Route path="/electricity-price" element={<ElectricityPrice />} />
+                <Route path="/" element={<HomePage />} />
+                
+                {/* Property-dependent routes wrapped in PropertyProvider */}
+                <Route path="/mypage" element={
+                  <PropertyProvider>
+                    <PrivateRoute><MyPage /></PrivateRoute>
+                  </PropertyProvider>
+                } />
+                <Route path="/usersettings" element={
+                  <PropertyProvider>
+                    <PrivateRoute><UserSettings /></PrivateRoute>
+                  </PropertyProvider>
+                } />
+                <Route path="/add-property" element={
+                  <PropertyProvider>
+                    <AddPropertyForm />
+                  </PropertyProvider>
+                } />
+                <Route path="/properties/:id" element={
+                  <PropertyProvider>
+                    <PropertyDetails />
+                  </PropertyProvider>
+                } />
+                <Route path="/consumptions/:id" element={
+                  <PropertyProvider>
+                    <ConsumptionDetails />
+                  </PropertyProvider>
+                } />
+                <Route path="/electricity/:id" element={
+                  <PropertyProvider>
+                    <ShowElectricityConsumption />
+                  </PropertyProvider>
+                } />
+                <Route path="/research" element={
+                  <PropertyProvider>
+                    <ResearchPage />
+                  </PropertyProvider>
+                } />
+                
+                <Route path="*" element={<LoginPage />} />
+              </Routes>
+            </Suspense>
+          </section>
+        </Router>
+      </AuthProvider>
     </>
   );
 }

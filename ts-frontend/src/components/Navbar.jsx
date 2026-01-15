@@ -12,7 +12,7 @@ import {
   ShieldCheck,
   PersonCircle
 } from 'react-bootstrap-icons';
-import { useAuth } from '../hooks/useAuth.js';
+import { useAuth } from '../contexts/AuthContext.jsx';
 
 const NavBar = () => {
   const { isLoggedIn, user, logout } = useAuth();

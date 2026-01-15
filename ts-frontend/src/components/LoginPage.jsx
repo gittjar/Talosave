@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button, Alert, FloatingLabel, Spinner } from 'react-bootstrap';
 import { PersonCheck, Eye, EyeSlash, House } from 'react-bootstrap-icons';
-import { useAuth } from '../hooks/useAuth.js';
+import { useAuth } from '../contexts/AuthContext.jsx';
 import { useApi } from '../hooks/useApi.js';
 import { useForm } from '../hooks/useForm.js';
 
