@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Carousel, Container, Row, Col, Card, Button, Badge } from 'react-bootstrap';
 import { 
@@ -14,10 +14,25 @@ import {
   PersonCheck,
   Key
 } from 'react-bootstrap-icons';
+import config from '../configuration/config';
 
 const HomePage = () => {
   const [showInfo, setShowInfo] = useState(false);
   const [index, setIndex] = useState(0);
+
+  // Warm up the backend server on page load
+  useEffect(() => {
+    const warmupBackend = async () => {
+      try {
+        console.log('Warming up backend server...');
+        await fetch(`${config.baseURL}/`, { method: 'GET' });
+        console.log('Backend server is ready');
+      } catch (error) {
+        console.log('Backend warmup request sent (server may be starting)');
+      }
+    };
+    warmupBackend();
+  }, []);
 
   const handleSelect = (selectedIndex) => {
     setIndex(selectedIndex);

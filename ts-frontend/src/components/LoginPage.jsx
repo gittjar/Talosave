@@ -111,10 +111,13 @@ const LoginPage = () => {
                       className="fw-semibold"
                     >
                       {loading ? (
-                        <>
-                          <Spinner size="sm" className="me-2" />
-                          Kirjaudutaan...
-                        </>
+                        <div className="d-flex flex-column align-items-center">
+                          <div>
+                            <Spinner size="sm" className="me-2" />
+                            Kirjaudutaan...
+                          </div>
+                          <small style={{fontSize: '0.75rem', opacity: 0.9}}>Palvelin käynnistyy, odota hetki</small>
+                        </div>
                       ) : (
                         <>
                           <PersonCheck size={20} className="me-2" />
