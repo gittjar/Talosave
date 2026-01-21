@@ -74,6 +74,7 @@ const putWaterConsumptionYearly = require('./consumptionsroutes/putWaterYearly')
 const getResearch = require('./researchroutes/get');
 const deleteResearch = require('./researchroutes/delete');
 const uploadRouter = require('./uploads/post');
+const nordpoolRouter = require('./routes/nordpool');
 
 // Root route
 app.get('/', (req, res) => {
@@ -161,6 +162,7 @@ app.use('/api/waterconsumptions', putWaterConsumptionYearly);
 app.use('/api', getResearch);
 app.use('/api', deleteResearch);
 app.use('/api', uploadRouter);
+app.use('/api/nordpool', nordpoolRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

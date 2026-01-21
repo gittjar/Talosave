@@ -9,204 +9,299 @@ import {
   ButtonGroup, 
   Alert,
   Badge,
-  Spinner
+  Spinner,
+  Tabs,
+  Tab
 } from 'react-bootstrap';
 import { 
   Lightning, 
   BarChart, 
-  GraphUp, 
-  ArrowLeft,
+  GraphUp,
   Clock,
   ArrowUp,
   ArrowDown,
-  Activity
+  Activity,
+  Calendar,
+  CalendarPlus
 } from 'react-bootstrap-icons';
-import { VictoryChart, VictoryLine, VictoryBar, VictoryAxis, VictoryTooltip, VictoryVoronoiContainer, VictoryArea } from 'victory';
+import { VictoryChart, VictoryLine, VictoryBar, VictoryAxis, VictoryTooltip, VictoryVoronoiContainer, VictoryArea, VictoryScatter } from 'victory';
+import config from '../configuration/config';
 
-// Using Finnish electricity price API (Nordpool/Entso-e alternative)
-const ELECTRICITY_API_URL = 'https://api.porssisahko.net/v1/latest-prices.json';
-
-async function fetchLatestPriceData() {
+async function fetchElectricityPrices() {
   try {
-    const response = await fetch(ELECTRICITY_API_URL);
-    
-    // Check if response is ok
+    const response = await fetch(`${config.baseURL}/api/nordpool/prices`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
-    // Check if response is JSON
-    const contentType = response.headers.get('content-type');
-    if (!contentType || !contentType.includes('application/json')) {
-      const text = await response.text();
-      throw new Error(`Expected JSON, got ${contentType}. Response: ${text.substring(0, 100)}...`);
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.message || 'Failed to fetch prices');
     }
     
-    return response.json();
-  } catch (error) {
-    // Fallback to mock data if external API fails
-    console.warn('External API failed, using mock data:', error);
-    return {
-      prices: generateMockPriceData()
-    };
-  }
-}
-
-// Generate mock electricity price data for fallback
-function generateMockPriceData() {
-  const now = new Date();
-  const prices = [];
-  
-  for (let i = 0; i < 24; i++) {
-    const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), i);
-    // Generate realistic electricity prices (5-25 cents/kWh)
-    const basePrice = 12;
-    const variation = Math.sin(i * Math.PI / 12) * 8; // Peak hours variation
-    const randomVariation = (Math.random() - 0.5) * 4;
-    const price = Math.max(5, Math.round((basePrice + variation + randomVariation) * 100) / 100);
-    
-    prices.push({
-      startDate: startDate.toISOString(),
-      price: price
+    console.log('Fetched Nord Pool prices:', {
+      todayCount: data.today?.length || 0,
+      tomorrowCount: data.tomorrow?.length || 0,
+      source: data.source
     });
+    
+    return data;
+  } catch (error) {
+    console.error('Failed to fetch from backend:', error);
+    throw error;
   }
-  
-  return prices;
 }
 
 const ElectricityPrice = () => {
-  const [prices, setPrices] = useState([]);
+  const [todayPrices, setTodayPrices] = useState([]);
+  const [tomorrowPrices, setTomorrowPrices] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [chartType, setChartType] = useState('line');
+  const [chartType, setChartType] = useState('area');
+  const [activeTab, setActiveTab] = useState('today');
+  const [dataSource, setDataSource] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchPrice = async () => {
       try {
         setLoading(true);
-        setError(null); // Clear previous errors
-        const data = await fetchLatestPriceData();
+        setError(null);
+        const data = await fetchElectricityPrices();
         
-        // Handle different API response formats
-        const pricesArray = data.prices || data || [];
+        setTodayPrices(data.today || []);
+        setTomorrowPrices(data.tomorrow || []);
+        setDataSource(data.source || 'Nord Pool');
         
-        if (!Array.isArray(pricesArray) || pricesArray.length === 0) {
-          throw new Error('Sähkön hintatiedot eivät ole saatavilla');
-        }
-        
-        setPrices(pricesArray);
+        console.log('Prices loaded:', {
+          today: data.today?.length || 0,
+          tomorrow: data.tomorrow?.length || 0
+        });
       } catch (e) {
         console.error('Electricity price fetch error:', e);
         setError(`Hinnan haku epäonnistui: ${e.message}`);
-        
-        // Set fallback mock data
-        setPrices(generateMockPriceData());
       } finally {
         setLoading(false);
       }
     };
 
     fetchPrice();
+    
+    // Refresh prices every hour
+    const interval = setInterval(fetchPrice, 60 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
-
-  if (error) {
-    return (
-      <div style={{ padding: '20px', backgroundColor: '#1e1e1e', color: '#ffffff', borderRadius: '10px' }}>
-        <h3 style={{ color: '#00ffcc' }}>Sähkön hinta</h3>
-        <div style={{ 
-          backgroundColor: '#ff6b6b', 
-          color: 'white', 
-          padding: '10px', 
-          borderRadius: '5px',
-          marginBottom: '10px'
-        }}>
-          ⚠️ {error}
-        </div>
-        <p style={{ color: '#cccccc' }}>
-          Käytetään esimerkki hintatietoja. Todellinen hinta voi poiketa.
-        </p>
-      </div>
-    );
-  }
 
   const now = new Date();
   const currentHour = now.getHours();
   const currentDate = now.toDateString();
 
-  const formattedPrices = prices.map(price => {
-    const priceDate = new Date(price.startDate);
-    return {
-      x: priceDate,
-      y: price.price,
-      label: `Hinta: ${price.price} snt/kWh\nAika: ${priceDate.toLocaleString()}`,
-      isCurrentHour: priceDate.getHours() === currentHour && priceDate.toDateString() === currentDate
-    };
-  });
-
-  // Calculate statistics
-  const calculateStats = () => {
-    if (prices.length === 0) return null;
+  const calculateStats = (priceArray) => {
+    if (!priceArray || priceArray.length === 0) {
+      return { current: 0, min: 0, max: 0, avg: 0, cheapestWindow: 0 };
+    }
     
-    const priceValues = prices.map(p => p.price);
-    const currentPrice = prices.find(p => {
-      const priceDate = new Date(p.startDate);
+    const priceValues = priceArray.map(p => p.price);
+    const currentPrice = priceArray.find(p => {
+      const priceDate = new Date(p.time);
       return priceDate.getHours() === currentHour && priceDate.toDateString() === currentDate;
     });
     
+    const avg = priceValues.reduce((a, b) => a + b, 0) / priceValues.length;
+    
+    // Find cheapest 3-hour window
+    let cheapestWindowStart = 0;
+    let cheapestWindowSum = Infinity;
+    for (let i = 0; i <= priceValues.length - 3; i++) {
+      const windowSum = priceValues[i] + priceValues[i + 1] + priceValues[i + 2];
+      if (windowSum < cheapestWindowSum) {
+        cheapestWindowSum = windowSum;
+        cheapestWindowStart = i;
+      }
+    }
+    
     return {
-      current: currentPrice?.price || 0,
+      current: currentPrice?.price || priceValues[currentHour] || 0,
       min: Math.min(...priceValues),
       max: Math.max(...priceValues),
-      avg: priceValues.reduce((a, b) => a + b, 0) / priceValues.length,
-      trend: priceValues[priceValues.length - 1] > priceValues[0] ? 'up' : 'down'
+      avg: avg,
+      cheapestWindow: cheapestWindowStart
     };
   };
 
-  const stats = calculateStats();
+  const formatPrices = (priceArray) => {
+    return priceArray.map(price => {
+      const priceDate = new Date(price.time);
+      return {
+        x: priceDate,
+        y: price.price,
+        label: `${price.price.toFixed(2)} c/kWh\n${priceDate.toLocaleString('fi-FI', { hour: '2-digit', minute: '2-digit' })}`,
+        isCurrentHour: priceDate.getHours() === currentHour && priceDate.toDateString() === currentDate
+      };
+    });
+  };
 
-  const renderStatsCards = () => {
+  const renderStatsCards = (stats, priceArray) => {
     if (!stats) return null;
     
+    const cheapestHour = priceArray[stats.cheapestWindow];
+    const cheapestDate = cheapestHour ? new Date(cheapestHour.time) : null;
+    
     return (
-      <Row className="mb-4">
-        <Col md={3}>
-          <Card className="text-center h-100 border-0 shadow-sm">
-            <Card.Body>
-              <Lightning size={24} className="text-warning mb-2" />
-              <Card.Title className="h5">{stats.current.toFixed(2)} snt/kWh</Card.Title>
-              <Card.Text className="text-muted small">Nykyinen hinta</Card.Text>
+      <Row className="g-3 mb-4">
+        <Col xl={3} lg={3} md={3} sm={6} xs={6}>
+          <Card className="h-100 border-0 shadow-sm">
+            <Card.Body className="text-center">
+              <Lightning size={32} className="text-warning mb-2" />
+              <h3 className="h2 mb-1 fw-bold">{stats.current.toFixed(2)}</h3>
+              <p className="text-muted mb-0 small">c/kWh - Nyt</p>
             </Card.Body>
           </Card>
         </Col>
-        <Col md={3}>
-          <Card className="text-center h-100 border-0 shadow-sm">
-            <Card.Body>
-              <ArrowDown size={24} className="text-success mb-2" />
-              <Card.Title className="h5">{stats.min.toFixed(2)} snt/kWh</Card.Title>
-              <Card.Text className="text-muted small">Päivän halvin</Card.Text>
+        <Col xl={3} lg={3} md={3} sm={6} xs={6}>
+          <Card className="h-100 border-0 shadow-sm">
+            <Card.Body className="text-center">
+              <ArrowDown size={32} className="text-success mb-2" />
+              <h3 className="h2 mb-1 fw-bold text-success">{stats.min.toFixed(2)}</h3>
+              <p className="text-muted mb-0 small">c/kWh - Halvin</p>
             </Card.Body>
           </Card>
         </Col>
-        <Col md={3}>
-          <Card className="text-center h-100 border-0 shadow-sm">
-            <Card.Body>
-              <ArrowUp size={24} className="text-danger mb-2" />
-              <Card.Title className="h5">{stats.max.toFixed(2)} snt/kWh</Card.Title>
-              <Card.Text className="text-muted small">Päivän kallein</Card.Text>
+        <Col xl={3} lg={3} md={3} sm={6} xs={6}>
+          <Card className="h-100 border-0 shadow-sm">
+            <Card.Body className="text-center">
+              <ArrowUp size={32} className="text-danger mb-2" />
+              <h3 className="h2 mb-1 fw-bold text-danger">{stats.max.toFixed(2)}</h3>
+              <p className="text-muted mb-0 small">c/kWh - Kallein</p>
             </Card.Body>
           </Card>
         </Col>
-        <Col md={3}>
-          <Card className="text-center h-100 border-0 shadow-sm">
-            <Card.Body>
-              <Activity size={24} className="text-info mb-2" />
-              <Card.Title className="h5">{stats.avg.toFixed(2)} snt/kWh</Card.Title>
-              <Card.Text className="text-muted small">Keskiarvo</Card.Text>
+        <Col xl={3} lg={3} md={3} sm={6} xs={6}>
+          <Card className="h-100 border-0 shadow-sm">
+            <Card.Body className="text-center">
+              <Clock size={32} className="text-info mb-2" />
+              <h3 className="h6 mb-1 fw-bold">
+                {cheapestDate ? `${cheapestDate.getHours()}:00-${cheapestDate.getHours() + 3}:00` : 'N/A'}
+              </h3>
+              <p className="text-muted mb-0 small">Halvin 3h jakso</p>
             </Card.Body>
           </Card>
         </Col>
       </Row>
+    );
+  };
+
+  const renderChart = (formattedPrices, stats) => {
+    console.log('renderChart called with:', { 
+      pricesCount: formattedPrices?.length, 
+      chartType,
+      stats 
+    });
+    
+    if (!formattedPrices || formattedPrices.length === 0) {
+      return (
+        <div className="text-center py-5">
+          <Spinner animation="border" variant="primary" />
+          <p className="mt-3 text-muted">Ladataan kaaviotietoja...</p>
+        </div>
+      );
+    }
+
+    return (
+      <VictoryChart
+        containerComponent={<VictoryVoronoiContainer />}
+        padding={{ top: 20, bottom: 80, left: 80, right: 50 }}
+        height={400}
+        style={{
+          parent: {
+            backgroundColor: '#ffffff'
+          }
+        }}
+      >
+        <VictoryAxis
+          style={{
+            axis: { stroke: '#6c757d' },
+            tickLabels: { 
+              fill: '#6c757d', 
+              fontSize: 12, 
+              angle: -45,
+              textAnchor: 'end'
+            },
+            grid: { stroke: '#e9ecef', strokeWidth: 1 },
+          }}
+          tickFormat={(x) => {
+            const date = new Date(x);
+            return `${date.getHours().toString().padStart(2, '0')}:00`;
+          }}
+          tickCount={12}
+        />
+        <VictoryAxis
+          dependentAxis
+          style={{
+            axis: { stroke: '#6c757d' },
+            tickLabels: { fill: '#6c757d', fontSize: 12 },
+            grid: { stroke: '#e9ecef', strokeWidth: 1 },
+            axisLabel: { padding: 50, fontSize: 14, fill: '#495057' }
+          }}
+          label="Hinta (c/kWh)"
+        />
+        
+        {chartType === 'line' && (
+          <VictoryLine
+            data={formattedPrices}
+            style={{
+              data: { 
+                stroke: '#0d6efd', 
+                strokeWidth: 3,
+                strokeLinecap: 'round'
+              }
+            }}
+            labelComponent={<VictoryTooltip 
+              style={{ fill: 'white', fontSize: 12 }}
+              flyoutStyle={{ fill: '#212529', stroke: '#0d6efd' }}
+            />}
+          />
+        )}
+        
+        {chartType === 'bar' && (
+          <VictoryBar
+            data={formattedPrices}
+            style={{
+              data: {
+                fill: ({ datum }) => {
+                  if (datum.isCurrentHour) return '#ffc107';
+                  if (datum.y > stats.avg * 1.2) return '#dc3545';
+                  if (datum.y < stats.avg * 0.8) return '#198754';
+                  return '#0d6efd';
+                }
+              }
+            }}
+            labelComponent={<VictoryTooltip 
+              style={{ fill: 'white', fontSize: 12 }}
+              flyoutStyle={{ fill: '#212529' }}
+            />}
+          />
+        )}
+        
+        {chartType === 'area' && (
+          <VictoryArea
+            data={formattedPrices}
+            style={{
+              data: { 
+                fill: '#0d6efd', 
+                fillOpacity: 0.3,
+                stroke: '#0d6efd', 
+                strokeWidth: 2
+              }
+            }}
+            labelComponent={<VictoryTooltip 
+              style={{ fill: 'white', fontSize: 12 }}
+              flyoutStyle={{ fill: '#212529', stroke: '#0d6efd' }}
+            />}
+          />
+        )}
+      </VictoryChart>
     );
   };
 
@@ -215,85 +310,81 @@ const ElectricityPrice = () => {
       <Container fluid className="py-4">
         <Row className="mb-4">
           <Col>
-            <div className="d-flex align-items-center">
-              <Button 
-                variant="outline-secondary"
-                onClick={() => navigate('/home')}
-                className="me-3 d-flex align-items-center"
-                size="sm"
-              >
-                <ArrowLeft className="me-1" />
-                Takaisin
-              </Button>
-              <h2 className="h3 mb-0">
-                <Lightning className="me-2 text-warning" />
-                Sähkön hinta
-              </h2>
-            </div>
+            <h2 className="h3 mb-0">
+              <Lightning className="me-2 text-warning" />
+              Pörssisähkö
+            </h2>
           </Col>
         </Row>
         
         <Row>
           <Col className="text-center py-5">
             <Spinner animation="border" variant="primary" />
-            <p className="mt-3 text-muted">Ladataan hintatietoja...</p>
+            <p className="mt-3 text-muted">Ladataan hintatietoja Nord Pool -markkinalta...</p>
           </Col>
         </Row>
       </Container>
     );
   }
 
+  const todayStats = calculateStats(todayPrices);
+  const tomorrowStats = calculateStats(tomorrowPrices);
+
+  console.log('Render state:', {
+    todayPricesCount: todayPrices.length,
+    tomorrowPricesCount: tomorrowPrices.length,
+    todayStats,
+    activeTab,
+    chartType,
+    dataSource
+  });
+
   return (
     <Container fluid className="py-4">
       {/* Header */}
       <Row className="mb-4">
         <Col>
-          <div className="d-flex justify-content-between align-items-center">
-            <div className="d-flex align-items-center">
-              <Button 
-                variant="outline-secondary"
-                onClick={() => navigate('/home')}
-                className="me-3 d-flex align-items-center"
-                size="sm"
-              >
-                <ArrowLeft className="me-1" />
-                Takaisin
-              </Button>
+          <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
               <h2 className="h3 mb-0">
                 <Lightning className="me-2 text-warning" />
-                Sähkön hinta
+                Pörssisähkön hinta
               </h2>
+              <small className="text-muted">
+                <Clock className="me-1" size={14} />
+                Päivitetty: {new Date().toLocaleTimeString('fi-FI')}
+              </small>
             </div>
             
-            <div className="d-flex align-items-center">
-              <Clock className="me-2 text-muted" />
-              <Badge bg="info" className="me-3">
-                Päivitetty: {new Date().toLocaleTimeString()}
-              </Badge>
-              <ButtonGroup size="sm">
-                <Button 
-                  variant={chartType === 'line' ? 'primary' : 'outline-primary'}
-                  onClick={() => setChartType('line')}
-                >
-                  <GraphUp className="me-1" />
-                  Viiva
-                </Button>
-                <Button 
-                  variant={chartType === 'bar' ? 'primary' : 'outline-primary'}
-                  onClick={() => setChartType('bar')}
-                >
-                  <BarChart className="me-1" />
-                  Pylväs
-                </Button>
-                <Button 
-                  variant={chartType === 'area' ? 'primary' : 'outline-primary'}
-                  onClick={() => setChartType('area')}
-                >
-                  <Activity className="me-1" />
-                  Alue
-                </Button>
-              </ButtonGroup>
-            </div>
+            <ButtonGroup>
+              <Button 
+                variant={chartType === 'area' ? 'primary' : 'outline-primary'}
+                onClick={() => setChartType('area')}
+                size="sm"
+                style={{ padding: '6px', marginRight: '4px' }}
+              >
+                <Activity className="me-1" />
+                Alue
+              </Button>
+              <Button 
+                variant={chartType === 'line' ? 'primary' : 'outline-primary'}
+                onClick={() => setChartType('line')}
+                size="sm"
+                style={{ padding: '6px', marginRight: '4px' }}
+
+              >
+                <GraphUp className="me-1" />
+                Viiva
+              </Button>
+              <Button 
+                variant={chartType === 'bar' ? 'primary' : 'outline-primary'}
+                onClick={() => setChartType('bar')}
+                size="sm"
+              >
+                <BarChart className="me-1" />
+                Pylväs
+              </Button>
+            </ButtonGroup>
           </div>
         </Col>
       </Row>
@@ -314,132 +405,95 @@ const ElectricityPrice = () => {
         </Row>
       )}
 
-      {/* Statistics Cards */}
-      {renderStatsCards()}
-
-      {/* Price Chart */}
-      <Row>
-        <Col>
-          <Card className="border-0 shadow-sm">
-            <Card.Header className="bg-white border-0 py-3">
-              <h5 className="mb-0">
-                <Activity className="me-2" />
-                Sähkön hinta tänään (snt/kWh)
-              </h5>
-            </Card.Header>
-            <Card.Body>
-              {formattedPrices.length > 0 ? (
-                <VictoryChart
-                  containerComponent={<VictoryVoronoiContainer />}
-                  padding={{ top: 20, bottom: 80, left: 80, right: 50 }}
-                  height={400}
-                  style={{
-                    parent: {
-                      backgroundColor: '#ffffff'
-                    }
-                  }}
-                >
-                  <VictoryAxis
-                    style={{
-                      axis: { stroke: '#6c757d' },
-                      tickLabels: { 
-                        fill: '#6c757d', 
-                        fontSize: 12, 
-                        angle: -45,
-                        textAnchor: 'end'
-                      },
-                      grid: { stroke: '#e9ecef', strokeWidth: 1 },
-                    }}
-                    tickFormat={(x) => {
-                      const date = new Date(x);
-                      return `${date.getHours().toString().padStart(2, '0')}:00`;
-                    }}
-                    tickCount={12}
-                  />
-                  <VictoryAxis
-                    dependentAxis
-                    style={{
-                      axis: { stroke: '#6c757d' },
-                      tickLabels: { fill: '#6c757d', fontSize: 12 },
-                      grid: { stroke: '#e9ecef', strokeWidth: 1 },
-                      axisLabel: { padding: 50, fontSize: 14, fill: '#495057' }
-                    }}
-                    label="Hinta (snt/kWh)"
-                  />
-                  
-                  {chartType === 'line' && (
-                    <VictoryLine
-                      data={formattedPrices}
-                      style={{
-                        data: { 
-                          stroke: '#0d6efd', 
-                          strokeWidth: 3,
-                          strokeLinecap: 'round'
-                        }
-                      }}
-                      labelComponent={<VictoryTooltip 
-                        style={{ fill: 'white', fontSize: 12 }}
-                        flyoutStyle={{ fill: '#212529', stroke: '#0d6efd' }}
-                      />}
-                    />
-                  )}
-                  
-                  {chartType === 'bar' && (
-                    <VictoryBar
-                      data={formattedPrices}
-                      style={{
-                        data: {
-                          fill: ({ datum }) => {
-                            if (datum.isCurrentHour) return '#ffc107';
-                            if (datum.y > stats.avg * 1.2) return '#dc3545';
-                            if (datum.y < stats.avg * 0.8) return '#198754';
-                            return '#0d6efd';
-                          }
-                        }
-                      }}
-                      labelComponent={<VictoryTooltip 
-                        style={{ fill: 'white', fontSize: 12 }}
-                        flyoutStyle={{ fill: '#212529' }}
-                      />}
-                    />
-                  )}
-                  
-                  {chartType === 'area' && (
-                    <VictoryArea
-                      data={formattedPrices}
-                      style={{
-                        data: { 
-                          fill: '#0d6efd', 
-                          fillOpacity: 0.3,
-                          stroke: '#0d6efd', 
-                          strokeWidth: 2
-                        }
-                      }}
-                      labelComponent={<VictoryTooltip 
-                        style={{ fill: 'white', fontSize: 12 }}
-                        flyoutStyle={{ fill: '#212529', stroke: '#0d6efd' }}
-                      />}
-                    />
-                  )}
-                </VictoryChart>
-              ) : (
-                <div className="text-center py-5">
-                  <Spinner animation="border" variant="primary" />
-                  <p className="mt-3 text-muted">Ladataan kaaviotietoja...</p>
-                </div>
-              )}
-            </Card.Body>
-            <Card.Footer className="bg-light text-muted">
-              <small>
-                Hinnat päivittyvät tunnin välein. Värikoodit: 
-                <Badge bg="warning" className="mx-1">Nykyinen tunti</Badge>
-                <Badge bg="success" className="mx-1">Halpa (&lt;80% keskiarvosta)</Badge>
-                <Badge bg="danger" className="mx-1">Kallis (&gt;120% keskiarvosta)</Badge>
-              </small>
-            </Card.Footer>
-          </Card>
-        </Col>
-      </Row>
+      {/* Tabs for Today and Tomorrow */}
+      <Tabs
+        activeKey={activeTab}
+        onSelect={(k) => setActiveTab(k)}
+        className="mb-4"
+      >
+        <Tab 
+          eventKey="today" 
+          title={
+            <span>
+              <Calendar className="me-2" />
+              Tänään
+            </span>
+          }
+        >
+          {renderStatsCards(todayStats, todayPrices)}
+          
+          <Row>
+            <Col>
+              <Card className="border-0 shadow-sm">
+                <Card.Header className="bg-white border-0 py-3">
+                  <h5 className="mb-0">
+                    <Activity className="me-2" />
+                    Sähkön hinta tänään (snt/kWh)
+                  </h5>
+                </Card.Header>
+                <Card.Body>
+                  {renderChart(formatPrices(todayPrices), todayStats)}
+                </Card.Body>
+                <Card.Footer className="bg-light text-muted">
+                  <small className="d-flex flex-wrap align-items-center gap-2">
+                    <span>Värikoodit:</span>
+                    <Badge bg="warning">Nykyinen tunti</Badge>
+                    <Badge bg="success">Halpa</Badge>
+                    <Badge bg="danger">Kallis</Badge>
+                    <Badge bg="primary">Normaali</Badge>
+                  </small>
+                </Card.Footer>
+              </Card>
+            </Col>
+          </Row>
+        </Tab>
+        
+        <Tab 
+          eventKey="tomorrow" 
+          title={
+            <span>
+              <CalendarPlus className="me-2" />
+              Huomenna {tomorrowPrices.length > 0 ? `(${tomorrowPrices.length}h)` : ''}
+            </span>
+          }
+          disabled={tomorrowPrices.length === 0}
+        >
+          {tomorrowPrices.length > 0 ? (
+            <>
+              {renderStatsCards(tomorrowStats, tomorrowPrices)}
+              
+              <Row>
+                <Col>
+                  <Card className="border-0 shadow-sm">
+                    <Card.Header className="bg-white border-0 py-3">
+                      <h5 className="mb-0">
+                        <Activity className="me-2" />
+                        Sähkön hinta huomenna (snt/kWh)
+                      </h5>
+                    </Card.Header>
+                    <Card.Body>
+                      {renderChart(formatPrices(tomorrowPrices), tomorrowStats)}
+                    </Card.Body>
+                    <Card.Footer className="bg-light text-muted">
+                      <small className="d-flex flex-wrap align-items-center gap-2">
+                        <span>Värikoodit:</span>
+                        <Badge bg="success">Halpa</Badge>
+                        <Badge bg="danger">Kallis</Badge>
+                        <Badge bg="primary">Normaali</Badge>
+                      </small>
+                    </Card.Footer>
+                  </Card>
+                </Col>
+              </Row>
+            </>
+          ) : (
+            <Alert variant="info" className="text-center">
+              <CalendarPlus size={32} className="mb-2" />
+              <p className="mb-0">Huomisen hinnat julkaistaan noin klo 14:00</p>
+            </Alert>
+          )}
+        </Tab>
+      </Tabs>
     </Container>
   );
 };
