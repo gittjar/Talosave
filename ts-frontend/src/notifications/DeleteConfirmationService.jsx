@@ -9,7 +9,7 @@ const DeleteConfirmationService = ({ service, onConfirm, onCancel }) => {
       </Modal.Header>
       <Modal.Body>
         <p>Haluatko varmasti poistaa huollon?</p>
-        <div className="bg-light p-3 rounded">
+        <div className="bg-light p-3 rounded mb-3">
           <strong>{service.servicename}</strong>
           {service.provider && (
             <div className="text-muted small mt-1">
@@ -22,8 +22,8 @@ const DeleteConfirmationService = ({ service, onConfirm, onCancel }) => {
             </div>
           )}
         </div>
-        <p className="text-danger mt-3 mb-0">
-          Tätä toimintoa ei voi peruuttaa.
+        <p className="text-danger fw-bold mb-0">
+          Toimintoa ei voi perua, mikäli poistat kohteen: <strong>{service.servicename}</strong>
         </p>
       </Modal.Body>
       <Modal.Footer>

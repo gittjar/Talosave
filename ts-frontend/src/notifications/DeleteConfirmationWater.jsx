@@ -27,9 +27,14 @@ const DeleteConfirmationWater = ({ deleteItem, setShowDeleteConfirm, deletingIte
           <Modal.Title>Poistetaanko nämä tiedot?</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>{monthNames[deletingItem.month]} / {deletingItem.year}</p>
-          <Button className='primary-button' onClick={() => { deleteItem(); setShowDeleteConfirm(false); }}>Kyllä, poista</Button>
-          <Button className='danger-button' onClick={() => setShowDeleteConfirm(false)}>Ei, älä poista</Button>
+          <p className="mb-2">{monthNames[deletingItem.month]} / {deletingItem.year}</p>
+          <p className="text-danger fw-bold mb-3">
+            Toimintoa ei voi perua, mikäli poistat kohteen: <strong>{monthNames[deletingItem.month]} {deletingItem.year}</strong>
+          </p>
+          <div className="d-flex gap-2">
+            <Button variant="danger" onClick={() => { deleteItem(); setShowDeleteConfirm(false); }}>Kyllä, poista</Button>
+            <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>Ei, älä poista</Button>
+          </div>
         </Modal.Body>
       </Modal>
     );
