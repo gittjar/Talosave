@@ -7,6 +7,7 @@ Database
 │   ├── post_number
 │   ├── city
 │   ├── land
+│   ├── description
 │   ├── house_type
 │   ├── building_year
 │   ├── total_sqm
@@ -28,7 +29,7 @@ Database
 │   ├── ranta
 │   ├── userid
 │   ├── latitude
-│   ├── longitude
+│   └── longitude
 │
 ├── TS_ElectricityConsumption
 │   ├── id (PK)
@@ -45,6 +46,9 @@ Database
 │   ├── year
 │   ├── kwh
 │   ├── euros
+│   ├── mwh
+│   ├── m3
+│   ├── liters
 │
 ├── TS_WaterConsumption
 │   ├── id (PK)
@@ -53,6 +57,7 @@ Database
 │   ├── year
 │   ├── liters
 │   ├── euros
+│   ├── m3
 │
 ├── TS_WasteConsumption
 │   ├── id (PK)
@@ -126,8 +131,32 @@ Database
 │   ├── password
 │   ├── email
 │   ├── phone
-│   ├── role
+│   └── role
 │
-└── TS_UserProperties
-    ├── userid (PK, FK -> TS_PropertyUsers)
-    ├── propertyid (PK, FK -> TS_Properties)
+├── TS_UserProperties
+│   ├── userid (PK, FK -> TS_PropertyUsers)
+│   └── propertyid (PK, FK -> TS_Properties)
+│
+└── TS_Services
+    ├── serviceid (PK)
+    ├── propertyid (FK -> TS_Properties)
+    ├── userid (FK -> TS_PropertyUsers)
+    ├── servicename
+    ├── servicetype (Huolto, Korjaus, Tarkastus, Siivous, Puutarha, etc.)
+    ├── description
+    ├── provider
+    ├── contactperson
+    ├── phone
+    ├── email
+    ├── servicedate
+    ├── nextservicedate
+    ├── isrecurring
+    ├── recurringinterval (months)
+    ├── cost
+    ├── currency (default: EUR)
+    ├── status (Suunniteltu, Käynnissä, Valmis, Peruttu)
+    ├── priority (Matala, Normaali, Korkea, Kiireellinen)
+    ├── notes
+    ├── documenturl
+    ├── createdat
+    └── updatedat

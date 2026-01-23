@@ -164,3 +164,47 @@ CREATE TABLE TS_UserProperties (
     FOREIGN KEY (userid) REFERENCES TS_PropertyUsers(userid),
     FOREIGN KEY (propertyid) REFERENCES TS_Properties(propertyid)
 );
+
+CREATE TABLE TS_Services (
+    serviceid INT PRIMARY KEY IDENTITY(1,1),
+    propertyid INT NOT NULL,
+    userid INT NOT NULL,
+    
+    -- Service details
+    servicename NVARCHAR(200) NOT NULL,
+    servicetype NVARCHAR(100),  -- 'Huolto', 'Korjaus', 'Tarkastus', 'Siivous', 'Puutarha', etc.
+    description NVARCHAR(MAX),
+    
+    -- Service provider
+    provider NVARCHAR(200),
+    contactperson NVARCHAR(100),
+    phone NVARCHAR(50),
+    email NVARCHAR(100),
+    
+    -- Dates and scheduling
+    servicedate DATE,
+    nextservicedate DATE,
+    isrecurring BIT DEFAULT 0,
+    recurringinterval INT,  -- months
+    
+    -- Cost
+    cost DECIMAL(10, 2),
+    currency NVARCHAR(10) DEFAULT 'EUR',
+    
+    -- Status
+    status NVARCHAR(50) DEFAULT 'Suunniteltu',  -- 'Suunniteltu', 'Käynnissä', 'Valmis', 'Peruttu'
+    priority NVARCHAR(20),  -- 'Matala', 'Normaali', 'Korkea', 'Kiireellinen'
+    
+    -- Documentation
+    notes NVARCHAR(MAX),
+    documenturl NVARCHAR(500),
+    
+    -- Timestamps
+    createdat DATETIME DEFAULT GETDATE(),
+    updatedat DATETIME DEFAULT GETDATE(),
+    
+    -- Foreign keys
+    FOREIGN KEY (propertyid) REFERENCES TS_Properties(propertyid),
+    FOREIGN KEY (userid) REFERENCES TS_PropertyUsers(userid)
+      
+);
