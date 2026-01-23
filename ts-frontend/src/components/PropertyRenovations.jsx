@@ -131,7 +131,7 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
 
   return (
     <div className='renovations'>
-      {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={handleDeleteProperty} setShowDeleteConfirm={setShowDeleteConfirm} />}
+      {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={handleDeleteProperty} setShowDeleteConfirm={setShowDeleteConfirm} renovationName={renovationToDelete?.renovation} />}
       {showDeleteDetailsConfirm && <DeleteDetailsConfirmation handleDeleteDetails={handleDeleteDetails} setShowDeleteDetailsConfirm={setShowDeleteDetailsConfirm} />}
 
       {/* Modern Header Section */}
