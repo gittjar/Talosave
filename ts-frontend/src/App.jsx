@@ -21,6 +21,7 @@ const UserSettings = lazy(() => import('./components/UserSettings.jsx'));
 const ProgramInfoPage = lazy(() => import('./components/ProgramInfoPage.jsx'));
 const DataProtection = lazy(() => import('./components/DataProtection.jsx'));
 const ElectricityPrice = lazy(() => import('./components/ElectricityPrice.jsx'));
+const Services = lazy(() => import('./components/Services.jsx'));
 
 function App() {
   return (
@@ -74,6 +75,11 @@ function App() {
                 <Route path="/research" element={
                   <PropertyProvider>
                     <ResearchPage />
+                  </PropertyProvider>
+                } />
+                <Route path="/services/:id" element={
+                  <PropertyProvider>
+                    <Services />
                   </PropertyProvider>
                 } />
                 

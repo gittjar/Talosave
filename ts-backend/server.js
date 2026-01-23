@@ -75,6 +75,10 @@ const getResearch = require('./researchroutes/get');
 const deleteResearch = require('./researchroutes/delete');
 const uploadRouter = require('./uploads/post');
 const nordpoolRouter = require('./routes/nordpool');
+const getServices = require('./servicesroutes/get');
+const postServices = require('./servicesroutes/post');
+const putServices = require('./servicesroutes/put');
+const deleteServices = require('./servicesroutes/delete');
 
 // Root route
 app.get('/', (req, res) => {
@@ -163,6 +167,10 @@ app.use('/api', getResearch);
 app.use('/api', deleteResearch);
 app.use('/api', uploadRouter);
 app.use('/api/nordpool', nordpoolRouter);
+app.use('/api/services', getServices);
+app.use('/api/services', postServices);
+app.use('/api/services', putServices);
+app.use('/api/services', deleteServices);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -12,10 +12,11 @@ import HouseBasicInformation from './HouseBasicInformation.jsx';
 import { XLg, PencilSquare, BuildingUp, List } from 'react-bootstrap-icons';
 import { Tab, Nav, Navbar, Offcanvas, Button } from 'react-bootstrap';
 import ConsumptionDetails from './ConsumptionDetails.jsx';
-import { HouseDoor, Tools, CardChecklist, BarChartFill, HouseCheck } from 'react-bootstrap-icons';
+import { HouseDoor, Tools, CardChecklist, BarChartFill, HouseCheck, Gear } from 'react-bootstrap-icons';
 import ResearchPage from './ResearchPage.jsx';
 import ChangeOwnerForm from '../forms/ChangeOwnerForm.jsx';
 import ElectricityPrice from './ElectricityPrice.jsx';
+import Services from './Services.jsx';
 
 export const PropertyContext = createContext();
 
@@ -251,12 +252,18 @@ const PropertyDetails = () => {
     },
     {
       key: "4",
+      icon: <Gear />,
+      label: "Huollot",
+      shortLabel: "Huollot"
+    },
+    {
+      key: "5",
       icon: <BarChartFill />,
       label: "Kulutus",
       shortLabel: "Kulutus"
     },
     {
-      key: "5",
+      key: "6",
       icon: <HouseCheck />,
       label: "Tutkimukset",
       shortLabel: "Tutkimukset"
@@ -466,9 +473,12 @@ const PropertyDetails = () => {
     </section>
       </Tab.Pane>
       <Tab.Pane eventKey="4">
-      <ConsumptionDetails property={property}>Kulutus</ ConsumptionDetails>
+        <Services propertyId={id} />
       </Tab.Pane>
       <Tab.Pane eventKey="5">
+      <ConsumptionDetails property={property}>Kulutus</ ConsumptionDetails>
+      </Tab.Pane>
+      <Tab.Pane eventKey="6">
       <ResearchPage propertyId={id} />
       
      
