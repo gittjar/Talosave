@@ -12,7 +12,7 @@ import HouseBasicInformation from './HouseBasicInformation.jsx';
 import { XLg, PencilSquare, BuildingUp, List } from 'react-bootstrap-icons';
 import { Tab, Nav, Navbar, Offcanvas, Button } from 'react-bootstrap';
 import ConsumptionDetails from './ConsumptionDetails.jsx';
-import { HouseDoor, Tools, CardChecklist, BarChartFill, HouseCheck, Gear } from 'react-bootstrap-icons';
+import { HouseDoor, Tools, CardChecklist, BarChartFill, HouseCheck, Gear, CurrencyExchange, Lightning } from 'react-bootstrap-icons';
 import ResearchPage from './ResearchPage.jsx';
 import ChangeOwnerForm from '../forms/ChangeOwnerForm.jsx';
 import ElectricityPrice from './ElectricityPrice.jsx';
@@ -269,14 +269,14 @@ const PropertyDetails = () => {
       shortLabel: "Tutkimukset"
     },
     {
-      key: "6",
-      icon: null,
+      key: "7",
+      icon: <CurrencyExchange />,
       label: "Verot ja muut maksut",
       shortLabel: "Verot"
     },
     {
-      key: "7",
-      icon: null,
+      key: "8",
+      icon: <Lightning />,
       label: "Pörssisähkö",
       shortLabel: "Sähkö"
     }
@@ -480,17 +480,14 @@ const PropertyDetails = () => {
       </Tab.Pane>
       <Tab.Pane eventKey="6">
       <ResearchPage propertyId={id} />
-      
-     
-
       </Tab.Pane>
 
-      <Tab.Pane eventKey="6">
+      <Tab.Pane eventKey="7">
       <h1>Verot ja muut maksut</h1>
       <p>Tähän tulee verotietojen tiedot, oma komponentti</p>
       </Tab.Pane>
-      <Tab.Pane eventKey="7">
-      <h1>Pörssisähkö</h1>
+      
+      <Tab.Pane eventKey="8">
       <ElectricityPrice />
       </Tab.Pane>
     </Tab.Content>

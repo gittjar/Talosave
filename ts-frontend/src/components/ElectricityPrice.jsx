@@ -456,7 +456,6 @@ const ElectricityPrice = () => {
               Huomenna {tomorrowPrices.length > 0 ? `(${tomorrowPrices.length}h)` : ''}
             </span>
           }
-          disabled={tomorrowPrices.length === 0}
         >
           {tomorrowPrices.length > 0 ? (
             <>
@@ -487,10 +486,23 @@ const ElectricityPrice = () => {
               </Row>
             </>
           ) : (
-            <Alert variant="info" className="text-center">
-              <CalendarPlus size={32} className="mb-2" />
-              <p className="mb-0">Huomisen hinnat julkaistaan noin klo 14:00</p>
-            </Alert>
+            <Row>
+              <Col>
+                <Alert variant="info" className="d-flex align-items-start">
+                  <CalendarPlus size={32} className="me-3 mt-1" />
+                  <div>
+                    <h6 className="mb-2">Huomisen hinnat eivät ole vielä saatavilla</h6>
+                    <p className="mb-2">
+                      Seuraavan päivän sähkön hinnat julkaistaan yleensä noin <strong>klo 15:00</strong> iltapäivällä.
+                    </p>
+                    <small className="text-muted">
+                      <Clock className="me-1" size={14} />
+                      Nykyinen aika: {new Date().toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' })}
+                    </small>
+                  </div>
+                </Alert>
+              </Col>
+            </Row>
           )}
         </Tab>
       </Tabs>
