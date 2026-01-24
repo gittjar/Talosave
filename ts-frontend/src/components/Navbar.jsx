@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Container, Nav, Navbar, NavDropdown, Badge } from 'react-bootstrap';
 import { 
@@ -19,16 +19,22 @@ import { useAuth } from '../contexts/AuthContext.jsx';
 const NavBar = () => {
   const { isLoggedIn, user, logout } = useAuth();
   const location = useLocation();
+  const [expanded, setExpanded] = useState(false);
 
   const handleLogout = () => {
     logout();
+    setExpanded(false);
+  };
+
+  const closeNav = () => {
+    setExpanded(false);
   };
 
   return (
-    <Navbar expand="lg" className="modern-navbar shadow-sm" sticky="top">
+    <Navbar expanded={expanded} onToggle={setExpanded} expand="lg" className="modern-navbar shadow-sm" sticky="top">
       <Container>
         {/* Brand */}
-        <Navbar.Brand as={Link} to="/home" className="brand-link">
+        <Navbar.Brand as={Link} to="/home" onClick={closeNav} className="brand-link">
           <div className="d-flex align-items-center">
             <div className="brand-icon me-2">
               <Buildings size={24} />
@@ -46,23 +52,43 @@ const NavBar = () => {
         <Navbar.Collapse id="navbar-nav">
           {/* Main Navigation */}
           <Nav className="me-auto">
-            <Nav.Link as={Link} to="/home" className="nav-item-modern">
+            <Nav.Link 
+              as={Link} 
+              to="/home" 
+              onClick={closeNav}
+              className={`nav-item-modern ${location.pathname === '/home' || location.pathname === '/' ? 'active' : ''}`}
+            >
               <House size={16} className="me-2" />
               Etusivu
             </Nav.Link>
             
-            <Nav.Link as={Link} to="/electricity-price" className="nav-item-modern">
+            <Nav.Link 
+              as={Link} 
+              to="/electricity-price" 
+              onClick={closeNav}
+              className={`nav-item-modern ${location.pathname === '/electricity-price' ? 'active' : ''}`}
+            >
               <Lightning size={16} className="me-2" />
               Pörssisähkö
             </Nav.Link>
             
-            <Nav.Link as={Link} to="/maintenance-schedule" className="nav-item-modern">
+            <Nav.Link 
+              as={Link} 
+              to="/maintenance-schedule" 
+              onClick={closeNav}
+              className={`nav-item-modern ${location.pathname === '/maintenance-schedule' ? 'active' : ''}`}
+            >
               <Calendar2Check size={16} className="me-2" />
               Huoltoaikataulu
             </Nav.Link>
             
             {!isLoggedIn && (
-              <Nav.Link as={Link} to="/create-user" className="nav-item-modern">
+              <Nav.Link 
+                as={Link} 
+                to="/create-user" 
+                onClick={closeNav}
+                className={`nav-item-modern ${location.pathname === '/create-user' ? 'active' : ''}`}
+              >
                 <PersonPlus size={16} className="me-2" />
                 Rekisteröidy
               </Nav.Link>
@@ -73,7 +99,12 @@ const NavBar = () => {
           <Nav className="ms-auto">
             {isLoggedIn ? (
               <>
-                <Nav.Link as={Link} to="/mypage" className="nav-item-modern">
+                <Nav.Link 
+                  as={Link} 
+                  to="/mypage" 
+                  onClick={closeNav}
+                  className={`nav-item-modern ${location.pathname === '/mypage' ? 'active' : ''}`}
+                >
                   <Buildings size={16} className="me-2" />
                   Rakennukset
                 </Nav.Link>
@@ -90,7 +121,7 @@ const NavBar = () => {
                   className="user-dropdown"
                   align="end"
                 >
-                  <NavDropdown.Item as={Link} to="/usersettings" className="dropdown-item-modern">
+                  <NavDropdown.Item as={Link} to="/usersettings" onClick={closeNav} className="dropdown-item-modern">
                     <GearFill size={14} className="me-2" />
                     Tilin asetukset
                   </NavDropdown.Item>
@@ -104,7 +135,12 @@ const NavBar = () => {
                 </NavDropdown>
               </>
             ) : (
-              <Nav.Link as={Link} to="/login" className="nav-item-modern login-btn">
+              <Nav.Link 
+                as={Link} 
+                to="/login" 
+                onClick={closeNav}
+                className={`nav-item-modern login-btn ${location.pathname === '/login' ? 'active' : ''}`}
+              >
                 <BoxArrowInRight size={16} className="me-2" />
                 Kirjaudu sisään
               </Nav.Link>
@@ -121,12 +157,12 @@ const NavBar = () => {
               className="info-dropdown"
               align="end"
             >
-              <NavDropdown.Item as={Link} to="/data-protection" className="dropdown-item-modern">
+              <NavDropdown.Item as={Link} to="/data-protection" onClick={closeNav} className="dropdown-item-modern">
                 <ShieldCheck size={14} className="me-2" />
                 Tietosuoja
               </NavDropdown.Item>
               
-              <NavDropdown.Item as={Link} to="/program-info" className="dropdown-item-modern">
+              <NavDropdown.Item as={Link} to="/program-info" onClick={closeNav} className="dropdown-item-modern">
                 <InfoCircle size={14} className="me-2" />
                 Ohjelman tiedot
               </NavDropdown.Item>

@@ -1539,6 +1539,12 @@ th, td {
     text-decoration: none !important;
 }
 
+.nav-item-modern.active {
+    color: #0d6efd !important;
+    background: rgba(13, 110, 253, 0.15) !important;
+    font-weight: 600 !important;
+}
+
 .nav-item-modern.login-btn {
     background: linear-gradient(135deg, #0d6efd, #6610f2) !important;
     color: white !important;
