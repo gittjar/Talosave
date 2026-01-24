@@ -99,7 +99,7 @@ const ElectricityPrice = () => {
 
   const calculateStats = (priceArray) => {
     if (!priceArray || priceArray.length === 0) {
-      return { current: 0, min: 0, max: 0, avg: 0, cheapestWindow: 0 };
+      return { current: 0, min: 0, max: 0, avg: 0, cheapestWindow: 0, minHour: null, maxHour: null };
     }
     
     const priceValues = priceArray.map(p => p.price);
@@ -109,6 +109,14 @@ const ElectricityPrice = () => {
     });
     
     const avg = priceValues.reduce((a, b) => a + b, 0) / priceValues.length;
+    
+    // Find min and max hour
+    const minPrice = Math.min(...priceValues);
+    const maxPrice = Math.max(...priceValues);
+    const minHourIndex = priceValues.indexOf(minPrice);
+    const maxHourIndex = priceValues.indexOf(maxPrice);
+    const minHour = priceArray[minHourIndex] ? new Date(priceArray[minHourIndex].time) : null;
+    const maxHour = priceArray[maxHourIndex] ? new Date(priceArray[maxHourIndex].time) : null;
     
     // Find cheapest 3-hour window
     let cheapestWindowStart = 0;
@@ -121,12 +129,18 @@ const ElectricityPrice = () => {
       }
     }
     
+    // Calculate average price for the cheapest 3-hour window
+    const cheapestWindowAvg = cheapestWindowSum / 3;
+    
     return {
       current: currentPrice?.price || priceValues[currentHour] || 0,
-      min: Math.min(...priceValues),
-      max: Math.max(...priceValues),
+      min: minPrice,
+      max: maxPrice,
       avg: avg,
-      cheapestWindow: cheapestWindowStart
+      cheapestWindow: cheapestWindowStart,
+      cheapestWindowAvg: cheapestWindowAvg,
+      minHour: minHour,
+      maxHour: maxHour
     };
   };
 
@@ -142,11 +156,14 @@ const ElectricityPrice = () => {
     });
   };
 
-  const renderStatsCards = (stats, priceArray) => {
+  const renderStatsCards = (stats, priceArray, isToday = true) => {
     if (!stats) return null;
     
     const cheapestHour = priceArray[stats.cheapestWindow];
     const cheapestDate = cheapestHour ? new Date(cheapestHour.time) : null;
+    
+    // Get current hour label
+    const currentHourLabel = isToday ? "Nyt" : `Huomenna klo ${currentHour.toString().padStart(2, '0')}:00`;
     
     return (
       <Row className="g-3 mb-4">
@@ -155,7 +172,7 @@ const ElectricityPrice = () => {
             <Card.Body className="text-center">
               <Lightning size={32} className="text-warning mb-2" />
               <h3 className="h2 mb-1 fw-bold">{stats.current.toFixed(2)}</h3>
-              <p className="text-muted mb-0 small">c/kWh - Nyt</p>
+              <p className="text-muted mb-0 small">c/kWh - {currentHourLabel}</p>
             </Card.Body>
           </Card>
         </Col>
@@ -165,6 +182,11 @@ const ElectricityPrice = () => {
               <ArrowDown size={32} className="text-success mb-2" />
               <h3 className="h2 mb-1 fw-bold text-success">{stats.min.toFixed(2)}</h3>
               <p className="text-muted mb-0 small">c/kWh - Halvin</p>
+              {stats.minHour && (
+                <small className="text-success fw-bold">
+                  klo {stats.minHour.getHours().toString().padStart(2, '0')}:00
+                </small>
+              )}
             </Card.Body>
           </Card>
         </Col>
@@ -174,6 +196,11 @@ const ElectricityPrice = () => {
               <ArrowUp size={32} className="text-danger mb-2" />
               <h3 className="h2 mb-1 fw-bold text-danger">{stats.max.toFixed(2)}</h3>
               <p className="text-muted mb-0 small">c/kWh - Kallein</p>
+              {stats.maxHour && (
+                <small className="text-danger fw-bold">
+                  klo {stats.maxHour.getHours().toString().padStart(2, '0')}:00
+                </small>
+              )}
             </Card.Body>
           </Card>
         </Col>
@@ -181,10 +208,13 @@ const ElectricityPrice = () => {
           <Card className="h-100 border-0 shadow-sm">
             <Card.Body className="text-center">
               <Clock size={32} className="text-info mb-2" />
-              <h3 className="h6 mb-1 fw-bold">
-                {cheapestDate ? `${cheapestDate.getHours()}:00-${cheapestDate.getHours() + 3}:00` : 'N/A'}
-              </h3>
-              <p className="text-muted mb-0 small">Halvin 3h jakso</p>
+              <h3 className="h2 mb-1 fw-bold text-info">{stats.cheapestWindowAvg.toFixed(2)}</h3>
+              <p className="text-muted mb-0 small">c/kWh - Halvin 3h</p>
+              {cheapestDate && (
+                <small className="text-info fw-bold">
+                  {cheapestDate.getHours().toString().padStart(2, '0')}:00-{(cheapestDate.getHours() + 3).toString().padStart(2, '0')}:00
+                </small>
+              )}
             </Card.Body>
           </Card>
         </Col>
@@ -434,7 +464,7 @@ const ElectricityPrice = () => {
             </span>
           }
         >
-          {renderStatsCards(todayStats, todayPrices)}
+          {renderStatsCards(todayStats, todayPrices, true)}
           
           <Row>
             <Col>
@@ -478,7 +508,7 @@ const ElectricityPrice = () => {
         >
           {tomorrowPrices.length > 0 ? (
             <>
-              {renderStatsCards(tomorrowStats, tomorrowPrices)}
+              {renderStatsCards(tomorrowStats, tomorrowPrices, false)}
               
               <Row>
                 <Col>
