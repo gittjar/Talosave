@@ -4,6 +4,7 @@ const hmacSHA512 = require('crypto-js/hmac-sha512');
 const Base64 = require('crypto-js/enc-base64');
 const router = require('express').Router();
 const sql = require('mssql');
+const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
 const config = {
@@ -16,7 +17,17 @@ const config = {
     }
 };
 
-router.post('/', async (req, res) => {
+// Rate limiter: 5 attempts per 10 minutes
+const loginLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 5, // 5 attempts
+  message: { error: 'Liian monta kirjautumisyritystä. Yritä uudelleen 10 minuutin kuluttua.' },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  skipSuccessfulRequests: false, // Count successful requests
+});
+
+router.post('/', loginLimiter, async (req, res) => {
   const { username, password } = req.body;
 
   // Fetch the user from the database

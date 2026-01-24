@@ -18,6 +18,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-fileupload": "^1.5.1",
+    "express-rate-limit": "^8.2.1",
     "formidable": "^3.5.2",
     "gridfs-stream": "^1.1.1",
     "jsonwebtoken": "^9.0.2",

@@ -18,8 +18,31 @@ const config = {
     }
     };
 
+    // Password strength validation
+    const validatePassword = (password) => {
+        if (password.length < 8) {
+            return { valid: false, message: 'Salasanan on oltava vähintään 8 merkkiä pitkä' };
+        }
+        if (!/[a-z]/.test(password)) {
+            return { valid: false, message: 'Salasanassa on oltava vähintään yksi pieni kirjain' };
+        }
+        if (!/[A-Z]/.test(password)) {
+            return { valid: false, message: 'Salasanassa on oltava vähintään yksi iso kirjain' };
+        }
+        if (!/[0-9]/.test(password)) {
+            return { valid: false, message: 'Salasanassa on oltava vähintään yksi numero' };
+        }
+        return { valid: true };
+    };
+
     router.post('/', async (req, res) => {
         const { username, fullname, password, email, phone, role } = req.body;
+      
+        // Validate password strength
+        const passwordValidation = validatePassword(password);
+        if (!passwordValidation.valid) {
+            return res.status(400).json({ error: passwordValidation.message });
+        }
       
         // Hash the password
         const hashDigest = sha256(password);

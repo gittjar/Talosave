@@ -11,7 +11,8 @@ import {
   InfoCircle, 
   ShieldCheck,
   PersonCircle,
-  Lightning
+  Lightning,
+  Calendar2Check
 } from 'react-bootstrap-icons';
 import { useAuth } from '../contexts/AuthContext.jsx';
 
@@ -53,6 +54,11 @@ const NavBar = () => {
             <Nav.Link as={Link} to="/electricity-price" className="nav-item-modern">
               <Lightning size={16} className="me-2" />
               Pörssisähkö
+            </Nav.Link>
+            
+            <Nav.Link as={Link} to="/maintenance-schedule" className="nav-item-modern">
+              <Calendar2Check size={16} className="me-2" />
+              Huoltoaikataulu
             </Nav.Link>
             
             {!isLoggedIn && (

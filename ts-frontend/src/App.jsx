@@ -22,6 +22,7 @@ const ProgramInfoPage = lazy(() => import('./components/ProgramInfoPage.jsx'));
 const DataProtection = lazy(() => import('./components/DataProtection.jsx'));
 const ElectricityPrice = lazy(() => import('./components/ElectricityPrice.jsx'));
 const Services = lazy(() => import('./components/Services.jsx'));
+const MaintenanceSchedule = lazy(() => import('./components/MaintenanceSchedule.jsx'));
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
                 <Route path="/program-info" element={<ProgramInfoPage />} />
                 <Route path="/data-protection" element={<DataProtection />} />
                 <Route path="/electricity-price" element={<ElectricityPrice />} />
+                <Route path="/maintenance-schedule" element={<MaintenanceSchedule />} />
                 <Route path="/" element={<HomePage />} />
                 
                 {/* Property-dependent routes wrapped in PropertyProvider */}
