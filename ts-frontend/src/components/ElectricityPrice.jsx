@@ -517,11 +517,6 @@ const ElectricityPrice = () => {
             </Row>
           )}
         </Tab>
-                </Alert>
-              </Col>
-            </Row>
-          )}
-        </Tab>
       </Tabs>
     </Container>
   );
