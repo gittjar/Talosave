@@ -237,71 +237,153 @@ const MaintenanceSchedule = () => {
           {/* Timeline Visualization */}
           <Card className="mb-4 shadow-sm">
             <Card.Header className="bg-light">
-              <strong>Aikajana</strong>
+              <strong>Aikajana - Komponenttien vaihtotarpeet</strong>
               <Badge bg="secondary" className="ms-2">{currentYear}</Badge>
             </Card.Header>
-            <Card.Body>
-              <div style={{ position: 'relative', minHeight: '150px' }}>
-                {/* Current year line */}
+            <Card.Body style={{ backgroundColor: '#f8f9fa' }}>
+              <div style={{ position: 'relative', paddingTop: '20px', paddingBottom: '60px', minHeight: '200px' }}>
+                {/* Components on timeline */}
+                <div style={{ position: 'relative', minHeight: '120px', marginBottom: '20px' }}>
+                  {sortedComponents.map((component, index) => {
+                    const yearsRemaining = getYearsRemaining(component.replacementYear);
+                    const status = getStatusColor(yearsRemaining);
+                    
+                    // Calculate position: center (50%) + years offset (4% per year, max range ±40%)
+                    let leftPercent = 50 + Math.max(-40, Math.min(40, yearsRemaining * 4));
+                    
+                    // Stack vertically from bottom
+                    const verticalOffset = index * 35;
+                    
+                    return (
+                      <div
+                        key={component.id}
+                        style={{
+                          position: 'absolute',
+                          left: `${leftPercent}%`,
+                          bottom: `${verticalOffset}px`,
+                          transform: 'translateX(-50%)',
+                          zIndex: 1,
+                          maxWidth: '180px'
+                        }}
+                      >
+                        {/* Connecting line to timeline */}
+                        <div
+                          style={{
+                            position: 'absolute',
+                            left: '50%',
+                            bottom: '-15px',
+                            width: '2px',
+                            height: '15px',
+                            backgroundColor: status.color === 'danger' ? '#dc3545' : status.color === 'warning' ? '#ffc107' : '#198754',
+                            transform: 'translateX(-50%)'
+                          }}
+                        />
+                        
+                        <div 
+                          className={`badge bg-${status.color}`} 
+                          style={{ 
+                            fontSize: '10px', 
+                            whiteSpace: 'normal',
+                            textAlign: 'center',
+                            display: 'block',
+                            padding: '4px 6px',
+                            lineHeight: '1.3',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
+                          }}
+                        >
+                          <div style={{ fontWeight: 'bold' }}>{component.name}</div>
+                          <div>{component.replacementYear}</div>
+                          {yearsRemaining >= 0 ? (
+                            <div>({yearsRemaining}v jäljellä)</div>
+                          ) : (
+                            <div>({Math.abs(yearsRemaining)}v yli)</div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Timeline horizontal line */}
+                <div 
+                  style={{
+                    position: 'absolute',
+                    left: '5%',
+                    right: '5%',
+                    bottom: '40px',
+                    height: '4px',
+                    backgroundColor: '#dee2e6',
+                    borderRadius: '2px'
+                  }}
+                />
+
+                {/* Current year marker */}
                 <div 
                   style={{
                     position: 'absolute',
                     left: '50%',
-                    top: 0,
-                    bottom: 0,
-                    width: '3px',
+                    top: '20px',
+                    bottom: '40px',
+                    width: '4px',
                     backgroundColor: '#0d6efd',
-                    zIndex: 1
+                    transform: 'translateX(-50%)',
+                    zIndex: 2,
+                    boxShadow: '0 0 10px rgba(13, 110, 253, 0.5)'
                   }}
-                >
-                  <div 
-                    style={{
-                      position: 'absolute',
-                      top: '-25px',
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      backgroundColor: '#0d6efd',
-                      color: 'white',
-                      padding: '2px 8px',
-                      borderRadius: '3px',
-                      fontSize: '12px',
-                      fontWeight: 'bold',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    NYT {currentYear}
-                  </div>
-                </div>
+                />
 
-                {/* Components on timeline */}
-                {sortedComponents.map((component, index) => {
-                  const yearsRemaining = getYearsRemaining(component.replacementYear);
-                  const status = getStatusColor(yearsRemaining);
-                  const leftPercent = yearsRemaining < 0 ? 10 : Math.max(10, Math.min(90, 50 + (yearsRemaining * 2)));
-                  
-                  return (
-                    <div
-                      key={component.id}
-                      style={{
-                        position: 'absolute',
-                        left: `${leftPercent}%`,
-                        top: `${index * 30 + 40}px`,
-                        transform: 'translateX(-50%)',
-                        zIndex: 0
-                      }}
-                    >
-                      <div className={`badge bg-${status.color}`} style={{ fontSize: '11px', whiteSpace: 'nowrap' }}>
-                        {component.name}: {component.replacementYear}
-                        {yearsRemaining >= 0 && ` (${yearsRemaining}v)`}
+                {/* Year markers */}
+                <div style={{ position: 'absolute', bottom: '10px', left: 0, right: 0 }}>
+                  {[-10, -5, 0, 5, 10].map((offset) => {
+                    const year = currentYear + offset;
+                    const leftPercent = 50 + (offset * 4);
+                    
+                    return (
+                      <div
+                        key={offset}
+                        style={{
+                          position: 'absolute',
+                          left: `${leftPercent}%`,
+                          transform: 'translateX(-50%)',
+                          textAlign: 'center'
+                        }}
+                      >
+                        <div 
+                          style={{
+                            width: '2px',
+                            height: '15px',
+                            backgroundColor: offset === 0 ? '#0d6efd' : '#6c757d',
+                            margin: '0 auto',
+                            marginBottom: '5px'
+                          }}
+                        />
+                        <small 
+                          style={{ 
+                            fontSize: '11px', 
+                            color: offset === 0 ? '#0d6efd' : '#6c757d',
+                            fontWeight: offset === 0 ? 'bold' : 'normal'
+                          }}
+                        >
+                          {year}
+                        </small>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-              <div style={{ marginTop: `${sortedComponents.length * 30 + 60}px` }}>
-                <div className="d-flex justify-content-between text-muted small">
-                  <span>← Mennyt</span>
-                  <span>Tulevaisuus →</span>
+              
+              {/* Legend */}
+              <div className="mt-4 pt-3 border-top">
+                <div className="d-flex justify-content-center gap-3 flex-wrap">
+                  <small className="text-muted">
+                    <span className="badge bg-danger me-1">●</span> Kriittinen (&lt;2v)
+                  </small>
+                  <small className="text-muted">
+                    <span className="badge bg-warning text-dark me-1">●</span> Huomio (2-5v)
+                  </small>
+                  <small className="text-muted">
+                    <span className="badge bg-success me-1">●</span> Hyvä (&gt;5v)
+                  </small>
                 </div>
               </div>
             </Card.Body>
