@@ -208,44 +208,57 @@ const ElectricityPrice = () => {
       );
     }
 
+    // Dynamic sizing based on screen width
+    const isMobile = window.innerWidth < 768;
+    const isTablet = window.innerWidth >= 768 && window.innerWidth < 992;
+    
+    const chartHeight = isMobile ? 350 : isTablet ? 400 : 400;
+    const chartPadding = isMobile 
+      ? { top: 20, bottom: 90, left: 60, right: 20 }
+      : { top: 20, bottom: 80, left: 80, right: 50 };
+    const fontSize = isMobile ? 10 : 12;
+    const labelAngle = isMobile ? -60 : -45;
+
     return (
-      <VictoryChart
-        containerComponent={<VictoryVoronoiContainer />}
-        padding={{ top: 20, bottom: 80, left: 80, right: 50 }}
-        height={400}
-        style={{
-          parent: {
-            backgroundColor: '#ffffff'
-          }
-        }}
-      >
-        <VictoryAxis
+      <div style={{ width: '100%', height: 'auto' }}>
+        <VictoryChart
+          containerComponent={<VictoryVoronoiContainer />}
+          padding={chartPadding}
+          height={chartHeight}
+          width={isMobile ? window.innerWidth - 60 : undefined}
           style={{
-            axis: { stroke: '#6c757d' },
-            tickLabels: { 
-              fill: '#6c757d', 
-              fontSize: 12, 
-              angle: -45,
-              textAnchor: 'end'
-            },
-            grid: { stroke: '#e9ecef', strokeWidth: 1 },
+            parent: {
+              backgroundColor: '#ffffff'
+            }
           }}
-          tickFormat={(x) => {
-            const date = new Date(x);
-            return `${date.getHours().toString().padStart(2, '0')}:00`;
-          }}
-          tickCount={12}
-        />
-        <VictoryAxis
-          dependentAxis
-          style={{
-            axis: { stroke: '#6c757d' },
-            tickLabels: { fill: '#6c757d', fontSize: 12 },
-            grid: { stroke: '#e9ecef', strokeWidth: 1 },
-            axisLabel: { padding: 50, fontSize: 14, fill: '#495057' }
-          }}
-          label="Hinta (c/kWh)"
-        />
+        >
+          <VictoryAxis
+            style={{
+              axis: { stroke: '#6c757d' },
+              tickLabels: { 
+                fill: '#6c757d', 
+                fontSize: fontSize, 
+                angle: labelAngle,
+                textAnchor: 'end'
+              },
+              grid: { stroke: '#e9ecef', strokeWidth: 1 },
+            }}
+            tickFormat={(x) => {
+              const date = new Date(x);
+              return `${date.getHours().toString().padStart(2, '0')}:00`;
+            }}
+            tickCount={isMobile ? 8 : 12}
+          />
+          <VictoryAxis
+            dependentAxis
+            style={{
+              axis: { stroke: '#6c757d' },
+              tickLabels: { fill: '#6c757d', fontSize: fontSize },
+              grid: { stroke: '#e9ecef', strokeWidth: 1 },
+              axisLabel: { padding: isMobile ? 40 : 50, fontSize: isMobile ? 12 : 14, fill: '#495057' }
+            }}
+            label="Hinta (c/kWh)"
+          />
         
         {chartType === 'line' && (
           <VictoryLine
@@ -302,6 +315,7 @@ const ElectricityPrice = () => {
           />
         )}
       </VictoryChart>
+      </div>
     );
   };
 
