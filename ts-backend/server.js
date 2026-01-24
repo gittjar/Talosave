@@ -21,7 +21,8 @@ const corsOptions = {
       'http://localhost:5173', 
       'http://localhost:5174',
       'http://localhost:3000',
-      'https://talosave-frontend.azurewebsites.net'
+      'https://talosave-frontend.azurewebsites.net',
+      'https://talotieto.netlify.app'
     ];
     
     // In development, allow any localhost origin
