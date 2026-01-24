@@ -453,7 +453,12 @@ const ElectricityPrice = () => {
           title={
             <span>
               <CalendarPlus className="me-2" />
-              Huomenna {tomorrowPrices.length > 0 ? `(${tomorrowPrices.length}h)` : ''}
+              Huomenna {' '}
+              {tomorrowPrices.length > 0 ? (
+                <Badge bg="success" className="ms-1">{tomorrowPrices.length}h</Badge>
+              ) : (
+                <Badge bg="secondary" className="ms-1">Ei saatavilla</Badge>
+              )}
             </span>
           }
         >
@@ -486,20 +491,32 @@ const ElectricityPrice = () => {
               </Row>
             </>
           ) : (
-            <Row>
+            <Row className="mt-4">
               <Col>
-                <Alert variant="info" className="d-flex align-items-start">
-                  <CalendarPlus size={32} className="me-3 mt-1" />
-                  <div>
-                    <h6 className="mb-2">Huomisen hinnat eivät ole vielä saatavilla</h6>
-                    <p className="mb-2">
-                      Seuraavan päivän sähkön hinnat julkaistaan yleensä noin <strong>klo 15:00</strong> iltapäivällä.
+                <Alert variant="warning" className="d-flex align-items-start shadow-sm">
+                  <CalendarPlus size={40} className="me-3 mt-1 text-warning" />
+                  <div className="flex-grow-1">
+                    <h5 className="mb-3">
+                      <strong>Huomisen sähkön hinnat eivät ole vielä saatavilla</strong>
+                    </h5>
+                    <p className="mb-3">
+                      Seuraavan päivän sähkön hinnat julkaistaan yleensä päivittäin noin <strong>klo 15:00</strong> (klo 14:00-16:00 välillä).
                     </p>
+                    <div className="mb-2">
+                      <Clock className="me-2" size={16} />
+                      <strong>Nykyinen aika:</strong> {new Date().toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                    <hr className="my-3" />
                     <small className="text-muted">
-                      <Clock className="me-1" size={14} />
-                      Nykyinen aika: {new Date().toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' })}
+                      <strong>Huom:</strong> Nord Pool julkaisee seuraavan päivän hinnat automaattisesti kun ne tulevat saataville. 
+                      Sivu päivittyy tunnin välein, tai voit päivittää sivun manuaalisesti.
                     </small>
                   </div>
+                </Alert>
+              </Col>
+            </Row>
+          )}
+        </Tab>
                 </Alert>
               </Col>
             </Row>
