@@ -405,7 +405,6 @@ const ElectricityPrice = () => {
                 variant={chartType === 'area' ? 'primary' : 'outline-primary'}
                 onClick={() => setChartType('area')}
                 size="sm"
-                style={{ padding: '6px', marginRight: '4px' }}
               >
                 <Activity className="me-1" />
                 Alue
@@ -414,8 +413,6 @@ const ElectricityPrice = () => {
                 variant={chartType === 'line' ? 'primary' : 'outline-primary'}
                 onClick={() => setChartType('line')}
                 size="sm"
-                style={{ padding: '6px', marginRight: '4px' }}
-
               >
                 <GraphUp className="me-1" />
                 Viiva
