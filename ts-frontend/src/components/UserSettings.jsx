@@ -122,17 +122,7 @@ const UserSettings = () => {
 
                                 {/* Edit Form */}
                                 {isEditing && (
-                                    <div className="edit-form mb-4">
-                                        <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <h5 className="mb-0">Muokkaa tietoja</h5>
-                                            <Button 
-                                                variant="outline-secondary" 
-                                                size="sm"
-                                                onClick={toggleEdit}
-                                            >
-                                                Peruuta
-                                            </Button>
-                                        </div>
+                                    <div className="edit-form mb-3">
                                         <EditUserForm 
                                             user={user} 
                                             onUserUpdate={updateUser} 
