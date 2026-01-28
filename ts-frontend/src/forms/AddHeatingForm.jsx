@@ -195,7 +195,7 @@ const AddHeatingForm = ({ propertyId, refreshData, closeForm }) => {
 
         <button 
           type="submit" 
-          className="btn btn-primary mt-2"
+          className="btn btn-danger mt-2"
           disabled={loading}
         >
           {loading ? 'Adding...' : 'Add Heating Consumption'}

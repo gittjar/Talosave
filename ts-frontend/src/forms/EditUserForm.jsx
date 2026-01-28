@@ -111,7 +111,7 @@ const EditUserForm = ({ user, onUserUpdate, toggleEdit }) => {
                         )}
                     </Button>
                     <Button 
-                        variant="outline-secondary" 
+                        variant="dark" 
                         onClick={toggleEdit}
                         disabled={loading}
                         className="fw-semibold"

@@ -1,4 +1,4 @@
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, ButtonGroup } from 'react-bootstrap';
 
 const DeleteConfirmationHeating = ({ handleDeleteProperty, setShowDeleteConfirm, deletingItem }) => {
   const monthNames = {
@@ -27,8 +27,10 @@ const DeleteConfirmationHeating = ({ handleDeleteProperty, setShowDeleteConfirm,
           Toimintoa ei voi perua, mikäli poistat kohteen: <strong>{monthNames[deletingItem.month]} {deletingItem.year}</strong>
         </p>
         <div className="d-flex gap-2">
+        <ButtonGroup>
           <Button variant="danger" onClick={() => { handleDeleteProperty(); setShowDeleteConfirm(false); }}>Kyllä, poista</Button>
-          <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>Ei, älä poista</Button>
+          <Button variant="dark" onClick={() => setShowDeleteConfirm(false)}>Ei, älä poista</Button>
+        </ButtonGroup>
         </div>
       </Modal.Body>
     </Modal>

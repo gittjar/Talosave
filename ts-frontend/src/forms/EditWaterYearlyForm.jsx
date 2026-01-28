@@ -54,12 +54,14 @@ const EditWaterYearlyForm = ({ waterYearly, updateYearlyWaterConsumption, onSubm
     <FloatingLabel controlId="floatingInput" label="Veden hinta €" className="mb-3">
         <Form.Control type="number" step="0.01" name="euros" placeholder="Syötä veden hinta" value={updatedWaterYearly.euros || ''} onChange={handleChange} />            
     </FloatingLabel>
-    <Button className="primary-button mt-2 mb-2" type="submit">
-        Tallenna
-    </Button>
-    <Button className="secondary-button mt-2 mb-2" onClick={onSubmit}>
-        Peruuta
-    </Button>
+    <ButtonGroup>
+        <Button variant="success" className="mt-2 mb-2" type="submit">
+            Tallenna
+        </Button>
+        <Button variant="dark" className="mt-2 mb-2" onClick={onSubmit}>
+            Peruuta
+        </Button>
+    </ButtonGroup>
 </Form>
     ) : null;
 }

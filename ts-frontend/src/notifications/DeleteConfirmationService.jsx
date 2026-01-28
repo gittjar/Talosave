@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, ButtonGroup } from 'react-bootstrap';
 
 const DeleteConfirmationService = ({ service, onConfirm, onCancel }) => {
   return (

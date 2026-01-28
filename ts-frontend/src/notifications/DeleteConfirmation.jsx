@@ -1,4 +1,4 @@
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, ButtonGroup } from 'react-bootstrap';
 
 const DeleteConfirmation = ({ handleDeleteProperty, setShowDeleteConfirm, fileName, todoTitle, renovationName }) => {
   const title = todoTitle ? (
@@ -32,10 +32,10 @@ const DeleteConfirmation = ({ handleDeleteProperty, setShowDeleteConfirm, fileNa
         <p className="text-danger fw-bold mb-3">
           Toimintoa ei voi perua, mikäli poistat kohteen: <strong>{itemName}</strong>
         </p>
-        <div className="d-flex gap-2">
+        <ButtonGroup>
           <Button variant="danger" onClick={() => { handleDeleteProperty(); setShowDeleteConfirm(false); }}>Kyllä, poista</Button>
-          <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>Ei, älä poista</Button>
-        </div>
+          <Button variant="dark" onClick={() => setShowDeleteConfirm(false)}>Ei, älä poista</Button>
+        </ButtonGroup>
       </Modal.Body>
     </Modal>
   );

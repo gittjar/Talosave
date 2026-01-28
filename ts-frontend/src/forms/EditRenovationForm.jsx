@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
 
 const EditRenovationForm = ({ renovation, handleEditRenovation }) => {
@@ -37,7 +38,7 @@ const EditRenovationForm = ({ renovation, handleEditRenovation }) => {
         <Form.Label>Cost</Form.Label>
         <Form.Control type="number" name="cost" placeholder="Enter cost" defaultValue={renovation.cost} onChange={handleChange} />
       </Form.Group>
-      <Button className="primary-button" type="submit">
+      <Button variant="success" type="submit">
         Tallenna
       </Button>
     </Form>

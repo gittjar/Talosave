@@ -81,7 +81,7 @@ const AddYearlyWaterForm = ({ propertyId, refreshData }) => {
     <FloatingLabel controlId="floatingEuros" label="Euros" className="mb-3">
         <Form.Control type="number" value={euros} onChange={e => setEuros(e.target.value)} required />
     </FloatingLabel>
-    <button type="submit" className='primary-button m-1'>Lisää</button>
+    <button type="submit" className='btn btn-success m-1'>Lisää</button>
 </form>
     );
 };

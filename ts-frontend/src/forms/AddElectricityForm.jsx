@@ -146,7 +146,7 @@ const AddElectricityForm = ({ propertyId, refreshData, closeForm }) => {
       
       <button 
         type="submit" 
-        className='primary-button m-1' 
+        className='btn btn-warning m-1' 
         disabled={loading}
       >
         {loading ? 'Lisätään...' : 'Lisää'}
