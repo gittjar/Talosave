@@ -205,14 +205,14 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
           <div className="year-filter-container" style={{ overflowX: 'auto' }}>
             <ButtonGroup size="sm" className="mb-2">
               <Button
-                variant={selectedYear === 'all' ? 'primary' : 'outline-primary'}
+                variant={selectedYear === 'all' ? 'dark' : 'outline-primary'}
                 onClick={() => setSelectedYear('all')}
-                className="d-flex flex-column align-items-center px-3 py-2"
+                className={`d-flex flex-column align-items-center px-3 py-2 ${selectedYear === 'all' ? 'text-white' : 'text-dark'}`}
               >
                 <div className="fw-bold">Kaikki</div>
                 <small className="d-flex flex-column align-items-center mt-1">
                   <span>{yearStats['all']?.count || 0} kpl</span>
-                  <span className="text-success fw-semibold">
+                  <span className={selectedYear === 'all' ? 'text-white' : 'text-primary'}>
                     {(yearStats['all']?.total || 0).toLocaleString('fi-FI')} €
                   </span>
                 </small>
@@ -221,9 +221,9 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
               {availableYears.map(year => (
                 <Button
                   key={year}
-                  variant={selectedYear === year.toString() ? 'primary' : 'outline-primary'}
+                  variant={selectedYear === year.toString() ? 'dark' : 'outline-primary'}
                   onClick={() => setSelectedYear(year.toString())}
-                  className="d-flex flex-column align-items-center px-3 py-2"
+                  className={`d-flex flex-column align-items-center px-3 py-2 ${selectedYear === year.toString() ? 'text-white' : 'text-dark'}`}
                 >
                   <div className="fw-bold">
                     <Calendar3 className="me-1" size={14} />
@@ -231,7 +231,7 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                   </div>
                   <small className="d-flex flex-column align-items-center mt-1">
                     <span>{yearStats[year]?.count || 0} kpl</span>
-                    <span className="text-success fw-semibold">
+                    <span className={selectedYear === year.toString() ? 'text-white' : 'text-primary'}>
                       {(yearStats[year]?.total || 0).toLocaleString('fi-FI')} €
                     </span>
                   </small>
