@@ -115,8 +115,13 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
 
     if (images.length === 0) {
         return (
-            <Alert variant="info">
-                Ei kuvia. Lisää kuvia käyttämällä yllä olevaa lomaketta.
+            <Alert variant="info" className="text-center">
+                <div className="mb-2">
+                    <strong>Ei kuvia</strong>
+                </div>
+                <p className="mb-0">
+                    Klikkaa <strong>"Lisää kuva"</strong> -nappia yllä lisätäksesi ensimmäisen kuvan.
+                </p>
             </Alert>
         );
     }
