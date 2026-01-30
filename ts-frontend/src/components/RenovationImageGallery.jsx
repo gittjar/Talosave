@@ -11,6 +11,8 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
     const [showModal, setShowModal] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
     const [deleting, setDeleting] = useState(null);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [imageToDelete, setImageToDelete] = useState(null);
 
     useEffect(() => {
         fetchImages();
@@ -53,15 +55,18 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
     };
 
     const handleDelete = async (imageId) => {
-        if (!window.confirm('Haluatko varmasti poistaa tämän kuvan?')) {
-            return;
-        }
+        setImageToDelete(imageId);
+        setShowDeleteConfirm(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!imageToDelete) return;
 
         try {
-            setDeleting(imageId);
+            setDeleting(imageToDelete);
             const token = localStorage.getItem('token');
 
-            const response = await fetch(`${config.apiUrl}/renovations/images/${imageId}`, {
+            const response = await fetch(`${config.apiUrl}/renovations/images/${imageToDelete}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -73,13 +78,15 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
             }
 
             toast.success('Kuva poistettu onnistuneesti');
-            setImages(images.filter(img => img.id !== imageId));
+            setImages(images.filter(img => img.id !== imageToDelete));
             if (onUpdate) onUpdate();
         } catch (err) {
             console.error('Error deleting image:', err);
             toast.error(err.message);
         } finally {
             setDeleting(null);
+            setShowDeleteConfirm(false);
+            setImageToDelete(null);
         }
     };
 
@@ -229,6 +236,55 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
                     >
                         <Trash3 className="me-2" />
                         Poista kuva
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Delete Confirmation Modal */}
+            <Modal show={showDeleteConfirm} onHide={() => setShowDeleteConfirm(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Vahvista poisto</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>Haluatko varmasti poistaa tämän kuvan?</p>
+                    <Alert variant="warning" className="mb-0">
+                        <small>Tämä toiminto ei ole palautettavissa.</small>
+                    </Alert>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button 
+                        variant="secondary" 
+                        onClick={() => {
+                            setShowDeleteConfirm(false);
+                            setImageToDelete(null);
+                        }}
+                        disabled={deleting}
+                    >
+                        Peruuta
+                    </Button>
+                    <Button 
+                        variant="danger" 
+                        onClick={confirmDelete}
+                        disabled={deleting}
+                    >
+                        {deleting ? (
+                            <>
+                                <Spinner
+                                    as="span"
+                                    animation="border"
+                                    size="sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                    className="me-2"
+                                />
+                                Poistetaan...
+                            </>
+                        ) : (
+                            <>
+                                <Trash3 className="me-2" />
+                                Poista kuva
+                            </>
+                        )}
                     </Button>
                 </Modal.Footer>
             </Modal>

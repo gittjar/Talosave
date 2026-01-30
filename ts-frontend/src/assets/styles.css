@@ -1,4 +1,8 @@
-
+/* Prevent layout shift when scrollbar appears */
+html {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+}
 
 .main {
     background-color: #fbfbfb;
@@ -803,6 +807,19 @@ th, td {
     .accordion-body {
         padding: 1rem !important;
     }
+}
+
+/* Smooth accordion animations */
+.accordion-button {
+    transition: all 0.3s ease-in-out;
+}
+
+.accordion-collapse {
+    transition: height 0.35s ease-in-out;
+}
+
+.accordion-body {
+    transition: padding 0.2s ease-in-out;
 }
 
 /* ===== HOMEPAGE STYLES ===== */

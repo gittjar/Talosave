@@ -162,11 +162,13 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
         setRenovations(renovations.map(renovation => renovation.id === updatedRenovation.id ? updatedRenovation : renovation));
         setShowEditForm(false);
         handleCloseForm();
-        closeForm();
         toast.success('Remontin tiedot päivitetty onnistuneesti!');
+        fetchRenovations();
       })
-      .then(fetchRenovations)
-      .catch(error => console.error('Error:', error));
+      .catch(error => {
+        console.error('Error:', error);
+        toast.error('Remontin päivitys epäonnistui');
+      });
   };
 
   return (
@@ -312,9 +314,19 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                     <Accordion.Body className="p-0">
                       <div className="renovation-items">
                         {renovations.sort((a, b) => new Date(b.date) - new Date(a.date)).map((renovation, renovationIndex) => (
-                          <div key={renovationIndex} className="renovation-item border-bottom">
-                            <Accordion>
-                              <Accordion.Item eventKey="0" className="border-0">
+                          <div 
+                            key={renovationIndex} 
+                            className="renovation-item border-bottom mb-2"
+                            style={{ 
+                              backgroundColor: renovationIndex % 2 === 0 ? '#f8f9fa' : '#ffffff',
+                              borderLeft: '4px solid #0d6efd',
+                              marginLeft: '8px',
+                              marginRight: '8px',
+                              borderRadius: '4px'
+                            }}
+                          >
+                            <Accordion className="mt-3">
+                              <Accordion.Item eventKey="0" className="border-0" style={{ backgroundColor: 'transparent' }}>
                                 <Accordion.Header className="renovation-detail-header">
                                   <div className="d-flex flex-column flex-md-row justify-content-between align-items-start w-100 me-3">
                                     {/* Main Info */}
@@ -342,16 +354,6 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                                       
                                       <div className="d-flex gap-2">
                                         <button
-                                          className="btn btn-outline-primary btn-sm d-flex align-items-center"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleShowForm(renovation.id);
-                                          }}
-                                        >
-                                          <PencilSquare size={14} className="me-1" />
-                                          <span className="d-none d-sm-inline">Muokkaa</span>
-                                        </button>
-                                        <button
                                           className="btn btn-outline-danger btn-sm d-flex align-items-center"
                                           onClick={(e) => {
                                             e.stopPropagation();
@@ -368,9 +370,25 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                                 </Accordion.Header>
                                 
                                 <Accordion.Body className="bg-light">
-                                  {showFormId === renovation.id && (
+                                  {/* Edit Form at top of accordion body */}
+                                  {showFormId === renovation.id ? (
+                                    <div className="mb-4">
+                                      <EditRenovationForm 
+                                        renovation={renovation} 
+                                        handleEditRenovation={handleEditRenovation}
+                                        onCancel={handleCloseForm}
+                                      />
+                                    </div>
+                                  ) : (
                                     <div className="mb-3">
-                                      <EditRenovationForm renovation={renovation} handleEditRenovation={handleEditRenovation} />
+                                      <Button 
+                                        variant="outline-primary" 
+                                        size="sm"
+                                        onClick={() => handleShowForm(renovation.id)}
+                                      >
+                                        <PencilSquare className="me-2" />
+                                        Muokkaa remonttia
+                                      </Button>
                                     </div>
                                   )}
                                   
@@ -391,8 +409,10 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                                   
                                   <hr />
                                   
-                                  <h6 className="mb-3">Remonttidetaljit</h6>
-                                  <RenovationDetails renovationId={renovation.id} />
+                                  <div className="mt-4 mb-3">
+                                    <h6 className="mb-3">Remonttidetaljit</h6>
+                                    <RenovationDetails renovationId={renovation.id} />
+                                  </div>
                                 </Accordion.Body>
                               </Accordion.Item>
                             </Accordion>
