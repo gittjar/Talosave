@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const sql = require('mssql');
 const multer = require('multer');
+const sharp = require('sharp');
 const { uploadToAzure, deleteFromAzure, extractBlobName, isAzureConfigured } = require('../azureStorage');
 
 // Configure multer for memory storage
@@ -11,11 +12,16 @@ const upload = multer({
         fileSize: 10 * 1024 * 1024, // 10MB limit
     },
     fileFilter: (req, file, cb) => {
-        // Accept only images
-        if (file.mimetype.startsWith('image/')) {
+        // Accept images including HEIC/HEIF from iOS
+        const allowedMimes = [
+            'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 
+            'image/webp', 'image/heic', 'image/heif'
+        ];
+        
+        if (file.mimetype.startsWith('image/') || allowedMimes.includes(file.mimetype)) {
             cb(null, true);
         } else {
-            cb(new Error('Vain kuvatiedostot sallittu (JPEG, PNG, GIF, etc.)'));
+            cb(new Error('Vain kuvatiedostot sallittu (JPEG, PNG, GIF, WEBP, HEIC)'));
         }
     }
 });
@@ -51,16 +57,46 @@ router.post('/:renovationId/images', upload.single('image'), async (req, res) =>
             }
 
             try {
+                let processedBuffer = req.file.buffer;
+                let processedMimetype = req.file.mimetype;
+                let processedFilename = req.file.originalname;
+
+                // Convert HEIC/HEIF to JPEG for browser compatibility
+                if (req.file.mimetype === 'image/heic' || req.file.mimetype === 'image/heif') {
+                    console.log(`Converting HEIC/HEIF to JPEG: ${req.file.originalname}`);
+                    processedBuffer = await sharp(req.file.buffer)
+                        .jpeg({ quality: 90 })
+                        .toBuffer();
+                    processedMimetype = 'image/jpeg';
+                    processedFilename = req.file.originalname.replace(/\.(heic|heif)$/i, '.jpg');
+                }
+                
+                // Optimize other images (resize if too large, compress)
+                else if (req.file.mimetype.startsWith('image/')) {
+                    const metadata = await sharp(req.file.buffer).metadata();
+                    
+                    // Resize if larger than 4K resolution
+                    if (metadata.width > 3840 || metadata.height > 2160) {
+                        console.log(`Resizing large image: ${metadata.width}x${metadata.height}`);
+                        processedBuffer = await sharp(req.file.buffer)
+                            .resize(3840, 2160, { fit: 'inside', withoutEnlargement: true })
+                            .jpeg({ quality: 85 })
+                            .toBuffer();
+                        processedMimetype = 'image/jpeg';
+                        processedFilename = processedFilename.replace(/\.[^.]+$/, '.jpg');
+                    }
+                }
+
                 // Upload to Azure Blob Storage
                 const uploadResult = await uploadToAzure(
-                    req.file.buffer, 
-                    req.file.originalname, 
-                    req.file.mimetype
+                    processedBuffer, 
+                    processedFilename, 
+                    processedMimetype
                 );
                 
                 image_url = uploadResult.url;
-                image_name = req.file.originalname;
-                file_size = req.file.size;
+                image_name = processedFilename;
+                file_size = processedBuffer.length;
             } catch (uploadErr) {
                 console.error('Azure upload error:', uploadErr);
                 return res.status(500).json({ 
