@@ -46,7 +46,10 @@ Keskittää kaikki kiinteistöön liittyvät tiedot yhteen helppokäyttöiseen s
 - 📋 Remonttien kirjaaminen ja luokittelu
 - 💸 Kustannusten seuranta
 - 📅 Aikataulujen hallinta
-- 📎 Dokumenttien liittäminen
+- � **Kuvien lataus** - Suora tiedostolatauspuheli/koneelta tai URL
+- 🖼️ **Kuva-galleria** - Responsiivinen kuvien esittely
+- ☁️ **Azure Blob Storage** - Turvallinen kuvien tallennusratkaisu
+- �📎 Dokumenttien liittäminen
 
 ### ✅ **Tehtävähallinta**
 - 📝 Todo-lista kiinteistökohtaisesti

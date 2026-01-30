@@ -12,6 +12,8 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
 import { toast } from 'react-toastify';
 import AddRenovationForm from '../forms/AddRenovationForm.jsx';
+import RenovationImageUpload from '../forms/RenovationImageUpload.jsx';
+import RenovationImageGallery from './RenovationImageGallery.jsx';
 
 const PropertyRenovations = ({ propertyId, refreshData }) => {
   const [renovations, setRenovations] = useState([]);
@@ -371,6 +373,25 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                                       <EditRenovationForm renovation={renovation} handleEditRenovation={handleEditRenovation} />
                                     </div>
                                   )}
+                                  
+                                  {/* Image Upload and Gallery */}
+                                  <div className="mb-4">
+                                    <h6 className="mb-3">Kuvat</h6>
+                                    <RenovationImageUpload 
+                                      renovationId={renovation.id} 
+                                      onUploadSuccess={() => {
+                                        // Trigger gallery refresh
+                                        document.dispatchEvent(new CustomEvent('renovation-image-uploaded', { 
+                                          detail: { renovationId: renovation.id } 
+                                        }));
+                                      }} 
+                                    />
+                                    <RenovationImageGallery renovationId={renovation.id} />
+                                  </div>
+                                  
+                                  <hr />
+                                  
+                                  <h6 className="mb-3">Remonttidetaljit</h6>
                                   <RenovationDetails renovationId={renovation.id} />
                                 </Accordion.Body>
                               </Accordion.Item>
