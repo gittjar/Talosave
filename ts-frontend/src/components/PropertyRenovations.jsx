@@ -17,6 +17,7 @@ import RenovationImageGallery from './RenovationImageGallery.jsx';
 
 const PropertyRenovations = ({ propertyId, refreshData }) => {
   const [renovations, setRenovations] = useState([]);
+  const [imageCounts, setImageCounts] = useState({});
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDeleteDetailsConfirm, setShowDeleteDetailsConfirm] = useState(false);
   const [renovationToDelete, setRenovationToDelete] = useState(null);
@@ -37,9 +38,30 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
       }
     })
       .then(response => response.json())
-      .then(data => setRenovations(data))
+      .then(data => {
+        setRenovations(data);
+        // Hae kuvamäärät jokaiselle remontille
+        data.forEach(renovation => {
+          fetchImageCount(renovation.id);
+        });
+      })
       .catch(error => console.error('Error:', error));
   }, [propertyId]);
+
+  const fetchImageCount = async (renovationId) => {
+    try {
+      const token = localStorage.getItem('userToken');
+      const response = await fetch(`${config.baseURL}/api/renovations/${renovationId}/images`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const images = await response.json();
+      setImageCounts(prev => ({ ...prev, [renovationId]: images.length }));
+    } catch (error) {
+      console.error('Error fetching image count:', error);
+    }
+  };
 
   const fetchRenovations = () => {
     const token = localStorage.getItem('userToken'); // Assuming you store your token in localStorage
@@ -52,6 +74,10 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
       .then(response => response.json())
       .then(data => {
         setRenovations(data);
+        // Hae kuvamäärät jokaiselle remontille
+        data.forEach(renovation => {
+          fetchImageCount(renovation.id);
+        });
         if (refreshData) {
           refreshData();
         }
@@ -341,6 +367,9 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                                         <span className="me-3">
                                           <strong>Päivämäärä:</strong> {new Date(renovation.date).toLocaleDateString('fi-FI')}
                                         </span>
+                                        <span className="me-3">
+                                          <strong>Kuvia:</strong> {imageCounts[renovation.id] || 0}
+                                        </span>
                                       </div>
                                     </div>
                                     
@@ -402,6 +431,8 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                                         document.dispatchEvent(new CustomEvent('renovation-image-uploaded', { 
                                           detail: { renovationId: renovation.id } 
                                         }));
+                                        // Päivitä kuvamäärä
+                                        fetchImageCount(renovation.id);
                                       }} 
                                     />
                                     <RenovationImageGallery renovationId={renovation.id} />

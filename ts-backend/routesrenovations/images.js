@@ -3,6 +3,7 @@ const router = express.Router();
 const sql = require('mssql');
 const multer = require('multer');
 const sharp = require('sharp');
+const convert = require('heic-convert');
 const { uploadToAzure, deleteFromAzure, extractBlobName, isAzureConfigured } = require('../azureStorage');
 
 // Configure multer for memory storage
@@ -18,7 +19,11 @@ const upload = multer({
             'image/webp', 'image/heic', 'image/heif'
         ];
         
-        if (file.mimetype.startsWith('image/') || allowedMimes.includes(file.mimetype)) {
+        // Also check file extension for HEIC/HEIF (some browsers don't send correct mimetype)
+        const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif'];
+        const fileExtension = file.originalname.toLowerCase().substring(file.originalname.lastIndexOf('.'));
+        
+        if (file.mimetype.startsWith('image/') || allowedMimes.includes(file.mimetype) || allowedExtensions.includes(fileExtension)) {
             cb(null, true);
         } else {
             cb(new Error('Vain kuvatiedostot sallittu (JPEG, PNG, GIF, WEBP, HEIC)'));
@@ -61,10 +66,24 @@ router.post('/:renovationId/images', upload.single('image'), async (req, res) =>
                 let processedMimetype = req.file.mimetype;
                 let processedFilename = req.file.originalname;
 
+                // Check if file is HEIC/HEIF by mimetype or extension
+                const isHeic = req.file.mimetype === 'image/heic' || 
+                               req.file.mimetype === 'image/heif' || 
+                               /\.(heic|heif)$/i.test(req.file.originalname);
+
                 // Convert HEIC/HEIF to JPEG for browser compatibility
-                if (req.file.mimetype === 'image/heic' || req.file.mimetype === 'image/heif') {
+                if (isHeic) {
                     console.log(`Converting HEIC/HEIF to JPEG: ${req.file.originalname}`);
-                    processedBuffer = await sharp(req.file.buffer)
+                    
+                    // Use heic-convert to convert HEIC to JPEG buffer
+                    const outputBuffer = await convert({
+                        buffer: req.file.buffer,
+                        format: 'JPEG',
+                        quality: 0.9
+                    });
+                    
+                    // Then use Sharp for further optimization if needed
+                    processedBuffer = await sharp(outputBuffer)
                         .jpeg({ quality: 90 })
                         .toBuffer();
                     processedMimetype = 'image/jpeg';

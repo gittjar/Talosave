@@ -19,9 +19,12 @@ function RenovationImageUpload({ renovationId, onUploadSuccess }) {
     const handleFileSelect = (e) => {
         const file = e.target.files[0];
         if (file) {
-            // Validate file type
-            if (!file.type.startsWith('image/')) {
-                setError('Valitse kuvatiedosto (JPEG, PNG, GIF, etc.)');
+            // Validate file type - check both mimetype and extension for HEIC support
+            const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif'];
+            const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+            
+            if (!file.type.startsWith('image/') && !validExtensions.includes(fileExtension)) {
+                setError('Valitse kuvatiedosto (JPEG, PNG, GIF, WEBP, HEIC)');
                 return;
             }
 
@@ -34,12 +37,17 @@ function RenovationImageUpload({ renovationId, onUploadSuccess }) {
             setSelectedFile(file);
             setError(null);
 
-            // Create preview
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewUrl(reader.result);
-            };
-            reader.readAsDataURL(file);
+            // Create preview - HEIC won't show preview in browser but that's ok
+            if (file.type.startsWith('image/') && !fileExtension.match(/\.heic$/i) && !fileExtension.match(/\.heif$/i)) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setPreviewUrl(reader.result);
+                };
+                reader.readAsDataURL(file);
+            } else if (fileExtension.match(/\.heic$/i) || fileExtension.match(/\.heif$/i)) {
+                // HEIC/HEIF - no preview, just show filename
+                setPreviewUrl(null);
+            }
         }
     };
 
@@ -218,7 +226,7 @@ function RenovationImageUpload({ renovationId, onUploadSuccess }) {
                                 disabled={loading}
                             />
                             <Form.Text className="text-muted">
-                                Sallitut tiedostotyypit: JPEG, PNG, GIF. Maksimikoko: 10MB
+                                Tuetut formaatit: JPEG, PNG, GIF, WEBP, HEIC (iOS). Maksimikoko: 10MB
                             </Form.Text>
                         </Form.Group>
 
@@ -232,6 +240,21 @@ function RenovationImageUpload({ renovationId, onUploadSuccess }) {
                                 />
                                 <div className="mt-2 text-muted small">
                                     {selectedFile?.name} ({(selectedFile?.size / 1024).toFixed(1)} KB)
+                                </div>
+                            </div>
+                        )}
+
+                        {selectedFile && !previewUrl && (
+                            <div className="mb-3 text-center">
+                                <div className="alert alert-info">
+                                    <FileImage size={32} className="mb-2" />
+                                    <div className="fw-bold">{selectedFile.name}</div>
+                                    <div className="text-muted small">
+                                        {(selectedFile.size / 1024).toFixed(1)} KB
+                                    </div>
+                                    <div className="text-muted small mt-1">
+                                        HEIC/HEIF kuva muunnetaan JPEG-muotoon palvelimella
+                                    </div>
                                 </div>
                             </div>
                         )}
