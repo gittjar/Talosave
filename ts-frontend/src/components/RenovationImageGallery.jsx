@@ -89,7 +89,8 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
             });
 
             if (!response.ok) {
-                throw new Error('Kuvan päivitys epäonnistui');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Kuvan päivitys epäonnistui');
             }
 
             toast.success('Kuvan tiedot päivitetty');
