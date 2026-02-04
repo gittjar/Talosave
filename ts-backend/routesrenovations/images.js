@@ -154,10 +154,41 @@ router.post('/:renovationId/images', upload.single('image'), async (req, res) =>
 
 // PUT - Päivitä kuvan tiedot (nimi ja kuvaus)
 router.put('/images/:imageId', async (req, res) => {
+    console.log('PUT /images/:imageId called with imageId:', req.params.imageId);
+    console.log('Request body:', req.body);
     try {
         const { image_name, description } = req.body;
         const imageId = req.params.imageId;
 
+        // Hae ensin kuvan renovation_id
+        const checkRequest = new sql.Request();
+        const imageResult = await checkRequest
+            .input('imageId', sql.Int, imageId)
+            .query('SELECT renovation_id FROM TS_RenovationImages WHERE id = @imageId');
+
+        if (imageResult.recordset.length === 0) {
+            return res.status(404).json({ error: 'Kuvaa ei löytynyt' });
+        }
+
+        const renovationId = imageResult.recordset[0].renovation_id;
+
+        // Tarkista onko samassa remontissa jo kuva samalla nimellä
+        if (image_name && image_name.trim() !== '') {
+            const duplicateRequest = new sql.Request();
+            const duplicateResult = await duplicateRequest
+                .input('renovationId', sql.Int, renovationId)
+                .input('imageName', sql.NVarChar(255), image_name)
+                .input('excludeImageId', sql.Int, imageId)
+                .query('SELECT id FROM TS_RenovationImages WHERE renovation_id = @renovationId AND image_name = @imageName AND id != @excludeImageId');
+
+            if (duplicateResult.recordset.length > 0) {
+                return res.status(400).json({ 
+                    error: 'Tässä remontissa on jo kuva nimellä "' + image_name + '". Valitse toinen nimi.' 
+                });
+            }
+        }
+
+        // Päivitä kuvan tiedot
         const sqlRequest = new sql.Request();
         await sqlRequest
             .input('imageId', sql.Int, imageId)
