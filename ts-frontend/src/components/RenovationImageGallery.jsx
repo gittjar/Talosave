@@ -58,8 +58,8 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
         }
     };
 
-    const handleDelete = async (imageId) => {
-        setImageToDelete(imageId);
+    const handleDelete = async (image) => {
+        setImageToDelete(image);
         setShowDeleteConfirm(true);
     };
 
@@ -108,10 +108,10 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
         if (!imageToDelete) return;
 
         try {
-            setDeleting(imageToDelete);
+            setDeleting(imageToDelete.id);
             const token = localStorage.getItem('token');
 
-            const response = await fetch(`${config.apiUrl}/renovations/images/${imageToDelete}`, {
+            const response = await fetch(`${config.apiUrl}/renovations/images/${imageToDelete.id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -242,7 +242,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
                                     <Button 
                                         variant="danger" 
                                         size="sm" 
-                                        onClick={() => handleDelete(image.id)}
+                                        onClick={() => handleDelete(image)}
                                         disabled={deleting === image.id}
                                         className="flex-grow-1"
                                     >
@@ -291,7 +291,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
                     <Button 
                         variant="danger" 
                         onClick={() => {
-                            handleDelete(selectedImage.id);
+                            handleDelete(selectedImage);
                             setShowModal(false);
                         }}
                     >
@@ -307,7 +307,9 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
                     <Modal.Title>Vahvista poisto</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p>Haluatko varmasti poistaa tämän kuvan?</p>
+                    <p>
+                        Haluatko varmasti poistaa kuvan <strong>{imageToDelete?.image_name || 'Nimetön kuva'}</strong>?
+                    </p>
                     <Alert variant="warning" className="mb-0">
                         <small>Tämä toiminto ei ole palautettavissa.</small>
                     </Alert>
