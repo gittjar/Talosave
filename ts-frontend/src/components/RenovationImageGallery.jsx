@@ -180,16 +180,31 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
 
     return (
         <>
-            <Row xs={1} sm={2} md={3} lg={4} className="g-3">
+            <Row xs={1} sm={2} md={3} lg={4} className="g-4">
                 {images.map((image) => (
                     <Col key={image.id}>
-                        <Card className="h-100">
+                        <Card 
+                            className="h-100 shadow-sm border-0" 
+                            style={{ 
+                                transition: 'all 0.3s ease',
+                                overflow: 'hidden'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-5px)';
+                                e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.15)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                            }}
+                        >
                             <div 
                                 style={{ 
-                                    height: '200px', 
+                                    height: '220px', 
                                     overflow: 'hidden', 
                                     cursor: 'pointer',
-                                    position: 'relative'
+                                    position: 'relative',
+                                    backgroundColor: '#f8f9fa'
                                 }}
                                 onClick={() => handleImageClick(image)}
                             >
@@ -200,41 +215,86 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
                                     style={{ 
                                         width: '100%', 
                                         height: '100%', 
-                                        objectFit: 'cover' 
+                                        objectFit: 'cover',
+                                        transition: 'transform 0.3s ease'
                                     }}
+                                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                                     onError={(e) => {
                                         e.target.onerror = null;
                                         e.target.src = 'https://via.placeholder.com/400x300?text=Kuva+ei+saatavilla';
                                     }}
                                 />
+                                {/* Overlay with hover effect */}
+                                <div 
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        right: 0,
+                                        bottom: 0,
+                                        background: 'linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.5))',
+                                        opacity: 0,
+                                        transition: 'opacity 0.3s ease',
+                                        display: 'flex',
+                                        alignItems: 'flex-end',
+                                        padding: '15px',
+                                        color: 'white'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
+                                    onMouseLeave={(e) => e.currentTarget.style.opacity = 0}
+                                >
+                                    <small>Klikkaa suurentaaksesi</small>
+                                </div>
                             </div>
-                            <Card.Body>
+                            <Card.Body className="d-flex flex-column" style={{ padding: '1rem' }}>
                                 <Card.Title 
                                     style={{ 
-                                        fontSize: '0.9rem', 
-                                        whiteSpace: 'nowrap', 
-                                        overflow: 'hidden', 
-                                        textOverflow: 'ellipsis' 
+                                        fontSize: '1rem',
+                                        fontWeight: '600',
+                                        marginBottom: '0.5rem',
+                                        color: '#2c3e50',
+                                        display: '-webkit-box',
+                                        WebkitLineClamp: 2,
+                                        WebkitBoxOrient: 'vertical',
+                                        overflow: 'hidden',
+                                        minHeight: '2.5rem'
                                     }}
                                     title={image.image_name}
                                 >
                                     {image.image_name || 'Nimetön kuva'}
                                 </Card.Title>
                                 {image.description && (
-                                    <Card.Text className="small mb-2">
+                                    <Card.Text 
+                                        className="small text-muted mb-3"
+                                        style={{
+                                            display: '-webkit-box',
+                                            WebkitLineClamp: 3,
+                                            WebkitBoxOrient: 'vertical',
+                                            overflow: 'hidden',
+                                            lineHeight: '1.4',
+                                            minHeight: '3.6rem'
+                                        }}
+                                    >
                                         {image.description}
                                     </Card.Text>
                                 )}
-                                <Card.Text className="small text-muted">
-                                    <div>Lisätty: {formatDate(image.upload_date)}</div>
-                                    <div>Koko: {formatFileSize(image.file_size)}</div>
-                                </Card.Text>
+                                <div className="small text-muted mb-3" style={{ marginTop: 'auto' }}>
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <span>📅 {formatDate(image.upload_date)}</span>
+                                        <span>💾 {formatFileSize(image.file_size)}</span>
+                                    </div>
+                                </div>
                                 <div className="d-flex gap-2">
                                     <Button 
                                         variant="outline-primary" 
                                         size="sm" 
                                         onClick={() => handleEdit(image)}
                                         className="flex-grow-1"
+                                        style={{
+                                            borderRadius: '8px',
+                                            fontWeight: '500'
+                                        }}
                                     >
                                         <PencilSquare className="me-1" />
                                         Muokkaa
@@ -245,6 +305,10 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
                                         onClick={() => handleDelete(image)}
                                         disabled={deleting === image.id}
                                         className="flex-grow-1"
+                                        style={{
+                                            borderRadius: '8px',
+                                            fontWeight: '500'
+                                        }}
                                     >
                                         {deleting === image.id ? (
                                             <Spinner animation="border" size="sm" />
