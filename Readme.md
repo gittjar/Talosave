@@ -181,6 +181,37 @@ POST   /api/electricconsumptions              # Lisää sähkönkulutus
 
 ---
 
+## 🗄️ Tietokantarakenne
+
+### SQL Server -taulut
+
+#### TS_RenovationImages
+Remonttikuvien tallennus Azure Blob Storageen
+```sql
+CREATE TABLE TS_RenovationImages (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    renovation_id INT NOT NULL,
+    image_url NVARCHAR(500) NOT NULL,      -- Azure Blob Storage URL
+    image_name NVARCHAR(255),               -- Alkuperäinen tiedostonimi
+    description NVARCHAR(500),              -- Kuvan kuvaus/selite
+    upload_date DATETIME DEFAULT GETDATE(),
+    file_size INT,                          -- Tiedostokoko tavuina
+    FOREIGN KEY (renovation_id) REFERENCES TS_Renovations(id) ON DELETE CASCADE
+);
+```
+
+**Ominaisuudet:**
+- 📤 Suora tiedostolataus (JPEG, PNG, GIF, WEBP, HEIC)
+- 🔄 HEIC → JPEG automaattinen konversio (iOS-tuki)
+- 🖼️ 4K-resoluution automaattinen optimointi
+- ☁️ Azure Blob Storage integraatio
+- ✏️ Kuvan nimen ja kuvauksen muokkaus
+- 🗑️ Cascade delete remontin poiston yhteydessä
+
+[📖 Katso kaikki taulut: tables-creation.sql](tables-creation.sql)
+
+---
+
 ## 🤖 AI-avustettu kehitys
 
 ### Käytetty teknologia

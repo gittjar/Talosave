@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Card, Row, Col, Button, Spinner, Alert, Modal, Image } from 'react-bootstrap';
-import { Trash3 } from 'react-bootstrap-icons';
+import { Card, Row, Col, Button, Spinner, Alert, Modal, Image, Form } from 'react-bootstrap';
+import { Trash3, PencilSquare } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import config from '../configuration/config';
 
@@ -13,6 +13,10 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
     const [deleting, setDeleting] = useState(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [imageToDelete, setImageToDelete] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editingImage, setEditingImage] = useState(null);
+    const [editFormData, setEditFormData] = useState({ image_name: '', description: '' });
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         fetchImages();
@@ -57,6 +61,46 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
     const handleDelete = async (imageId) => {
         setImageToDelete(imageId);
         setShowDeleteConfirm(true);
+    };
+
+    const handleEdit = (image) => {
+        setEditingImage(image);
+        setEditFormData({
+            image_name: image.image_name || '',
+            description: image.description || ''
+        });
+        setShowEditModal(true);
+    };
+
+    const handleSaveEdit = async () => {
+        if (!editingImage) return;
+
+        try {
+            setSaving(true);
+            const token = localStorage.getItem('token');
+
+            const response = await fetch(`${config.apiUrl}/renovations/images/${editingImage.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(editFormData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Kuvan päivitys epäonnistui');
+            }
+
+            toast.success('Kuvan tiedot päivitetty');
+            setShowEditModal(false);
+            fetchImages();
+        } catch (err) {
+            console.error('Error updating image:', err);
+            toast.error(err.message);
+        } finally {
+            setSaving(false);
+        }
     };
 
     const confirmDelete = async () => {
@@ -175,26 +219,42 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
                                 >
                                     {image.image_name || 'Nimetön kuva'}
                                 </Card.Title>
+                                {image.description && (
+                                    <Card.Text className="small mb-2">
+                                        {image.description}
+                                    </Card.Text>
+                                )}
                                 <Card.Text className="small text-muted">
                                     <div>Lisätty: {formatDate(image.upload_date)}</div>
                                     <div>Koko: {formatFileSize(image.file_size)}</div>
                                 </Card.Text>
-                                <Button 
-                                    variant="danger" 
-                                    size="sm" 
-                                    onClick={() => handleDelete(image.id)}
-                                    disabled={deleting === image.id}
-                                    className="w-100"
-                                >
-                                    {deleting === image.id ? (
-                                        <Spinner animation="border" size="sm" />
-                                    ) : (
-                                        <>
-                                            <Trash3 className="me-2" />
-                                            Poista
-                                        </>
-                                    )}
-                                </Button>
+                                <div className="d-flex gap-2">
+                                    <Button 
+                                        variant="outline-primary" 
+                                        size="sm" 
+                                        onClick={() => handleEdit(image)}
+                                        className="flex-grow-1"
+                                    >
+                                        <PencilSquare className="me-1" />
+                                        Muokkaa
+                                    </Button>
+                                    <Button 
+                                        variant="danger" 
+                                        size="sm" 
+                                        onClick={() => handleDelete(image.id)}
+                                        disabled={deleting === image.id}
+                                        className="flex-grow-1"
+                                    >
+                                        {deleting === image.id ? (
+                                            <Spinner animation="border" size="sm" />
+                                        ) : (
+                                            <>
+                                                <Trash3 className="me-1" />
+                                                Poista
+                                            </>
+                                        )}
+                                    </Button>
+                                </div>
                             </Card.Body>
                         </Card>
                     </Col>
@@ -284,6 +344,75 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
                                 <Trash3 className="me-2" />
                                 Poista kuva
                             </>
+                        )}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Edit Image Modal */}
+            <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Muokkaa kuvan tietoja</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Kuvan nimi</Form.Label>
+                            <Form.Control
+                                type="text"
+                                placeholder="Esim. Keittiöremontti valmis"
+                                value={editFormData.image_name}
+                                onChange={(e) => setEditFormData({
+                                    ...editFormData,
+                                    image_name: e.target.value
+                                })}
+                            />
+                        </Form.Group>
+                        <Form.Group className="mb-3">
+                            <Form.Label>Kuvaus</Form.Label>
+                            <Form.Control
+                                as="textarea"
+                                rows={3}
+                                placeholder="Lisää tarkempi kuvaus kuvasta..."
+                                value={editFormData.description}
+                                onChange={(e) => setEditFormData({
+                                    ...editFormData,
+                                    description: e.target.value
+                                })}
+                            />
+                            <Form.Text className="text-muted">
+                                Max 500 merkkiä
+                            </Form.Text>
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button 
+                        variant="secondary" 
+                        onClick={() => setShowEditModal(false)}
+                        disabled={saving}
+                    >
+                        Peruuta
+                    </Button>
+                    <Button 
+                        variant="primary" 
+                        onClick={handleSaveEdit}
+                        disabled={saving}
+                    >
+                        {saving ? (
+                            <>
+                                <Spinner
+                                    as="span"
+                                    animation="border"
+                                    size="sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                    className="me-2"
+                                />
+                                Tallennetaan...
+                            </>
+                        ) : (
+                            'Tallenna'
                         )}
                     </Button>
                 </Modal.Footer>

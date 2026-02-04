@@ -152,6 +152,26 @@ router.post('/:renovationId/images', upload.single('image'), async (req, res) =>
     }
 });
 
+// PUT - Päivitä kuvan tiedot (nimi ja kuvaus)
+router.put('/images/:imageId', async (req, res) => {
+    try {
+        const { image_name, description } = req.body;
+        const imageId = req.params.imageId;
+
+        const sqlRequest = new sql.Request();
+        await sqlRequest
+            .input('imageId', sql.Int, imageId)
+            .input('imageName', sql.NVarChar(255), image_name)
+            .input('description', sql.NVarChar(500), description)
+            .query('UPDATE TS_RenovationImages SET image_name = @imageName, description = @description WHERE id = @imageId');
+
+        res.json({ message: 'Kuvan tiedot päivitetty' });
+    } catch (err) {
+        console.error('Error updating image:', err);
+        res.status(500).json({ error: 'Kuvan päivitys epäonnistui' });
+    }
+});
+
 // DELETE - Poista kuva (ja Azure Blob jos mahdollista)
 router.delete('/images/:imageId', async (req, res) => {
     try {
