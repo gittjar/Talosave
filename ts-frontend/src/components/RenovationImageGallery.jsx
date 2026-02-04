@@ -123,7 +123,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
             }
 
             toast.success('Kuva poistettu onnistuneesti');
-            setImages(images.filter(img => img.id !== imageToDelete));
+            setImages(images.filter(img => img.id !== imageToDelete.id));
             if (onUpdate) onUpdate();
         } catch (err) {
             console.error('Error deleting image:', err);
