@@ -191,4 +191,26 @@ app.use((err, req, res, next) => {
 
 // Start the server
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Server is running on port ${port}`));
+
+// Verify critical environment variables
+const requiredEnvVars = ['DB_USER', 'DB_PASSWORD', 'DB_SERVER', 'DB_NAME'];
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingVars.length > 0) {
+    console.error('❌ Missing required environment variables:', missingVars.join(', '));
+    console.error('Server cannot start without database configuration');
+    process.exit(1);
+}
+
+console.log('✅ Environment variables verified');
+console.log('🚀 Starting server on port', port);
+console.log('📊 Database:', process.env.DB_NAME);
+console.log('🌐 Environment:', process.env.NODE_ENV || 'development');
+
+app.listen(port, () => {
+    console.log(`✅ Server is running on port ${port}`);
+    console.log(`🔗 Health check: http://localhost:${port}/`);
+}).on('error', (err) => {
+    console.error('❌ Failed to start server:', err);
+    process.exit(1);
+});
