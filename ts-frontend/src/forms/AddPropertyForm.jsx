@@ -55,7 +55,7 @@ const AddPropertyForm = () => {
             </label>
             <br></br>
             {/* Add other fields as needed */}
-            <button type="submit" className='primary-button'>Add Property</button>
+            <button type="submit" className='btn btn-success'>Add Property</button>
             <br></br>
             <button type="button" onClick={goBack} className='secondary-button'>Back</button> {/* Add a "Back" button */}
 

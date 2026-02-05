@@ -208,3 +208,14 @@ CREATE TABLE TS_Services (
     FOREIGN KEY (userid) REFERENCES TS_PropertyUsers(userid)
       
 );
+
+CREATE TABLE TS_RenovationImages (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    renovation_id INT NOT NULL,
+    image_url NVARCHAR(500) NOT NULL,
+    image_name NVARCHAR(255),
+    description NVARCHAR(500),
+    upload_date DATETIME DEFAULT GETDATE(),
+    file_size INT,
+    FOREIGN KEY (renovation_id) REFERENCES TS_Renovations(id) ON DELETE CASCADE
+);

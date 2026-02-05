@@ -246,20 +246,18 @@ const Services = () => {
           <Row>
             <Col md={6} className="mb-3 mb-md-0">
               <label className="fw-bold mb-2 d-block">Tila:</label>
-              <ButtonGroup size="sm" className="d-flex flex-wrap">
+              <ButtonGroup size="sm">
                 <Button 
                   variant={filterStatus === 'all' ? 'primary' : 'outline-primary'}
                   onClick={() => setFilterStatus('all')}
-                  style={{ margin: '2px' }}
                 >
                   Kaikki <Badge bg="light" text="dark">{getStatusCount('all')}</Badge>
                 </Button>
-                {statuses.map(status => (
+                {statuses.map((status) => (
                   <Button
                     key={status}
                     variant={filterStatus === status ? 'primary' : 'outline-primary'}
                     onClick={() => setFilterStatus(status)}
-                    style={{ margin: '2px' }}
                   >
                     {status} <Badge bg="light" text="dark">{getStatusCount(status)}</Badge>
                   </Button>
@@ -268,20 +266,18 @@ const Services = () => {
             </Col>
             <Col md={6}>
               <label className="fw-bold mb-2 d-block">Tyyppi:</label>
-              <ButtonGroup size="sm" className="d-flex flex-wrap">
+              <ButtonGroup size="sm">
                 <Button 
                   variant={filterType === 'all' ? 'secondary' : 'outline-secondary'}
                   onClick={() => setFilterType('all')}
-                  style={{ margin: '2px' }}
                 >
                   Kaikki <Badge bg="light" text="dark">{getTypeCount('all')}</Badge>
                 </Button>
-                {serviceTypes.map(type => (
+                {serviceTypes.map((type) => (
                   <Button
                     key={type}
                     variant={filterType === type ? 'secondary' : 'outline-secondary'}
                     onClick={() => setFilterType(type)}
-                    style={{ margin: '2px' }}
                   >
                     {type} <Badge bg="light" text="dark">{getTypeCount(type)}</Badge>
                   </Button>

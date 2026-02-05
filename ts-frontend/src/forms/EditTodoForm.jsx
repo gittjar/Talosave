@@ -80,8 +80,10 @@ const EditTodoForm = ({ todo, handleUpdateTodo, handleCloseForm }) => {
               required
             />
           </div>
-          <Button type="submit" className="primary-button">Päivitä</Button>
-          <Button type="button" className="secondary-button" onClick={handleCloseForm}>Peruuta</Button>
+          <ButtonGroup>
+            <Button type="submit" variant="success">Päivitä</Button>
+            <Button type="button" variant="dark" onClick={handleCloseForm}>Peruuta</Button>
+          </ButtonGroup>
         </form>
       </Modal.Body>
     </Modal>

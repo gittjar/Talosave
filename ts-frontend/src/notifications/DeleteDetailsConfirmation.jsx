@@ -8,7 +8,7 @@ const DeleteDetailsConfirmation = ({ handleDeleteDetails, setShowDeleteDetailsCo
         </Modal.Header>
         <Modal.Body>
           <p>Poista ensin remontin lisätietorivit ennenkuin voit poistaa koko remontin</p>
-          <Button variant="secondary" onClick={() => setShowDeleteDetailsConfirm(false)}>Ok</Button>
+          <Button variant="dark" onClick={() => setShowDeleteDetailsConfirm(false)}>Ok</Button>
         </Modal.Body>
       </Modal>
     );

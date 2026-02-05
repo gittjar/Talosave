@@ -1,4 +1,4 @@
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, ButtonGroup } from 'react-bootstrap';
 
 const ChangeOwnerConfirmation = ({ newOwnerId, handleChangePropertyOwner, setShowChangeOwnerConfirm }) => {
     return (
@@ -8,8 +8,10 @@ const ChangeOwnerConfirmation = ({ newOwnerId, handleChangePropertyOwner, setSho
         </Modal.Header>
         <Modal.Body>
           <p>Uuden omistajan käyttäjä ID: {newOwnerId}</p>
-          <Button className='primary-button' onClick={() => { handleChangePropertyOwner(); setShowChangeOwnerConfirm(false); }}>Kyllä, siirrä</Button>
-          <Button className='danger-button' onClick={() => setShowChangeOwnerConfirm(false)}>Peruuta</Button>
+        <ButtonGroup>
+          <Button variant="success" onClick={() => { handleChangePropertyOwner(); setShowChangeOwnerConfirm(false); }}>Kyllä, siirrä</Button>
+          <Button variant="dark" onClick={() => setShowChangeOwnerConfirm(false)}>Peruuta</Button>
+        </ButtonGroup>
         </Modal.Body>
       </Modal>
     );

@@ -1,4 +1,8 @@
-
+/* Prevent layout shift when scrollbar appears */
+html {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+}
 
 .main {
     background-color: #fbfbfb;
@@ -11,6 +15,38 @@
     font-size: small;
     border-radius: 10px 10px 10px 10px;
     box-shadow: 1px 1px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* ButtonGroup proper styling - rounded corners only on edges with !important */
+.btn-group > .btn:not(:first-child),
+.btn-group > .btn-group:not(:first-child) > .btn {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+
+.btn-group > .btn:not(:last-child):not(.dropdown-toggle),
+.btn-group > .btn-group:not(:last-child) > .btn {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.btn-group > .btn:first-child {
+    border-top-left-radius: 0.375rem !important;
+    border-bottom-left-radius: 0.375rem !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.btn-group > .btn:last-child {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    border-top-right-radius: 0.375rem !important;
+    border-bottom-right-radius: 0.375rem !important;
+}
+
+/* Middle buttons in group */
+.btn-group > .btn:not(:first-child):not(:last-child) {
+    border-radius: 0 !important;
 }
 
 .required:required:invalid {
@@ -771,6 +807,19 @@ th, td {
     .accordion-body {
         padding: 1rem !important;
     }
+}
+
+/* Smooth accordion animations */
+.accordion-button {
+    transition: all 0.3s ease-in-out;
+}
+
+.accordion-collapse {
+    transition: height 0.35s ease-in-out;
+}
+
+.accordion-body {
+    transition: padding 0.2s ease-in-out;
 }
 
 /* ===== HOMEPAGE STYLES ===== */

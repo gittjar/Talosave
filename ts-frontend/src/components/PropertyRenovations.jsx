@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import config from '../configuration/config.js';
 import RenovationDetails from './RenovationDetails';
 import Card from 'react-bootstrap/Card';
@@ -6,13 +6,18 @@ import DeleteConfirmation from '../notifications/DeleteConfirmation';
 import DeleteDetailsConfirmation from '../notifications/DeleteDetailsConfirmation';
 import EditRenovationForm from '../forms/EditRenovationForm.jsx';
 import Accordion from 'react-bootstrap/Accordion';
-import { XLg, PencilSquare, WrenchAdjustable } from 'react-bootstrap-icons';
-import Badge from 'react-bootstrap/Badge'; // Import Badge from react-bootstrap
+import { XLg, PencilSquare, WrenchAdjustable, Calendar3, FunnelFill } from 'react-bootstrap-icons';
+import Badge from 'react-bootstrap/Badge';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Button from 'react-bootstrap/Button';
 import { toast } from 'react-toastify';
 import AddRenovationForm from '../forms/AddRenovationForm.jsx';
+import RenovationImageUpload from '../forms/RenovationImageUpload.jsx';
+import RenovationImageGallery from './RenovationImageGallery.jsx';
 
 const PropertyRenovations = ({ propertyId, refreshData }) => {
   const [renovations, setRenovations] = useState([]);
+  const [imageCounts, setImageCounts] = useState({});
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDeleteDetailsConfirm, setShowDeleteDetailsConfirm] = useState(false);
   const [renovationToDelete, setRenovationToDelete] = useState(null);
@@ -21,6 +26,7 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
   const handleShowForm = (id) => setShowFormId(id);
   const handleCloseForm = () => setShowFormId(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedYear, setSelectedYear] = useState('all');
 
 
   useEffect(() => {
@@ -32,9 +38,30 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
       }
     })
       .then(response => response.json())
-      .then(data => setRenovations(data))
+      .then(data => {
+        setRenovations(data);
+        // Hae kuvamäärät jokaiselle remontille
+        data.forEach(renovation => {
+          fetchImageCount(renovation.id);
+        });
+      })
       .catch(error => console.error('Error:', error));
   }, [propertyId]);
+
+  const fetchImageCount = async (renovationId) => {
+    try {
+      const token = localStorage.getItem('userToken');
+      const response = await fetch(`${config.baseURL}/api/renovations/${renovationId}/images`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const images = await response.json();
+      setImageCounts(prev => ({ ...prev, [renovationId]: images.length }));
+    } catch (error) {
+      console.error('Error fetching image count:', error);
+    }
+  };
 
   const fetchRenovations = () => {
     const token = localStorage.getItem('userToken'); // Assuming you store your token in localStorage
@@ -47,6 +74,10 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
       .then(response => response.json())
       .then(data => {
         setRenovations(data);
+        // Hae kuvamäärät jokaiselle remontille
+        data.forEach(renovation => {
+          fetchImageCount(renovation.id);
+        });
         if (refreshData) {
           refreshData();
         }
@@ -107,6 +138,41 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
       .catch(error => console.error('Error:', error));
   };
 
+  // Calculate year statistics
+  const yearStats = useMemo(() => {
+    const stats = {};
+    let totalAll = 0;
+    let countAll = 0;
+
+    renovations.forEach(renovation => {
+      const year = new Date(renovation.date).getFullYear().toString();
+      if (!stats[year]) {
+        stats[year] = { count: 0, total: 0 };
+      }
+      stats[year].count += 1;
+      stats[year].total += renovation.cost || 0;
+      countAll += 1;
+      totalAll += renovation.cost || 0;
+    });
+
+    stats['all'] = { count: countAll, total: totalAll };
+    return stats;
+  }, [renovations]);
+
+  // Get unique years sorted
+  const availableYears = useMemo(() => {
+    return [...new Set(renovations.map(r => new Date(r.date).getFullYear()))]
+      .sort((a, b) => b - a);
+  }, [renovations]);
+
+  // Filter renovations by selected year
+  const filteredRenovations = useMemo(() => {
+    if (selectedYear === 'all') return renovations;
+    return renovations.filter(r => 
+      new Date(r.date).getFullYear().toString() === selectedYear
+    );
+  }, [renovations, selectedYear]);
+
   const handleEditRenovation = (updatedRenovation) => {
     const token = localStorage.getItem('userToken');
 
@@ -122,11 +188,13 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
         setRenovations(renovations.map(renovation => renovation.id === updatedRenovation.id ? updatedRenovation : renovation));
         setShowEditForm(false);
         handleCloseForm();
-        closeForm();
         toast.success('Remontin tiedot päivitetty onnistuneesti!');
+        fetchRenovations();
       })
-      .then(fetchRenovations)
-      .catch(error => console.error('Error:', error));
+      .catch(error => {
+        console.error('Error:', error);
+        toast.error('Remontin päivitys epäonnistui');
+      });
   };
 
   return (
@@ -156,12 +224,71 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
         </div>
       )}
 
-      {renovations.length > 0 ? (
+      {/* Year Filter Buttons */}
+      {renovations.length > 0 && (
+        <div className="mb-4">
+          <div className="d-flex align-items-center mb-3">
+            <FunnelFill className="text-primary me-2" size={20} />
+            <h5 className="mb-0 text-primary">Suodata vuoden mukaan</h5>
+          </div>
+          
+          <div className="year-filter-container" style={{ overflowX: 'auto' }}>
+            <ButtonGroup size="sm" className="mb-2">
+              <Button
+                variant={selectedYear === 'all' ? 'dark' : 'outline-primary'}
+                onClick={() => setSelectedYear('all')}
+                className={`d-flex flex-column align-items-center px-3 py-2 ${selectedYear === 'all' ? 'text-white' : 'text-dark'}`}
+              >
+                <div className="fw-bold">Kaikki</div>
+                <small className="d-flex flex-column align-items-center mt-1">
+                  <span>{yearStats['all']?.count || 0} kpl</span>
+                  <span className={selectedYear === 'all' ? 'text-white' : 'text-primary'}>
+                    {(yearStats['all']?.total || 0).toLocaleString('fi-FI')} €
+                  </span>
+                </small>
+              </Button>
+              
+              {availableYears.map(year => (
+                <Button
+                  key={year}
+                  variant={selectedYear === year.toString() ? 'dark' : 'outline-primary'}
+                  onClick={() => setSelectedYear(year.toString())}
+                  className={`d-flex flex-column align-items-center px-3 py-2 ${selectedYear === year.toString() ? 'text-white' : 'text-dark'}`}
+                >
+                  <div className="fw-bold">
+                    <Calendar3 className="me-1" size={14} />
+                    {year}
+                  </div>
+                  <small className="d-flex flex-column align-items-center mt-1">
+                    <span>{yearStats[year]?.count || 0} kpl</span>
+                    <span className={selectedYear === year.toString() ? 'text-white' : 'text-primary'}>
+                      {(yearStats[year]?.total || 0).toLocaleString('fi-FI')} €
+                    </span>
+                  </small>
+                </Button>
+              ))}
+            </ButtonGroup>
+          </div>
+          
+          {/* Summary for selected filter */}
+          {selectedYear !== 'all' && (
+            <div className="alert alert-info d-flex align-items-center mt-3">
+              <Badge bg="primary" className="me-2 px-3 py-2">{selectedYear}</Badge>
+              <span>
+                Näytetään {yearStats[selectedYear]?.count || 0} remonttia, 
+                yhteensä <strong>{(yearStats[selectedYear]?.total || 0).toLocaleString('fi-FI')} €</strong>
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {filteredRenovations.length > 0 ? (
         <div className="renovation-accordion">
           <Accordion flush>
             {
               Object.entries(
-                renovations.reduce((groups, renovation) => {
+                filteredRenovations.reduce((groups, renovation) => {
                   const year = new Date(renovation.date).getFullYear();
                   if (!groups[year]) {
                     groups[year] = [];
@@ -213,9 +340,19 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                     <Accordion.Body className="p-0">
                       <div className="renovation-items">
                         {renovations.sort((a, b) => new Date(b.date) - new Date(a.date)).map((renovation, renovationIndex) => (
-                          <div key={renovationIndex} className="renovation-item border-bottom">
-                            <Accordion>
-                              <Accordion.Item eventKey="0" className="border-0">
+                          <div 
+                            key={renovationIndex} 
+                            className="renovation-item border-bottom mb-2"
+                            style={{ 
+                              backgroundColor: renovationIndex % 2 === 0 ? '#f8f9fa' : '#ffffff',
+                              borderLeft: '4px solid #0d6efd',
+                              marginLeft: '8px',
+                              marginRight: '8px',
+                              borderRadius: '4px'
+                            }}
+                          >
+                            <Accordion className="mt-3">
+                              <Accordion.Item eventKey="0" className="border-0" style={{ backgroundColor: 'transparent' }}>
                                 <Accordion.Header className="renovation-detail-header">
                                   <div className="d-flex flex-column flex-md-row justify-content-between align-items-start w-100 me-3">
                                     {/* Main Info */}
@@ -230,6 +367,9 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                                         <span className="me-3">
                                           <strong>Päivämäärä:</strong> {new Date(renovation.date).toLocaleDateString('fi-FI')}
                                         </span>
+                                        <span className="me-3">
+                                          <strong>Kuvia:</strong> {imageCounts[renovation.id] || 0}
+                                        </span>
                                       </div>
                                     </div>
                                     
@@ -242,16 +382,6 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                                       )}
                                       
                                       <div className="d-flex gap-2">
-                                        <button
-                                          className="btn btn-outline-primary btn-sm d-flex align-items-center"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleShowForm(renovation.id);
-                                          }}
-                                        >
-                                          <PencilSquare size={14} className="me-1" />
-                                          <span className="d-none d-sm-inline">Muokkaa</span>
-                                        </button>
                                         <button
                                           className="btn btn-outline-danger btn-sm d-flex align-items-center"
                                           onClick={(e) => {
@@ -269,12 +399,51 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                                 </Accordion.Header>
                                 
                                 <Accordion.Body className="bg-light">
-                                  {showFormId === renovation.id && (
+                                  {/* Edit Form at top of accordion body */}
+                                  {showFormId === renovation.id ? (
+                                    <div className="mb-4">
+                                      <EditRenovationForm 
+                                        renovation={renovation} 
+                                        handleEditRenovation={handleEditRenovation}
+                                        onCancel={handleCloseForm}
+                                      />
+                                    </div>
+                                  ) : (
                                     <div className="mb-3">
-                                      <EditRenovationForm renovation={renovation} handleEditRenovation={handleEditRenovation} />
+                                      <Button 
+                                        variant="outline-primary" 
+                                        size="sm"
+                                        onClick={() => handleShowForm(renovation.id)}
+                                      >
+                                        <PencilSquare className="me-2" />
+                                        Muokkaa remonttia
+                                      </Button>
                                     </div>
                                   )}
-                                  <RenovationDetails renovationId={renovation.id} />
+                                  
+                                  {/* Image Upload and Gallery */}
+                                  <div className="mb-4">
+                                    <h6 className="mb-3">Kuvat</h6>
+                                    <RenovationImageUpload 
+                                      renovationId={renovation.id} 
+                                      onUploadSuccess={() => {
+                                        // Trigger gallery refresh
+                                        document.dispatchEvent(new CustomEvent('renovation-image-uploaded', { 
+                                          detail: { renovationId: renovation.id } 
+                                        }));
+                                        // Päivitä kuvamäärä
+                                        fetchImageCount(renovation.id);
+                                      }} 
+                                    />
+                                    <RenovationImageGallery renovationId={renovation.id} />
+                                  </div>
+                                  
+                                  <hr />
+                                  
+                                  <div className="mt-4 mb-3">
+                                    <h6 className="mb-3">Remonttidetaljit</h6>
+                                    <RenovationDetails renovationId={renovation.id} />
+                                  </div>
                                 </Accordion.Body>
                               </Accordion.Item>
                             </Accordion>
@@ -291,8 +460,25 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
       ) : (
         <div className="text-center py-5">
           <WrenchAdjustable size={48} className="text-muted mb-3" />
-          <h5 className="text-muted">Ei remontteja löytynyt</h5>
-          <p className="text-muted">Lisää ensimmäinen remontti ylläolevalla painikkeella.</p>
+          <h5 className="text-muted">
+            {selectedYear === 'all' 
+              ? 'Ei remontteja löytynyt' 
+              : `Ei remontteja vuodelta ${selectedYear}`}
+          </h5>
+          <p className="text-muted">
+            {selectedYear === 'all' 
+              ? 'Lisää ensimmäinen remontti ylläolevalla painikkeella.' 
+              : 'Valitse toinen vuosi tai näytä kaikki remontit.'}
+          </p>
+          {selectedYear !== 'all' && (
+            <Button 
+              variant="outline-primary" 
+              onClick={() => setSelectedYear('all')}
+              className="mt-2"
+            >
+              Näytä kaikki remontit
+            </Button>
+          )}
         </div>
       )}
     </div>

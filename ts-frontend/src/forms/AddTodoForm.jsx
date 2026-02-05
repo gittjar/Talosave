@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, ButtonGroup } from 'react-bootstrap';
 import config from '../configuration/config.js';
 import { toast } from 'react-toastify';
 
@@ -121,8 +121,10 @@ const AddTodoForm = ({ propertyId, refreshData, closeForm, show }) => {
               required
             />
           </div>
-          <Button type="submit" className="primary-button">Tallenna</Button>
-          <Button type="button" className="secondary-button" onClick={closeForm}>Peruuta</Button>
+          <ButtonGroup>
+            <Button type="submit" variant="success">Tallenna</Button>
+            <Button type="button" variant="dark" onClick={closeForm}>Peruuta</Button>
+          </ButtonGroup>
         </form>
       </Modal.Body>
     </Modal>

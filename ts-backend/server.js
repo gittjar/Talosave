@@ -80,6 +80,7 @@ const getServices = require('./servicesroutes/get');
 const postServices = require('./servicesroutes/post');
 const putServices = require('./servicesroutes/put');
 const deleteServices = require('./servicesroutes/delete');
+const renovationImages = require('./routesrenovations/images');
 
 // Root route
 app.get('/', (req, res) => {
@@ -150,6 +151,7 @@ app.use('/api', postRenovation);
 app.use('/api', getRenovation);
 app.use('/api', deleteRenovation);
 app.use('/api', putRenovation);
+app.use('/api/renovations', renovationImages);
 app.use('/api', todoRouter);
 app.use('/api/electricconsumptions', getElectricConsumption);
 app.use('/api/electricconsumptions', postElectricConsumption);
@@ -176,7 +178,7 @@ app.use('/api/services', deleteServices);
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send('Something broke!');
+    res.status(500).json({ error: err.message || 'Something broke!' });
 });
 
 // Start the server

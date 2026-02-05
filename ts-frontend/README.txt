@@ -96,6 +96,15 @@ Database
 │   ├── detail
 │   ├── userid
 │
+├── TS_RenovationImages
+│   ├── id (PK)
+│   ├── renovation_id (FK -> TS_Renovations, CASCADE DELETE)
+│   ├── image_url (Azure Blob Storage URL or external URL)
+│   ├── image_name
+│   ├── description (kuvan kuvaus/selite, max 500 merkkiä)
+│   ├── upload_date
+│   ├── file_size (bytes)
+│
 ├── TS_Images
 │   ├── id (PK)
 │   ├── propertyid (FK -> TS_Properties)

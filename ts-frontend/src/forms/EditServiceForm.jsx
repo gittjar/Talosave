@@ -289,14 +289,14 @@ const EditServiceForm = ({ service, onSuccess, onCancel }) => {
         />
       </Form.Group>
 
-      <div className="d-flex gap-2">
-        <Button variant="primary" type="submit">
+      <ButtonGroup>
+        <Button variant="success" type="submit">
           Päivitä huolto
         </Button>
-        <Button variant="secondary" onClick={onCancel}>
+        <Button variant="dark" onClick={onCancel}>
           Peruuta
         </Button>
-      </div>
+      </ButtonGroup>
     </Form>
   );
 };

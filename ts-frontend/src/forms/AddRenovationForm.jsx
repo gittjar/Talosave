@@ -162,8 +162,10 @@ const AddRenovationForm = ({ propertyId, refreshData, closeForm }) => {
                 />
                 {errors.cost && <div className="text-danger">{errors.cost}</div>}
               </div>
-              <button type="submit" className="btn btn-primary mb-1">Tallenna</button>
-              <button type="button" className="btn btn-secondary mx-1 mb-1" onClick={closeForm}>Peruuta</button>
+              <div className="btn-group" role="group">
+                <button type="submit" className="btn btn-success mb-1">Tallenna</button>
+                <button type="button" className="btn btn-dark mb-1" onClick={closeForm}>Peruuta</button>
+              </div>
             </form>
           </div>
         </div>

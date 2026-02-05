@@ -10,7 +10,7 @@ import PropertyRenovations from './PropertyRenovations.jsx';
 import Todos from './Todos.jsx';
 import HouseBasicInformation from './HouseBasicInformation.jsx';
 import { XLg, PencilSquare, BuildingUp, List } from 'react-bootstrap-icons';
-import { Tab, Nav, Navbar, Offcanvas, Button } from 'react-bootstrap';
+import { Tab, Nav, Navbar, Offcanvas, Button, Badge } from 'react-bootstrap';
 import ConsumptionDetails from './ConsumptionDetails.jsx';
 import { HouseDoor, Tools, CardChecklist, BarChartFill, HouseCheck, Gear, CurrencyExchange, Lightning } from 'react-bootstrap-icons';
 import ResearchPage from './ResearchPage.jsx';
@@ -29,6 +29,12 @@ const PropertyDetails = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
   const [activeKey, setActiveKey] = useState("1");
+  
+  // Counts for navigation badges
+  const [renovationsCount, setRenovationsCount] = useState(0);
+  const [todosCount, setTodosCount] = useState(0);
+  const [servicesCount, setServicesCount] = useState(0);
+  const [researchCount, setResearchCount] = useState(0);
   const [newPropertyName, setNewPropertyName] = useState('');
   const [newStreetAddress, setNewStreetAddress] = useState('');
   const [newPostNumber, setNewPostNumber] = useState('');
@@ -85,6 +91,43 @@ const PropertyDetails = () => {
       .catch(error => {
         console.error('Error fetching property details:', error);
       });
+  }, [id, refreshKey]);
+
+  // Fetch counts for navigation badges
+  useEffect(() => {
+    const token = localStorage.getItem('userToken');
+    
+    // Fetch renovations count
+    fetch(`${config.baseURL}/api/renovations/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(response => response.json())
+      .then(data => setRenovationsCount(data.length))
+      .catch(error => console.error('Error fetching renovations count:', error));
+
+    // Fetch todos count
+    fetch(`${config.baseURL}/api/todo/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(response => response.json())
+      .then(data => setTodosCount(data.length))
+      .catch(error => console.error('Error fetching todos count:', error));
+
+    // Fetch services count
+    fetch(`${config.baseURL}/api/services/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(response => response.json())
+      .then(data => setServicesCount(data.length))
+      .catch(error => console.error('Error fetching services count:', error));
+
+    // Fetch research count
+    fetch(`${config.baseURL}/api/files?propertyId=${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(response => response.json())
+      .then(data => setResearchCount(data.length))
+      .catch(error => console.error('Error fetching research count:', error));
   }, [id, refreshKey]);
 
   if (!property) {
@@ -236,49 +279,57 @@ const PropertyDetails = () => {
       key: "1",
       icon: <HouseDoor />,
       label: property?.propertyname || "Kohde",
-      shortLabel: "Tiedot"
+      shortLabel: "Tiedot",
+      count: null
     },
     {
       key: "2", 
       icon: <Tools />,
       label: "Remontit",
-      shortLabel: "Remontit"
+      shortLabel: "Remontit",
+      count: renovationsCount
     },
     {
       key: "3",
       icon: <CardChecklist />,
       label: "Tehtävät", 
-      shortLabel: "Tehtävät"
+      shortLabel: "Tehtävät",
+      count: todosCount
     },
     {
       key: "4",
       icon: <Gear />,
       label: "Huollot",
-      shortLabel: "Huollot"
+      shortLabel: "Huollot",
+      count: servicesCount
     },
     {
       key: "5",
       icon: <BarChartFill />,
       label: "Kulutus",
-      shortLabel: "Kulutus"
+      shortLabel: "Kulutus",
+      count: null
     },
     {
       key: "6",
       icon: <HouseCheck />,
       label: "Tutkimukset",
-      shortLabel: "Tutkimukset"
+      shortLabel: "Tutkimukset",
+      count: researchCount
     },
     {
       key: "7",
       icon: <CurrencyExchange />,
       label: "Verot ja muut maksut",
-      shortLabel: "Verot"
+      shortLabel: "Verot",
+      count: null
     },
     {
       key: "8",
       icon: <Lightning />,
       label: "Pörssisähkö",
-      shortLabel: "Sähkö"
+      shortLabel: "Sähkö",
+      count: null
     }
   ];
 
@@ -295,6 +346,7 @@ const PropertyDetails = () => {
   const refreshData = () => {
     const token = localStorage.getItem('userToken');
   
+    // Refresh property details
     fetch(`${config.baseURL}/api/get/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`
@@ -310,6 +362,35 @@ const PropertyDetails = () => {
       .catch(error => {
         console.error('Error refreshing property details:', error);
       });
+
+    // Refresh counts
+    fetch(`${config.baseURL}/api/renovations/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(response => response.json())
+      .then(data => setRenovationsCount(data.length))
+      .catch(error => console.error('Error refreshing renovations count:', error));
+
+    fetch(`${config.baseURL}/api/todo/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(response => response.json())
+      .then(data => setTodosCount(data.length))
+      .catch(error => console.error('Error refreshing todos count:', error));
+
+    fetch(`${config.baseURL}/api/services/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(response => response.json())
+      .then(data => setServicesCount(data.length))
+      .catch(error => console.error('Error refreshing services count:', error));
+
+    fetch(`${config.baseURL}/api/files?propertyId=${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(response => response.json())
+      .then(data => setResearchCount(data.length))
+      .catch(error => console.error('Error refreshing research count:', error));
   };
 
   
@@ -408,8 +489,19 @@ const PropertyDetails = () => {
             <Nav variant="pills" className="nav nav-propertydetails d-none d-lg-flex">
               {navigationItems.map(item => (
                 <Nav.Item key={item.key}>
-                  <Nav.Link eventKey={item.key} className='navlinkpills'>
-                    {item.icon} {item.label}
+                  <Nav.Link eventKey={item.key} className='navlinkpills d-flex align-items-center'>
+                    {item.icon} 
+                    <span className="ms-1">{item.label}</span>
+                    {item.count !== null && item.count > 0 && (
+                      <Badge 
+                        bg={activeKey === item.key ? "light" : "secondary"}
+                        text={activeKey === item.key ? "dark" : "light"}
+                        className="ms-2" 
+                        pill
+                      >
+                        {item.count}
+                      </Badge>
+                    )}
                   </Nav.Link>
                 </Nav.Item>
               ))}
@@ -431,14 +523,25 @@ const PropertyDetails = () => {
                     <Nav.Item key={item.key} className="mb-2">
                       <Nav.Link 
                         eventKey={item.key} 
-                        className="d-flex align-items-center p-3 rounded"
+                        className="d-flex align-items-center justify-content-between p-3 rounded"
                         style={{
                           backgroundColor: activeKey === item.key ? '#e7f3ff' : 'transparent',
                           border: activeKey === item.key ? '1px solid #0d6efd' : '1px solid transparent'
                         }}
                       >
-                        <span className="me-3">{item.icon}</span>
-                        <span>{item.label}</span>
+                        <div className="d-flex align-items-center">
+                          <span className="me-3">{item.icon}</span>
+                          <span>{item.label}</span>
+                        </div>
+                        {item.count !== null && item.count > 0 && (
+                          <Badge 
+                            bg={activeKey === item.key ? "light" : "secondary"}
+                            text={activeKey === item.key ? "dark" : "light"}
+                            pill
+                          >
+                            {item.count}
+                          </Badge>
+                        )}
                       </Nav.Link>
                     </Nav.Item>
                   ))}

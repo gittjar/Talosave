@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@azure/storage-blob": "^12.30.0",
     "axios": "^1.7.9",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
@@ -21,13 +22,15 @@
     "express-rate-limit": "^8.2.1",
     "formidable": "^3.5.2",
     "gridfs-stream": "^1.1.1",
+    "heic-convert": "^2.1.0",
     "jsonwebtoken": "^9.0.2",
     "mime-types": "^2.1.35",
     "mongoose": "^8.9.3",
     "mssql": "^11.0.1",
     "multer": "^2.0.1",
     "multer-gridfs-storage": "^5.0.2",
-    "nodemailer": "^7.0.6"
+    "nodemailer": "^7.0.6",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "jest": "^29.0.0"

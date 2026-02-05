@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Button, Row, Col } from 'react-bootstrap';
+import { Form, Button, ButtonGroup, Row, Col } from 'react-bootstrap';
 import config from '../configuration/config';
 import { toast } from 'react-toastify';
 
@@ -328,12 +328,16 @@ const AddServiceForm = ({ propertyId, onSuccess, onCancel }) => {
       </Form.Group>
 
       <div className="d-flex gap-2">
-        <Button variant="primary" type="submit">
+      <ButtonGroup>
+      <ButtonGroup>
+        <Button variant="success" type="submit" className="text-white">
           Tallenna huolto
         </Button>
-        <Button variant="secondary" onClick={onCancel}>
+        <Button variant="dark" onClick={onCancel}>
           Peruuta
         </Button>
+      </ButtonGroup>
+      </ButtonGroup>
       </div>
     </Form>
   );
