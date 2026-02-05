@@ -44,6 +44,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 serveStaticFiles(app);
 
+// Explicit OPTIONS handler for preflight requests
+app.options('*', cors(corsOptions));
+
 // Routes
 const getRoute = require('./routes/get');
 const loginRouter = require('./routes/login');
