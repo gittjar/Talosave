@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Card, Row, Col, Button, Spinner, Alert, Modal, Image, Form } from 'react-bootstrap';
-import { Trash3, PencilSquare } from 'react-bootstrap-icons';
+import { Card, Row, Col, Button, Spinner, Alert, Modal, Image, Form, ButtonGroup, ListGroup } from 'react-bootstrap';
+import { Trash3, PencilSquare, Grid3x3GapFill, ListUl } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import config from '../configuration/config';
 
@@ -17,6 +17,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
     const [editingImage, setEditingImage] = useState(null);
     const [editFormData, setEditFormData] = useState({ image_name: '', description: '' });
     const [saving, setSaving] = useState(false);
+    const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
 
     useEffect(() => {
         fetchImages();
@@ -180,6 +181,125 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
 
     return (
         <>
+            {/* View Mode Toggle */}
+            <div className="d-flex justify-content-end mb-3">
+                <ButtonGroup size="sm">
+                    <Button 
+                        variant={viewMode === 'grid' ? 'primary' : 'outline-secondary'}
+                        onClick={() => setViewMode('grid')}
+                    >
+                        <Grid3x3GapFill className="me-1" />
+                        Kortit
+                    </Button>
+                    <Button 
+                        variant={viewMode === 'list' ? 'primary' : 'outline-secondary'}
+                        onClick={() => setViewMode('list')}
+                    >
+                        <ListUl className="me-1" />
+                        Lista
+                    </Button>
+                </ButtonGroup>
+            </div>
+
+            {/* List View */}
+            {viewMode === 'list' && (
+                <ListGroup className="mb-3">
+                    {images.map((image) => (
+                        <ListGroup.Item 
+                            key={image.id}
+                            className="d-flex justify-content-between align-items-center"
+                            style={{ 
+                                padding: '0.75rem 1rem',
+                                transition: 'background-color 0.2s ease',
+                                cursor: 'pointer'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                            onClick={() => handleImageClick(image)}
+                        >
+                            <div className="d-flex align-items-center flex-grow-1">
+                                <div 
+                                    style={{
+                                        width: '60px',
+                                        height: '60px',
+                                        marginRight: '1rem',
+                                        borderRadius: '8px',
+                                        overflow: 'hidden',
+                                        flexShrink: 0,
+                                        backgroundColor: '#f8f9fa'
+                                    }}
+                                >
+                                    <img 
+                                        src={image.image_url}
+                                        alt={image.image_name || 'Thumbnail'}
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover'
+                                        }}
+                                        onError={(e) => {
+                                            e.target.src = 'https://via.placeholder.com/60x60?text=?';
+                                        }}
+                                    />
+                                </div>
+                                <div className="flex-grow-1">
+                                    <div style={{ fontWeight: '600', color: '#2c3e50', marginBottom: '0.25rem' }}>
+                                        {image.image_name || 'Nimetön kuva'}
+                                    </div>
+                                    {image.description && (
+                                        <div 
+                                            className="small text-muted"
+                                            style={{
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
+                                                maxWidth: '400px'
+                                            }}
+                                        >
+                                            {image.description}
+                                        </div>
+                                    )}
+                                    <div className="small text-muted mt-1">
+                                        📅 {formatDate(image.upload_date)} • 💾 {formatFileSize(image.file_size)}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="d-flex gap-2">
+                                <Button 
+                                    variant="outline-primary" 
+                                    size="sm"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleEdit(image);
+                                    }}
+                                    style={{ borderRadius: '6px' }}
+                                >
+                                    <PencilSquare />
+                                </Button>
+                                <Button 
+                                    variant="outline-danger" 
+                                    size="sm"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDelete(image);
+                                    }}
+                                    disabled={deleting === image.id}
+                                    style={{ borderRadius: '6px' }}
+                                >
+                                    {deleting === image.id ? (
+                                        <Spinner animation="border" size="sm" />
+                                    ) : (
+                                        <Trash3 />
+                                    )}
+                                </Button>
+                            </div>
+                        </ListGroup.Item>
+                    ))}
+                </ListGroup>
+            )}
+
+            {/* Grid View */}
+            {viewMode === 'grid' && (
             <Row xs={1} sm={2} md={3} lg={4} className="g-4">
                 {images.map((image) => (
                     <Col key={image.id}>
@@ -325,6 +445,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
                     </Col>
                 ))}
             </Row>
+            )}
 
             <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
                 <Modal.Header closeButton>
