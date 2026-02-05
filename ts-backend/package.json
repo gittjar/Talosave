@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "start": "node server.js",
-    "postinstall": "npm rebuild sharp --platform=linux --arch=x64"
+    "postinstall": "npm rebuild sharp"
   },
   "keywords": [],
   "author": "",
