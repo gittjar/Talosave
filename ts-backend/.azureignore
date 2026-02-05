@@ -1,0 +1,13 @@
+# Azure Deployment ignore file
+# Files and folders to exclude from deployment
+
+node_modules/
+.env
+.git/
+.vscode/
+__tests__/
+*.test.js
+.eslintrc.json
+.prettierrc
+README.md
+.DS_Store
