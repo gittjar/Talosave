@@ -11,37 +11,45 @@ const serveStaticFiles = require('./middleware/staticFiles');
 // Middleware
 app.use(express.json());
 
-// CORS configuration
+// CORS configuration - Simplified for production
+const allowedOrigins = [
+  'http://localhost:5173', 
+  'http://localhost:5174',
+  'http://localhost:3000',
+  'https://talosave-frontend.azurewebsites.net',
+  'https://talotieto.netlify.app'
+];
+
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
+    // Allow requests with no origin (Postman, mobile apps, etc.)
     if (!origin) return callback(null, true);
     
-    const allowedOrigins = [
-      'http://localhost:5173', 
-      'http://localhost:5174',
-      'http://localhost:3000',
-      'https://talosave-frontend.azurewebsites.net',
-      'https://talotieto.netlify.app'
-    ];
-    
-    // In development, allow any localhost origin
-    if (process.env.NODE_ENV !== 'production' && origin.includes('localhost')) {
+    // In development, allow any localhost
+    if (origin.includes('localhost')) {
       return callback(null, true);
     }
     
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
     }
+    
+    // Reject other origins
+    console.log('CORS blocked origin:', origin);
+    callback(new Error('Not allowed by CORS: ' + origin));
   },
-  methods: 'GET,POST,PUT,DELETE,OPTIONS',
-  allowedHeaders: 'Content-Type,Authorization',
-  credentials: true
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  optionsSuccessStatus: 200
 };
 
 app.use(cors(corsOptions));
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
+
 serveStaticFiles(app);
 
 // Routes
