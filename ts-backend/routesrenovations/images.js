@@ -2,7 +2,17 @@ const express = require('express');
 const router = express.Router();
 const sql = require('mssql');
 const multer = require('multer');
-const sharp = require('sharp');
+
+// Try to load sharp, but don't crash if it fails
+let sharp = null;
+try {
+    sharp = require('sharp');
+    console.log('✅ Sharp module loaded successfully');
+} catch (error) {
+    console.warn('⚠️  Sharp module not available:', error.message);
+    console.warn('⚠️  Image optimization will be disabled');
+}
+
 const convert = require('heic-convert');
 const { uploadToAzure, deleteFromAzure, extractBlobName, isAzureConfigured } = require('../azureStorage');
 
@@ -82,16 +92,20 @@ router.post('/:renovationId/images', upload.single('image'), async (req, res) =>
                         quality: 0.9
                     });
                     
-                    // Then use Sharp for further optimization if needed
-                    processedBuffer = await sharp(outputBuffer)
-                        .jpeg({ quality: 90 })
-                        .toBuffer();
+                    // Then use Sharp for further optimization if available
+                    if (sharp) {
+                        processedBuffer = await sharp(outputBuffer)
+                            .jpeg({ quality: 90 })
+                            .toBuffer();
+                    } else {
+                        processedBuffer = outputBuffer;
+                    }
                     processedMimetype = 'image/jpeg';
                     processedFilename = req.file.originalname.replace(/\.(heic|heif)$/i, '.jpg');
                 }
                 
-                // Optimize other images (resize if too large, compress)
-                else if (req.file.mimetype.startsWith('image/')) {
+                // Optimize other images (resize if too large, compress) - only if sharp is available
+                else if (sharp && req.file.mimetype.startsWith('image/')) {
                     const metadata = await sharp(req.file.buffer).metadata();
                     
                     // Resize if larger than 4K resolution
