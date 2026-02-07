@@ -31,7 +31,7 @@ import colorMap from '../components/colorMap';
 import { toast } from 'react-toastify';
 import AddElectricityForm from '../forms/AddElectricityForm';
 import DeleteConfirmation from '../notifications/DeleteConfirmation';
-import { VictoryBar, VictoryChart, VictoryAxis, VictoryLabel, VictoryTooltip, VictoryGroup, VictoryArea, VictoryLine } from 'victory';
+import { VictoryBar, VictoryChart, VictoryAxis, VictoryLabel, VictoryTooltip, VictoryGroup, VictoryArea, VictoryLine, VictoryLegend } from 'victory';
 import { useConsumption } from '../hooks/useConsumption.js';
 import axios from 'axios';
 import config from '../configuration/config';
@@ -145,8 +145,8 @@ const ShowElectricityConsumption = () => {
     if (consumptions.length === 0) return null;
     
     const totals = consumptions.reduce((acc, curr) => ({
-      kwh: acc.kwh + curr.kwh,
-      euros: acc.euros + curr.euros
+      kwh: acc.kwh + (curr.kwh || 0),
+      euros: acc.euros + (curr.euros || 0)
     }), { kwh: 0, euros: 0 });
     
     const avgMonthly = {
@@ -154,7 +154,7 @@ const ShowElectricityConsumption = () => {
       euros: totals.euros / consumptions.length
     };
     
-    const pricePerKwh = totals.euros / totals.kwh;
+    const pricePerKwh = totals.kwh > 0 ? totals.euros / totals.kwh : 0;
     
     return { totals, avgMonthly, pricePerKwh, monthCount: consumptions.length };
   };
@@ -165,8 +165,8 @@ const ShowElectricityConsumption = () => {
         totals[consumption.year] = { kwh: 0, euros: 0 };
       }
 
-      totals[consumption.year].kwh += consumption.kwh;
-      totals[consumption.year].euros += consumption.euros;
+      totals[consumption.year].kwh += (consumption.kwh || 0);
+      totals[consumption.year].euros += (consumption.euros || 0);
 
       return totals;
     }, {});
@@ -421,10 +421,24 @@ const ShowElectricityConsumption = () => {
               <Card.Body>
                 <VictoryChart 
                   domainPadding={30} 
-                  padding={{ top: 20, bottom: 80, left: 100, right: 100 }}
+                  padding={{ top: 60, bottom: 80, left: 100, right: 100 }}
                   style={{ parent: { marginBottom: '50px' } }}
                   width={850}
                 >
+                  <VictoryLegend 
+                    x={325} 
+                    y={10}
+                    orientation="horizontal"
+                    gutter={20}
+                    style={{ 
+                      border: { stroke: "#ccc" }, 
+                      labels: { fontSize: 12 }
+                    }}
+                    data={selectedYears.map(year => ({
+                      name: `${year}`,
+                      symbol: { fill: colorMap.getColor(year) }
+                    }))}
+                  />
                   <VictoryAxis 
                     tickValues={monthNames} 
                     tickLabelComponent={<VictoryLabel angle={30} textAnchor="start" verticalAnchor="middle" />} 
@@ -453,9 +467,24 @@ const ShowElectricityConsumption = () => {
 
                 <VictoryChart 
                   domainPadding={0} 
+                  padding={{ top: 60, bottom: 80, left: 100, right: 100 }}
                   style={{ parent: { marginBottom: '50px' } }}
                   width={550}
                 >
+                  <VictoryLegend 
+                    x={200} 
+                    y={10}
+                    orientation="horizontal"
+                    gutter={20}
+                    style={{ 
+                      border: { stroke: "#ccc" }, 
+                      labels: { fontSize: 12 }
+                    }}
+                    data={selectedYears.map(year => ({
+                      name: `${year}`,
+                      symbol: { fill: colorMap.getColor(year) }
+                    }))}
+                  />
                   <VictoryAxis 
                     tickValues={monthNames} 
                     tickLabelComponent={<VictoryLabel angle={30} textAnchor="start" verticalAnchor="middle" />} 
@@ -505,8 +534,8 @@ const ShowElectricityConsumption = () => {
                           </Badge>
                         </td>
                         <td>{monthNames[consumption.month - 1]}</td>
-                        <td>{consumption.kwh.toFixed(2)} kWh</td>
-                        <td>{consumption.euros.toFixed(2)} €</td>
+                        <td>{consumption.kwh?.toFixed(2) ?? '-'} kWh</td>
+                        <td>{consumption.euros?.toFixed(2) ?? '-'} €</td>
                         <td>
                           <Button 
                             variant="outline-danger" 
