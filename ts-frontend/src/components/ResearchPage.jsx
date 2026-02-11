@@ -93,18 +93,19 @@ const ResearchPage = ({ propertyId }) => {
                           <FileEarmarkText size={32} className="text-primary" />
                         </div>
                         <h5 className="mb-2">{file.name}</h5>
-                        {file.description && (
-                          <p className="text-muted small mb-2" style={{
+                        {file.description && file.description.trim() !== '' && (
+                          <p className="text-muted mb-2" style={{
                             display: '-webkit-box',
                             WebkitLineClamp: 2,
                             WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden'
+                            overflow: 'hidden',
+                            fontSize: '0.9rem'
                           }}>
                             {file.description}
                           </p>
                         )}
-                        <p className="text-muted small mb-3">
-                          <small>Ladattu: {new Date(file.uploadedAt).toLocaleDateString('fi-FI')}</small>
+                        <p className="text-muted mb-3" style={{ fontSize: '0.8rem' }}>
+                          Ladattu: {new Date(file.uploadedAt).toLocaleDateString('fi-FI')}
                         </p>
                         <div className="mt-auto d-flex gap-2">
                           <Button 
