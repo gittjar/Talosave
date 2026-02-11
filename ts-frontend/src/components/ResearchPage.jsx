@@ -47,16 +47,23 @@ const ResearchPage = ({ propertyId }) => {
       <hr></hr>
       <h4>Linkitetyt tiedostot</h4>
       <ListGroup variant="flush">
-      {files.map(file => (
-        <ListGroup.Item key={file._id} className='bg-white border border-primary mb-2'>
-          <a href={file.url} target="_blank" rel="noopener noreferrer">
-            {file.name}
-          </a>
-          <br />
-          <button onClick={() => { setFileToDelete(file._id); setShowDeleteConfirm(true); }} className='delete-link'>Poista</button>
-        </ListGroup.Item>
-
-      ))}
+      {files.map(file => {
+        // Varmista että URL alkaa http:// tai https://
+        let validUrl = file.url;
+        if (validUrl && !validUrl.match(/^https?:\/\//i)) {
+          validUrl = 'https://' + validUrl;
+        }
+        
+        return (
+          <ListGroup.Item key={file._id} className='bg-white border border-primary mb-2'>
+            <a href={validUrl} target="_blank" rel="noopener noreferrer">
+              {file.name}
+            </a>
+            <br />
+            <button onClick={() => { setFileToDelete(file._id); setShowDeleteConfirm(true); }} className='delete-link'>Poista</button>
+          </ListGroup.Item>
+        );
+      })}
       </ListGroup>
       {showDeleteConfirm && <DeleteConfirmation handleDeleteProperty={deleteFile} setShowDeleteConfirm={setShowDeleteConfirm} fileName={files.find(file => file._id === fileToDelete)?.name} />}    </div>
   );

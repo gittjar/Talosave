@@ -61,7 +61,7 @@ const ElectricityPrice = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chartType, setChartType] = useState('area');
-  const [activeTab, setActiveTab] = useState('today');
+  const [activeTab, setActiveTab] = useState('list');
   const [dataSource, setDataSource] = useState('');
   const navigate = useNavigate();
 
@@ -254,6 +254,17 @@ const ElectricityPrice = () => {
       }
     }
 
+    // Laske kallein 3h jakso
+    let expensiveWindowStart = 0;
+    let expensiveWindowSum = -Infinity;
+    for (let i = 0; i <= priceValues.length - 3; i++) {
+      const windowSum = priceValues[i] + priceValues[i + 1] + priceValues[i + 2];
+      if (windowSum > expensiveWindowSum) {
+        expensiveWindowSum = windowSum;
+        expensiveWindowStart = i;
+      }
+    }
+
     const avgPrice = stats?.avg || (priceValues.reduce((sum, p) => sum + p, 0) / priceValues.length);
     const dateStr = isToday 
       ? new Date().toLocaleDateString('fi-FI', { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' })
@@ -295,6 +306,7 @@ const ElectricityPrice = () => {
                   const colors = getPriceColor(price.price);
                   const diffFromAvg = price.price - avgPrice;
                   const isCheapest3h = index >= cheapestWindowStart && index < cheapestWindowStart + 3;
+                  const isExpensive3h = index >= expensiveWindowStart && index < expensiveWindowStart + 3;
                   
                   return (
                     <tr 
@@ -302,23 +314,22 @@ const ElectricityPrice = () => {
                       className={isCurrentHour ? 'table-active' : ''}
                       style={{ 
                         fontSize: '1.1rem',
-                        backgroundColor: isCheapest3h ? '#fff3cd' : undefined,
-                        borderLeft: isCheapest3h ? '4px solid #ffc107' : undefined
+                        backgroundColor: isCheapest3h ? '#d1f4e0' : (isExpensive3h ? '#ffd6d6' : undefined),
+                        borderLeft: isCheapest3h ? '4px solid #198754' : (isExpensive3h ? '4px solid #dc3545' : undefined)
                       }}
                     >
-                      <td style={{ width: '50%', padding: '1rem' }}>
+                      <td style={{ width: '35%', padding: '1rem' }}>
                         <div>
                           <strong>{hourStr}:00 - {(parseInt(hourStr) + 1).toString().padStart(2, '0')}:00</strong>
-                          {isCurrentHour && (
-                            <Badge bg="warning" text="dark" className="ms-2">NYT</Badge>
-                          )}
-                          {isCheapest3h && (
-                            <Badge bg="success" className="ms-2">⭐ Halvin 3h</Badge>
-                          )}
                         </div>
                         <div style={{ fontSize: '0.85rem', color: diffFromAvg < 0 ? '#198754' : '#dc3545', marginTop: '0.25rem' }}>
                           {diffFromAvg > 0 ? '+' : ''}{diffFromAvg.toFixed(2)} c keskihinnasta
                         </div>
+                      </td>
+                      <td style={{ width: '15%', padding: '1rem', textAlign: 'center', fontSize: '1.1rem', fontWeight: 'bold' }}>
+                        {isCurrentHour && <span style={{ color: '#ff9800' }}>NYT</span>}
+                        {isCheapest3h && <span style={{ fontSize: '1.5rem' }}>⭐</span>}
+                        {isExpensive3h && <span style={{ fontSize: '1.5rem' }}>⚠️</span>}
                       </td>
                       <td style={{ width: '50%', padding: '1rem', textAlign: 'right' }}>
                         <span 
@@ -327,7 +338,7 @@ const ElectricityPrice = () => {
                             color: colors.text,
                             fontSize: '1.1rem',
                             padding: '0.6rem 1.2rem',
-                            minWidth: '100px',
+                            minWidth: '130px',
                             fontWeight: 'bold',
                             borderRadius: '0.375rem',
                             display: 'inline-block'
@@ -542,44 +553,15 @@ const ElectricityPrice = () => {
       {/* Header */}
       <Row className="mb-4">
         <Col>
-          <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div>
-              <h2 className="h3 mb-0">
-                <Lightning className="me-2 text-warning" />
-                Pörssisähkön hinta
-              </h2>
-              <small className="text-muted">
-                <Clock className="me-1" size={14} />
-                Päivitetty: {new Date().toLocaleTimeString('fi-FI')}
-              </small>
-            </div>
-            
-            <ButtonGroup>
-              <Button 
-                variant={chartType === 'area' ? 'primary' : 'outline-primary'}
-                onClick={() => setChartType('area')}
-                size="sm"
-              >
-                <Activity className="me-1" />
-                Alue
-              </Button>
-              <Button 
-                variant={chartType === 'line' ? 'primary' : 'outline-primary'}
-                onClick={() => setChartType('line')}
-                size="sm"
-              >
-                <GraphUp className="me-1" />
-                Viiva
-              </Button>
-              <Button 
-                variant={chartType === 'bar' ? 'primary' : 'outline-primary'}
-                onClick={() => setChartType('bar')}
-                size="sm"
-              >
-                <BarChart className="me-1" />
-                Pylväs
-              </Button>
-            </ButtonGroup>
+          <div>
+            <h2 className="h3 mb-0">
+              <Lightning className="me-2 text-warning" />
+              Pörssisähkön hinta
+            </h2>
+            <small className="text-muted">
+              <Clock className="me-1" size={14} />
+              Päivitetty: {new Date().toLocaleTimeString('fi-FI')}
+            </small>
           </div>
         </Col>
       </Row>
@@ -600,119 +582,14 @@ const ElectricityPrice = () => {
         </Row>
       )}
 
-      {/* Tabs for Today and Tomorrow */}
+      {/* Main Tabs: Lista ja Kaaviot */}
       <Tabs
         activeKey={activeTab}
         onSelect={(k) => setActiveTab(k)}
         className="mb-4"
+        defaultActiveKey="list"
       >
-        <Tab 
-          eventKey="today" 
-          title={
-            <span>
-              <Calendar className="me-2" />
-              Tänään
-            </span>
-          }
-        >
-          {renderStatsCards(todayStats, todayPrices, true)}
-          
-          <Row>
-            <Col>
-              <Card className="border-0 shadow-sm">
-                <Card.Header className="bg-white border-0 py-3">
-                  <h5 className="mb-0">
-                    <Activity className="me-2" />
-                    Sähkön hinta tänään (snt/kWh)
-                  </h5>
-                </Card.Header>
-                <Card.Body>
-                  {renderChart(formatPrices(todayPrices), todayStats)}
-                </Card.Body>
-                <Card.Footer className="bg-light text-muted">
-                  <small className="d-flex flex-wrap align-items-center gap-2">
-                    <span>Värikoodit:</span>
-                    <Badge bg="warning">Nykyinen tunti</Badge>
-                    <Badge bg="success">Halpa</Badge>
-                    <Badge bg="danger">Kallis</Badge>
-                    <Badge bg="primary">Normaali</Badge>
-                  </small>
-                </Card.Footer>
-              </Card>
-            </Col>
-          </Row>
-        </Tab>
-        
-        <Tab 
-          eventKey="tomorrow" 
-          title={
-            <span>
-              <CalendarPlus className="me-2" />
-              Huomenna {' '}
-              {tomorrowPrices.length > 0 ? (
-                <Badge bg="success" className="ms-1">{tomorrowPrices.length}h</Badge>
-              ) : (
-                <Badge bg="secondary" className="ms-1">Ei saatavilla</Badge>
-              )}
-            </span>
-          }
-        >
-          {tomorrowPrices.length > 0 ? (
-            <>
-              {renderStatsCards(tomorrowStats, tomorrowPrices, false)}
-              
-              <Row>
-                <Col>
-                  <Card className="border-0 shadow-sm">
-                    <Card.Header className="bg-white border-0 py-3">
-                      <h5 className="mb-0">
-                        <Activity className="me-2" />
-                        Sähkön hinta huomenna (snt/kWh)
-                      </h5>
-                    </Card.Header>
-                    <Card.Body>
-                      {renderChart(formatPrices(tomorrowPrices), tomorrowStats)}
-                    </Card.Body>
-                    <Card.Footer className="bg-light text-muted">
-                      <small className="d-flex flex-wrap align-items-center gap-2">
-                        <span>Värikoodit:</span>
-                        <Badge bg="success">Halpa</Badge>
-                        <Badge bg="danger">Kallis</Badge>
-                        <Badge bg="primary">Normaali</Badge>
-                      </small>
-                    </Card.Footer>
-                  </Card>
-                </Col>
-              </Row>
-            </>
-          ) : (
-            <Row className="mt-4">
-              <Col>
-                <Alert variant="warning" className="d-flex align-items-start shadow-sm">
-                  <CalendarPlus size={40} className="me-3 mt-1 text-warning" />
-                  <div className="flex-grow-1">
-                    <h5 className="mb-3">
-                      <strong>Huomisen sähkön hinnat eivät ole vielä saatavilla</strong>
-                    </h5>
-                    <p className="mb-3">
-                      Seuraavan päivän sähkön hinnat julkaistaan yleensä päivittäin noin <strong>klo 15:00</strong> (klo 14:00-16:00 välillä).
-                    </p>
-                    <div className="mb-2">
-                      <Clock className="me-2" size={16} />
-                      <strong>Nykyinen aika:</strong> {new Date().toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' })}
-                    </div>
-                    <hr className="my-3" />
-                    <small className="text-muted">
-                      <strong>Huom:</strong> Nord Pool julkaisee seuraavan päivän hinnat automaattisesti kun ne tulevat saataville. 
-                      Sivu päivittyy tunnin välein, tai voit päivittää sivun manuaalisesti.
-                    </small>
-                  </div>
-                </Alert>
-              </Col>
-            </Row>
-          )}
-        </Tab>
-
+        {/* LISTA TAB - Default */}
         <Tab 
           eventKey="list" 
           title={
@@ -753,6 +630,159 @@ const ElectricityPrice = () => {
               }
             >
               {renderPriceList(tomorrowPrices, false, tomorrowStats)}
+            </Tab>
+          </Tabs>
+        </Tab>
+
+        {/* KAAVIOT TAB */}
+        <Tab 
+          eventKey="charts" 
+          title={
+            <span>
+              <BarChart className="me-2" />
+              Kaaviot
+            </span>
+          }
+        >
+          {/* Kaaviotyyppi-valitsimet */}
+          <div className="d-flex justify-content-end mb-3">
+            <ButtonGroup>
+              <Button 
+                variant={chartType === 'area' ? 'primary' : 'outline-primary'}
+                onClick={() => setChartType('area')}
+                size="sm"
+              >
+                <Activity className="me-1" />
+                Alue
+              </Button>
+              <Button 
+                variant={chartType === 'line' ? 'primary' : 'outline-primary'}
+                onClick={() => setChartType('line')}
+                size="sm"
+              >
+                <GraphUp className="me-1" />
+                Viiva
+              </Button>
+              <Button 
+                variant={chartType === 'bar' ? 'primary' : 'outline-primary'}
+                onClick={() => setChartType('bar')}
+                size="sm"
+              >
+                <BarChart className="me-1" />
+                Pylväs
+              </Button>
+            </ButtonGroup>
+          </div>
+
+          <Tabs
+            defaultActiveKey="chartsToday"
+            className="mb-3"
+          >
+            <Tab 
+              eventKey="chartsToday" 
+              title={
+                <span>
+                  <Calendar className="me-2" />
+                  Tänään
+                </span>
+              }
+            >
+              {renderStatsCards(todayStats, todayPrices, true)}
+              
+              <Row>
+                <Col>
+                  <Card className="border-0 shadow-sm">
+                    <Card.Header className="bg-white border-0 py-3">
+                      <h5 className="mb-0">
+                        <Activity className="me-2" />
+                        Sähkön hinta tänään (snt/kWh)
+                      </h5>
+                    </Card.Header>
+                    <Card.Body>
+                      {renderChart(formatPrices(todayPrices), todayStats)}
+                    </Card.Body>
+                    <Card.Footer className="bg-light text-muted">
+                      <small className="d-flex flex-wrap align-items-center gap-2">
+                        <span>Värikoodit:</span>
+                        <Badge bg="warning">Nykyinen tunti</Badge>
+                        <Badge bg="success">Halpa</Badge>
+                        <Badge bg="danger">Kallis</Badge>
+                        <Badge bg="primary">Normaali</Badge>
+                      </small>
+                    </Card.Footer>
+                  </Card>
+                </Col>
+              </Row>
+            </Tab>
+            
+            <Tab 
+              eventKey="chartsTomorrow" 
+              title={
+                <span>
+                  <CalendarPlus className="me-2" />
+                  Huomenna {' '}
+                  {tomorrowPrices.length > 0 ? (
+                    <Badge bg="success" className="ms-1">{tomorrowPrices.length}h</Badge>
+                  ) : (
+                    <Badge bg="secondary" className="ms-1">Ei saatavilla</Badge>
+                  )}
+                </span>
+              }
+            >
+              {tomorrowPrices.length > 0 ? (
+                <>
+                  {renderStatsCards(tomorrowStats, tomorrowPrices, false)}
+                  
+                  <Row>
+                    <Col>
+                      <Card className="border-0 shadow-sm">
+                        <Card.Header className="bg-white border-0 py-3">
+                          <h5 className="mb-0">
+                            <Activity className="me-2" />
+                            Sähkön hinta huomenna (snt/kWh)
+                          </h5>
+                        </Card.Header>
+                        <Card.Body>
+                          {renderChart(formatPrices(tomorrowPrices), tomorrowStats)}
+                        </Card.Body>
+                        <Card.Footer className="bg-light text-muted">
+                          <small className="d-flex flex-wrap align-items-center gap-2">
+                            <span>Värikoodit:</span>
+                            <Badge bg="success">Halpa</Badge>
+                            <Badge bg="danger">Kallis</Badge>
+                            <Badge bg="primary">Normaali</Badge>
+                          </small>
+                        </Card.Footer>
+                      </Card>
+                    </Col>
+                  </Row>
+                </>
+              ) : (
+                <Row className="mt-4">
+                  <Col>
+                    <Alert variant="warning" className="d-flex align-items-start shadow-sm">
+                      <CalendarPlus size={40} className="me-3 mt-1 text-warning" />
+                      <div className="flex-grow-1">
+                        <h5 className="mb-3">
+                          <strong>Huomisen sähkön hinnat eivät ole vielä saatavilla</strong>
+                        </h5>
+                        <p className="mb-3">
+                          Seuraavan päivän sähkön hinnat julkaistaan yleensä päivittäin noin <strong>klo 15:00</strong> (klo 14:00-16:00 välillä).
+                        </p>
+                        <div className="mb-2">
+                          <Clock className="me-2" size={16} />
+                          <strong>Nykyinen aika:</strong> {new Date().toLocaleTimeString('fi-FI', { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                        <hr className="my-3" />
+                        <small className="text-muted">
+                          <strong>Huom:</strong> Nord Pool julkaisee seuraavan päivän hinnat automaattisesti kun ne tulevat saataville. 
+                          Sivu päivittyy tunnin välein, tai voit päivittää sivun manuaalisesti.
+                        </small>
+                      </div>
+                    </Alert>
+                  </Col>
+                </Row>
+              )}
             </Tab>
           </Tabs>
         </Tab>
