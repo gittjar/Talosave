@@ -31,8 +31,12 @@ db.on('disconnected', () => {
 
 const fileSchema = new mongoose.Schema({
   name: String,
+  description: String, // Description of the document
   propertyId: Number,
-  url: String, // This will store the URL
+  url: String, // This will store the URL (or Azure Blob URL)
+  blobName: String, // Azure Blob name for deletion (optional, only for uploaded files)
+  fileType: { type: String, default: 'link' }, // 'link' or 'upload'
+  uploadedAt: { type: Date, default: Date.now }
 });
 
 const File = mongoose.model('File', fileSchema);

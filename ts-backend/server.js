@@ -82,6 +82,7 @@ const deleteWaterConsumptionYearly = require('./consumptionsroutes/deleteWaterYe
 const putWaterConsumptionYearly = require('./consumptionsroutes/putWaterYearly');
 const getResearch = require('./researchroutes/get');
 const deleteResearch = require('./researchroutes/delete');
+const uploadFileRouter = require('./researchroutes/uploadfile');
 const uploadRouter = require('./uploads/post');
 const nordpoolRouter = require('./routes/nordpool');
 const getServices = require('./servicesroutes/get');
@@ -176,6 +177,7 @@ app.use('/api/waterconsumptions', deleteWaterConsumptionYearly);
 app.use('/api/waterconsumptions', putWaterConsumptionYearly);
 app.use('/api', getResearch);
 app.use('/api', deleteResearch);
+app.use('/api', uploadFileRouter);
 app.use('/api', uploadRouter);
 app.use('/api/nordpool', nordpoolRouter);
 app.use('/api/services', getServices);
