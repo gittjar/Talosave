@@ -4,7 +4,7 @@ import UrlUpload from '../forms/UrlUpload';
 import config from '../configuration/config';
 import { toast } from 'react-toastify';
 import { Container, Card, Row, Col, Button, Badge, Alert } from 'react-bootstrap';
-import { Link45deg, Trash, FileEarmarkText, InfoCircle } from 'react-bootstrap-icons';
+import { Link45deg, Trash, FileEarmarkText, InfoCircle, Download, EyeFill } from 'react-bootstrap-icons';
 import DeleteConfirmation from '../notifications/DeleteConfirmation';
 
 const ResearchPage = ({ propertyId }) => {
@@ -105,20 +105,36 @@ const ResearchPage = ({ propertyId }) => {
                           </p>
                         )}
                         <p className="text-muted mb-3" style={{ fontSize: '0.8rem' }}>
-                          Ladattu: {new Date(file.uploadedAt).toLocaleDateString('fi-FI')}
+                          <small>📅 {new Date(file.uploadedAt).toLocaleDateString('fi-FI', { 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                          })}</small>
                         </p>
-                        <div className="mt-auto d-flex gap-2">
-                          <Button 
-                            variant="primary" 
-                            size="sm" 
-                            href={validUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex-grow-1"
-                          >
-                            <FileEarmarkText size={16} className="me-1" />
-                            Avaa tiedosto
-                          </Button>
+                        <div className="mt-auto d-flex flex-column gap-2">
+                          <div className="d-flex gap-2">
+                            <Button 
+                              variant="outline-primary" 
+                              size="sm" 
+                              href={validUrl} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex-grow-1"
+                            >
+                              <EyeFill size={16} className="me-1" />
+                              Esikatsele
+                            </Button>
+                            <Button 
+                              variant="primary" 
+                              size="sm" 
+                              href={validUrl}
+                              download
+                              className="flex-grow-1"
+                            >
+                              <Download size={16} className="me-1" />
+                              Lataa
+                            </Button>
+                          </div>
                           <Button 
                             variant="outline-danger" 
                             size="sm"
@@ -127,7 +143,8 @@ const ResearchPage = ({ propertyId }) => {
                               setShowDeleteConfirm(true); 
                             }}
                           >
-                            <Trash size={16} />
+                            <Trash size={16} className="me-1" />
+                            Poista
                           </Button>
                         </div>
                       </Card.Body>

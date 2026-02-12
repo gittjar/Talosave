@@ -52,10 +52,7 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 serveStaticFiles(app);
-Setup all routes
-setupRoutes(app);
 
-// Error handling middleware
 // Database configuration
 const config = {
     user: process.env.DB_USER,
@@ -105,45 +102,37 @@ const connectToSQL = async (retries = 3) => {
 
 connectToSQL();
 
-// Use routes
-app.use('/api/login', loginRouter);
-app.use('/api/create', createUserRouter);
-app.use('/api/users', getUserRouter);
-app.use('/api/put', putUserRouter);
-app.use('/api/putProperty', putPropertyRoute);
-app.use('/api/changeowner', changeOwnerRouter);
-app.use('/api/get', getRoute);
-// app.use('/api/put', putRoute);
-app.use('/api/delete', deleteRoute);
-app.use('/api/post', postRoute);
-app.use('/api', postRenovation);
-app.use('/api', getRenovation);
-app.use('/api', deleteRenovation);
-app.use('/api', putRenovation);
-app.use('/api/renovations', renovationImages);
-app.use('/api', todoRouter);
-app.use('/api/electricconsumptions', getElectricConsumption);
-app.use('/api/electricconsumptions', postElectricConsumption);
-app.use('/api/electricconsumptions', deleteElectricConsumption);
-app.use('/api/heatingconsumptions', getHeatingConsumption);
-app.use('/api/heatingconsumptions', postHeatingConsumption);
-app.use('/api/heatingconsumptions', deleteHeatingConsumption);
-app.use('/api/waterconsumptions', getWaterConsumption);
-app.use('/api/waterconsumptions', postWaterConsumption);
-app.use('/api/waterconsumptions', deleteWaterConsumption);
-app.use('/api/waterconsumptions', postWaterConsumptionYearly);
-app.use('/api/waterconsumptions', getWaterConsumptionYearly);
-app.use('/api/waterconsumptions', deleteWaterConsumptionYearly);
-app.use('/api/waterconsumptions', putWaterConsumptionYearly);
-app.use('/api', getResearch);
-app.use('/api', deleteResearch);
-app.use('/api', uploadFileRouter);
-app.use('/api', uploadRouter);
-app.use('/api/nordpool', nordpoolRouter);
-app.use('/api/services', getServices);
-app.use('/api/services', postServices);
-app.use('/api/services', putServices);
-app.use('/api/services', deleteServices);
+// Setup all routes
+setupRoutes(app);
 
 // Error handling middleware
-app
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ error: err.message || 'Something broke!' });
+});
+
+// Start the server
+const port = process.env.PORT || 3000;
+
+// Verify critical environment variables
+const requiredEnvVars = ['DB_USER', 'DB_PASSWORD', 'DB_SERVER', 'DB_NAME'];
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingVars.length > 0) {
+    console.error('❌ Missing required environment variables:', missingVars.join(', '));
+    console.error('Server cannot start without database configuration');
+    process.exit(1);
+}
+
+console.log('✅ Environment variables verified');
+console.log('🚀 Starting server on port', port);
+console.log('📊 Database:', process.env.DB_NAME);
+console.log('🌐 Environment:', process.env.NODE_ENV || 'development');
+
+app.listen(port, () => {
+    console.log(`✅ Server is running on port ${port}`);
+    console.log(`🔗 Health check: http://localhost:${port}/`);
+}).on('error', (err) => {
+    console.error('❌ Failed to start server:', err);
+    process.exit(1);
+});
