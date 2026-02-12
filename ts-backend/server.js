@@ -7,6 +7,7 @@ const sql = require('mssql');
 const app = express();
 const cors = require('cors');
 const serveStaticFiles = require('./middleware/staticFiles');
+const setupRoutes = require('./routes/index');
 
 // Middleware
 app.use(express.json());
@@ -51,51 +52,10 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));
 
 serveStaticFiles(app);
+Setup all routes
+setupRoutes(app);
 
-// Routes
-const getRoute = require('./routes/get');
-const loginRouter = require('./routes/login');
-const putPropertyRoute = require('./routes/putProperty');
-const deleteRoute = require('./routes/delete');
-const postRoute = require('./routes/post');
-const changeOwnerRouter = require('./routes/changeowner');
-const postRenovation = require('./routesrenovations/post');
-const getRenovation = require('./routesrenovations/get');
-const deleteRenovation = require('./routesrenovations/delete');
-const putRenovation = require('./routesrenovations/put');
-const createUserRouter = require('./routes/users');
-const getUserRouter = require('./routes/users');
-const putUserRouter = require('./routes/users');
-const todoRouter = require('./todoroutes/todocrud');
-const getElectricConsumption = require('./consumptionsroutes/getElec');
-const postElectricConsumption = require('./consumptionsroutes/postElec');
-const getHeatingConsumption = require('./consumptionsroutes/getHeat');
-const postHeatingConsumption = require('./consumptionsroutes/postHeat');
-const deleteHeatingConsumption = require('./consumptionsroutes/deleteHeat');
-const deleteElectricConsumption = require('./consumptionsroutes/deleteElec');
-const getWaterConsumption = require('./consumptionsroutes/getWater');
-const postWaterConsumption = require('./consumptionsroutes/postWater');
-const deleteWaterConsumption = require('./consumptionsroutes/deleteWater');
-const postWaterConsumptionYearly = require('./consumptionsroutes/postWaterYearly');
-const getWaterConsumptionYearly = require('./consumptionsroutes/getWaterYearly');
-const deleteWaterConsumptionYearly = require('./consumptionsroutes/deleteWaterYearly');
-const putWaterConsumptionYearly = require('./consumptionsroutes/putWaterYearly');
-const getResearch = require('./researchroutes/get');
-const deleteResearch = require('./researchroutes/delete');
-const uploadFileRouter = require('./researchroutes/uploadfile');
-const uploadRouter = require('./uploads/post');
-const nordpoolRouter = require('./routes/nordpool');
-const getServices = require('./servicesroutes/get');
-const postServices = require('./servicesroutes/post');
-const putServices = require('./servicesroutes/put');
-const deleteServices = require('./servicesroutes/delete');
-const renovationImages = require('./routesrenovations/images');
-
-// Root route
-app.get('/', (req, res) => {
-    res.send('Hello World');
-});
-
+// Error handling middleware
 // Database configuration
 const config = {
     user: process.env.DB_USER,
@@ -186,33 +146,4 @@ app.use('/api/services', putServices);
 app.use('/api/services', deleteServices);
 
 // Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ error: err.message || 'Something broke!' });
-});
-
-// Start the server
-const port = process.env.PORT || 3000;
-
-// Verify critical environment variables
-const requiredEnvVars = ['DB_USER', 'DB_PASSWORD', 'DB_SERVER', 'DB_NAME'];
-const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
-
-if (missingVars.length > 0) {
-    console.error('❌ Missing required environment variables:', missingVars.join(', '));
-    console.error('Server cannot start without database configuration');
-    process.exit(1);
-}
-
-console.log('✅ Environment variables verified');
-console.log('🚀 Starting server on port', port);
-console.log('📊 Database:', process.env.DB_NAME);
-console.log('🌐 Environment:', process.env.NODE_ENV || 'development');
-
-app.listen(port, () => {
-    console.log(`✅ Server is running on port ${port}`);
-    console.log(`🔗 Health check: http://localhost:${port}/`);
-}).on('error', (err) => {
-    console.error('❌ Failed to start server:', err);
-    process.exit(1);
-});
+app
