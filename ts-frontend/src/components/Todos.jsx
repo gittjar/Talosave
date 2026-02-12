@@ -3,235 +3,439 @@ import config from '../configuration/config.js';
 import DeleteConfirmation from '../notifications/DeleteConfirmation.jsx';
 import EditTodoForm from '../forms/EditTodoForm.jsx';
 import AddTodoForm from '../forms/AddTodoForm.jsx';
-import { Plus } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
-
-
-const getRandomColor = () => {
-  let color = '#';
-  for (let i = 0; i < 3; i++) {
-    let part = Math.floor(Math.random() * 128 + 127).toString(16); // Generate a random number between 127 and 255 and convert it to hexadecimal
-    color += part.length < 2 ? '0' + part : part; // Ensure each part has two digits
-  }
-  return color;
-};
+import { 
+  Container, Card, Row, Col, Button, Badge, ButtonGroup, 
+  Table, Form, Alert 
+} from 'react-bootstrap';
+import { 
+  Plus, CheckCircleFill, Circle, PencilSquare, Trash, 
+  Grid3x3GapFill, ListUl, Calendar, CurrencyEuro,
+  CheckCircle, SortDown, SortUp, InfoCircle
+} from 'react-bootstrap-icons';
 
 const Todos = ({ propertyId }) => {
-    const [todos, setTodos] = useState([]);
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [todoToDelete, setTodoToDelete] = useState(null);
-    const [showEditForm, setShowEditForm] = useState(false);
-    const [showFormId, setShowFormId] = useState(null);
-    const [refreshTodos, setRefreshTodos] = useState(false); 
-    const [activeButton, setActiveButton] = useState(null);
-    const [colorMap, setColorMap] = useState({});
-    const [isAddTodoFormVisible, setIsAddTodoFormVisible] = useState(false);
-    const [viewMode, setViewMode] = useState('list'); // 'list' or 'cards'
-    const [showAddForm, setShowAddForm] = useState(false);
-    const handleOpenForm = () => setShowAddForm(true);
-    const [selectedYears, setSelectedYears] = useState([]);
-    const [todoTitle, setTodoTitle] = useState('');
+  const [todos, setTodos] = useState([]);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [todoToDelete, setTodoToDelete] = useState(null);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [showFormId, setShowFormId] = useState(null);
+  const [refreshTodos, setRefreshTodos] = useState(false); 
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedYears, setSelectedYears] = useState([]);
+  const [viewMode, setViewMode] = useState('cards'); // 'list' or 'cards'
+  const [sortBy, setSortBy] = useState('newest'); // newest, oldest, cheapest, expensive, done, notdone
 
+  const handleCloseForm = () => {
+    setShowAddForm(false);
+    setShowEditForm(false);
+    setShowFormId(null);
+  };
 
+  const handleOpenForm = () => setShowAddForm(true);
 
-const handleCloseForm = () => {
-  setShowAddForm(false);
-  //setShowFormId(null);
-  setShowEditForm(false);
-};
-
-    const handleShowForm = (id) => {
-        setShowFormId(id);
-        setShowEditForm(true);
-    }
-
-    
-/*
-    const handleCloseForm = () => {
-        setShowFormId(null);
-        setShowEditForm(false);
-    }*/
-/*
-    const toggleAddTodoForm = () => {setIsAddTodoFormVisible(!isAddTodoFormVisible);};
-    const closeForm = () => {setIsAddTodoFormVisible(false);};
-*/
-
-    useEffect(() => {
-      const token = localStorage.getItem('userToken');
-    
-      fetch(`${config.baseURL}/api/todo/${propertyId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+  useEffect(() => {
+    const token = localStorage.getItem('userToken');
+  
+    fetch(`${config.baseURL}/api/todo/${propertyId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        setTodos(data);
       })
-        .then(response => response.json())
-        .then(data => {
-          const colorMap = {};
-          data.forEach(todo => {
-            const year = new Date(todo.date).getFullYear();
-            if (!colorMap[year]) {
-              colorMap[year] = getRandomColor();
-            }
-          });
-          setTodos(data);
-          setColorMap(colorMap);
-        })
-        .catch(error => console.error('Error:', error));
-    }, [propertyId, refreshTodos]);
+      .catch(error => console.error('Error:', error));
+  }, [propertyId, refreshTodos]);
+
+  const refreshData = () => {
+    setRefreshTodos(!refreshTodos);
+  };
+
+  const handleDeleteTodo = () => {
+    if (!todoToDelete) {
+      console.error('No todo selected for deletion');
+      return;
+    }
+
+    const token = localStorage.getItem('userToken');
     
-         
-    const sortNewest = () => {
-      let sortedData = [...todos];
-      sortedData.sort((a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-        return dateB - dateA; // Newest first
-      });
-      setTodos(sortedData);
-    }
-
-    const sortOldest = () => {
-      let sortedData = [...todos];
-      sortedData.sort((a, b) => {
-        const dateA = new Date(a.date);
-        const dateB = new Date(b.date);
-        return dateA - dateB; // Oldest first
-      });
-      setTodos(sortedData);
-    }
-    
-    const sortCheapest = () => {
-      let sortedData = [...todos];
-      sortedData.sort((a, b) => {
-        const costA = parseFloat(a.cost);
-        const costB = parseFloat(b.cost);
-        return costA - costB; // Cheapest first
-      });
-      setTodos(sortedData);
-    }
-
-    const sortExpensive = () => {
-      let sortedData = [...todos];
-      sortedData.sort((a, b) => {
-        const costA = parseFloat(a.cost);
-        const costB = parseFloat(b.cost);
-        return costB - costA; // Most expensive first
-      });
-      setTodos(sortedData);
-    }
-
-    const sortDone = () => {  
-      let sortedData = [...todos];
-      sortedData.sort((a, b) => {
-        return b.isCompleted - a.isCompleted;
-      });
-      setTodos(sortedData);
-    }
-
-    const sortNotDone = () => {
-      let sortedData = [...todos];
-      sortedData.sort((a, b) => {
-        return a.isCompleted - b.isCompleted; 
-      });
-      setTodos(sortedData);
-    }
-
-    const handleYearSelection = (year) => {
-      setSelectedYears((prevSelectedYears) =>
-        prevSelectedYears.includes(year)
-          ? prevSelectedYears.filter((y) => y !== year)
-          : [...prevSelectedYears, year]
-      );
-    };
-  
-    const filteredTodos = selectedYears.length
-      ? todos.filter((todo) => selectedYears.includes(new Date(todo.date).getFullYear()))
-      : todos;
-  
-    const uniqueYears = [...new Set(todos.map((todo) => new Date(todo.date).getFullYear()))];
-
-
-
-    
-    const refreshData = () => {
-      setRefreshTodos(!refreshTodos);
-    };
-
-    const handleDeleteTodo = () => {
-      if (!todoToDelete) {
-        console.error('No todo selected for deletion');
-        return;
+    fetch(`${config.baseURL}/api/todo/${todoToDelete.id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`
       }
-  
-      const token = localStorage.getItem('userToken');
-      
-      fetch(`${config.baseURL}/api/todo/${todoToDelete.id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-        .then(() => {
-          deleteTodo(todoToDelete.id);
-          setShowDeleteConfirm(false);
-          toast.success(' Tehtävä poistettu onnistuneesti');
-        })
-        .catch(error => console.error('Error:', error));
-    };
-  
-    const deleteTodo = (id) => {
-      const newTodos = todos.filter(todo => todo.id !== id);
-      setTodos(newTodos);
-    };
-
-      const handleUpdateTodo = (id, updatedTodo) => {
-        const token = localStorage.getItem('userToken');
-    
-        fetch(`${config.baseURL}/api/todo/${id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          body: JSON.stringify(updatedTodo)
-        })
-          .then(response => response.json())
-          .then(data => {
-            const updatedTodos = todos.map(todo => 
-              todo.id === id ? data : todo
-            );
-            setTodos(updatedTodos);
-            handleCloseForm();
-            setRefreshTodos(!refreshTodos); 
-          })
-          .catch(error => console.error('Error:', error));
-      }
-
-    const handleEditTodo = (id) => {
-        setShowEditForm(true);
-        setShowFormId(id);
-      }
-
-      const handleShowDeleteConfirm = (todo) => {
-        console.log('Setting todo to delete:', todo);
-        setTodoToDelete(todo);
-        setShowDeleteConfirm(true);
-      };
-
-    const handleCloseDeleteConfirm = () => {
+    })
+      .then(() => {
+        const newTodos = todos.filter(todo => todo.id !== todoToDelete.id);
+        setTodos(newTodos);
         setShowDeleteConfirm(false);
-        setTodoToDelete(null);
-      }
+        toast.success('Tehtävä poistettu onnistuneesti');
+      })
+      .catch(error => console.error('Error:', error));
+  };
 
+  const handleUpdateTodo = (id, updatedTodo) => {
+    const token = localStorage.getItem('userToken');
 
+    fetch(`${config.baseURL}/api/todo/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(updatedTodo)
+    })
+      .then(response => response.json())
+      .then(data => {
+        const updatedTodos = todos.map(todo => 
+          todo.id === id ? data : todo
+        );
+        setTodos(updatedTodos);
+        handleCloseForm();
+        setRefreshTodos(!refreshTodos); 
+        toast.success(`Tehtävä päivitetty: ${updatedTodo.action}`);
+      })
+      .catch(error => console.error('Error:', error));
+  };
+
+  const handleEditTodo = (id) => {
+    setShowEditForm(true);
+    setShowFormId(id);
+  };
+
+  const handleShowDeleteConfirm = (todo) => {
+    setTodoToDelete(todo);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleYearSelection = (year) => {
+    setSelectedYears((prevSelectedYears) =>
+      prevSelectedYears.includes(year)
+        ? prevSelectedYears.filter((y) => y !== year)
+        : [...prevSelectedYears, year]
+    );
+  };
+
+  // Get unique years from todos
+  const uniqueYears = [...new Set(todos.map((todo) => new Date(todo.date).getFullYear()))].sort((a, b) => b - a);
+
+  // Filter by selected years
+  const filteredByYear = selectedYears.length
+    ? todos.filter((todo) => selectedYears.includes(new Date(todo.date).getFullYear()))
+    : todos;
+
+  // Sort todos
+  const sortedTodos = [...filteredByYear].sort((a, b) => {
+    switch (sortBy) {
+      case 'newest':
+        return new Date(b.date) - new Date(a.date);
+      case 'oldest':
+        return new Date(a.date) - new Date(b.date);
+      case 'cheapest':
+        return parseFloat(a.cost) - parseFloat(b.cost);
+      case 'expensive':
+        return parseFloat(b.cost) - parseFloat(a.cost);
+      case 'done':
+        return b.isCompleted - a.isCompleted;
+      case 'notdone':
+        return a.isCompleted - b.isCompleted;
+      default:
+        return 0;
+    }
+  });
+
+  // Calculate statistics
+  const totalCost = sortedTodos.reduce((acc, todo) => acc + parseFloat(todo.cost || 0), 0);
+  const completedCount = sortedTodos.filter(todo => todo.isCompleted).length;
+  const pendingCount = sortedTodos.length - completedCount;
 
   return (
-    <div>
-<button className='primary-button mb-2 d-flex align-items-center' onClick={handleOpenForm}>
-  <Plus size={25} />
-  <span className='ml-2'>Lisää uusi tehtävä</span>
-  
-</button>
+    <Container fluid className="py-4">
+      <Row className="mb-4">
+        <Col>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h2 className="h3 mb-2">
+                <CheckCircle size={28} className="me-2 text-primary" />
+                Tehtävät
+              </h2>
+              <p className="text-muted mb-0">
+                Hallinnoi kiinteistön huolto- ja korjaustehtäviä
+              </p>
+            </div>
+            <Button variant="primary" size="lg" onClick={handleOpenForm}>
+              <Plus size={20} className="me-2" />
+              Lisää tehtävä
+            </Button>
+          </div>
+
+          {/* Statistics */}
+          <Row className="mb-4 g-3">
+            <Col xs={6} md={3}>
+              <Card className="border-0 shadow-sm text-center">
+                <Card.Body>
+                  <div className="text-muted small mb-1">Yhteensä</div>
+                  <div className="h4 mb-0">{sortedTodos.length}</div>
+                </Card.Body>
+              </Card>
+            </Col>
+            <Col xs={6} md={3}>
+              <Card className="border-0 shadow-sm text-center bg-success text-white">
+                <Card.Body>
+                  <div className="small mb-1">Valmiit</div>
+                  <div className="h4 mb-0">{completedCount}</div>
+                </Card.Body>
+              </Card>
+            </Col>
+            <Col xs={6} md={3}>
+              <Card className="border-0 shadow-sm text-center bg-warning text-dark">
+                <Card.Body>
+                  <div className="small mb-1">Kesken</div>
+                  <div className="h4 mb-0">{pendingCount}</div>
+                </Card.Body>
+              </Card>
+            </Col>
+            <Col xs={6} md={3}>
+              <Card className="border-0 shadow-sm text-center">
+                <Card.Body>
+                  <div className="text-muted small mb-1">Kokonaiskustannus</div>
+                  <div className="h4 mb-0">{totalCost.toFixed(2)} €</div>
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+
+          {/* Filters and View Toggle */}
+          <Card className="border-0 shadow-sm mb-4">
+            <Card.Body>
+              <Row className="g-3">
+                {/* Year filters */}
+                {uniqueYears.length > 0 && (
+                  <Col xs={12}>
+                    <div className="small text-muted mb-2">Suodata vuoden mukaan:</div>
+                    <div className="d-flex flex-wrap gap-2">
+                      {uniqueYears.map((year) => (
+                        <Badge
+                          key={year}
+                          bg={selectedYears.includes(year) ? 'primary' : 'light'}
+                          text={selectedYears.includes(year) ? 'white' : 'dark'}
+                          className="p-2"
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => handleYearSelection(year)}
+                        >
+                          {year}
+                        </Badge>
+                      ))}
+                    </div>
+                  </Col>
+                )}
+
+                {/* Sort buttons */}
+                <Col md={8}>
+                  <div className="small text-muted mb-2">Järjestä:</div>
+                  <ButtonGroup size="sm" className="flex-wrap">
+                    <Button 
+                      variant={sortBy === 'newest' ? 'primary' : 'outline-primary'}
+                      onClick={() => setSortBy('newest')}
+                    >
+                      <SortDown size={14} className="me-1" />
+                      Uusin
+                    </Button>
+                    <Button 
+                      variant={sortBy === 'oldest' ? 'primary' : 'outline-primary'}
+                      onClick={() => setSortBy('oldest')}
+                    >
+                      <SortUp size={14} className="me-1" />
+                      Vanhin
+                    </Button>
+                    <Button 
+                      variant={sortBy === 'cheapest' ? 'primary' : 'outline-primary'}
+                      onClick={() => setSortBy('cheapest')}
+                    >
+                      Halvin
+                    </Button>
+                    <Button 
+                      variant={sortBy === 'expensive' ? 'primary' : 'outline-primary'}
+                      onClick={() => setSortBy('expensive')}
+                    >
+                      Kallein
+                    </Button>
+                    <Button 
+                      variant={sortBy === 'done' ? 'primary' : 'outline-primary'}
+                      onClick={() => setSortBy('done')}
+                    >
+                      <CheckCircleFill size={14} className="me-1" />
+                      Valmiit
+                    </Button>
+                    <Button 
+                      variant={sortBy === 'notdone' ? 'primary' : 'outline-primary'}
+                      onClick={() => setSortBy('notdone')}
+                    >
+                      <Circle size={14} className="me-1" />
+                      Kesken
+                    </Button>
+                  </ButtonGroup>
+                </Col>
+
+                {/* View mode toggle */}
+                <Col md={4} className="text-md-end">
+                  <div className="small text-muted mb-2">Näkymä:</div>
+                  <ButtonGroup size="sm">
+                    <Button 
+                      variant={viewMode === 'cards' ? 'primary' : 'outline-primary'}
+                      onClick={() => setViewMode('cards')}
+                    >
+                      <Grid3x3GapFill size={16} className="me-1" />
+                      Kortit
+                    </Button>
+                    <Button 
+                      variant={viewMode === 'list' ? 'primary' : 'outline-primary'}
+                      onClick={() => setViewMode('list')}
+                    >
+                      <ListUl size={16} className="me-1" />
+                      Lista
+                    </Button>
+                  </ButtonGroup>
+                </Col>
+              </Row>
+            </Card.Body>
+          </Card>
+
+          {/* Todos Display */}
+          {sortedTodos.length === 0 ? (
+            <Alert variant="info" className="d-flex align-items-center">
+              <InfoCircle size={24} className="me-3" />
+              <div>
+                <strong>Ei tehtäviä</strong>
+                <br />
+                <small>Lisää ensimmäinen tehtävä yllä olevalla painikkeella</small>
+              </div>
+            </Alert>
+          ) : viewMode === 'cards' ? (
+            <Row className="g-3">
+              {sortedTodos.map((todo) => (
+                <Col key={todo.id} xs={12} md={6} lg={4}>
+                  <Card className={`h-100 border-0 shadow-sm hover-lift ${todo.isCompleted ? 'border-start border-success border-4' : 'border-start border-warning border-4'}`}>
+                    <Card.Body className="d-flex flex-column">
+                      <div className="d-flex justify-content-between align-items-start mb-3">
+                        <div className="me-2">
+                          {todo.isCompleted ? (
+                            <CheckCircleFill size={32} className="text-success" />
+                          ) : (
+                            <Circle size={32} className="text-warning" />
+                          )}
+                        </div>
+                        <Badge bg={todo.isCompleted ? 'success' : 'warning'} text="dark">
+                          {todo.isCompleted ? 'Valmis' : 'Kesken'}
+                        </Badge>
+                      </div>
+
+                      <h5 className="mb-3">{todo.action}</h5>
+
+                      <div className="mt-auto">
+                        <div className="d-flex justify-content-between text-muted small mb-2">
+                          <span>
+                            <Calendar size={14} className="me-1" />
+                            {new Date(todo.date).toLocaleDateString('fi-FI', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </span>
+                        </div>
+                        <div className="d-flex justify-content-between align-items-center mb-3">
+                          <span className="h5 mb-0 text-primary">
+                            <CurrencyEuro size={20} />
+                            {parseFloat(todo.cost || 0).toFixed(2)}
+                          </span>
+                        </div>
+
+                        <div className="d-flex gap-2">
+                          <Button 
+                            variant="outline-primary" 
+                            size="sm"
+                            onClick={() => handleEditTodo(todo.id)}
+                            className="flex-grow-1"
+                          >
+                            <PencilSquare size={16} className="me-1" />
+                            Muokkaa
+                          </Button>
+                          <Button 
+                            variant="outline-danger" 
+                            size="sm"
+                            onClick={() => handleShowDeleteConfirm(todo)}
+                          >
+                            <Trash size={16} />
+                          </Button>
+                        </div>
+                      </div>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          ) : (
+            <Table hover responsive className="border">
+              <thead className="table-light">
+                <tr>
+                  <th style={{ width: '50px' }}>Tila</th>
+                  <th>Tehtävä</th>
+                  <th style={{ width: '150px' }}>Päivämäärä</th>
+                  <th style={{ width: '120px' }}>Hinta</th>
+                  <th style={{ width: '180px' }}>Toiminnot</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sortedTodos.map((todo) => (
+                  <tr key={todo.id}>
+                    <td className="text-center">
+                      {todo.isCompleted ? (
+                        <CheckCircleFill size={24} className="text-success" />
+                      ) : (
+                        <Circle size={24} className="text-warning" />
+                      )}
+                    </td>
+                    <td>
+                      <strong>{todo.action}</strong>
+                    </td>
+                    <td className="text-muted small">
+                      {new Date(todo.date).toLocaleDateString('fi-FI')}
+                    </td>
+                    <td>
+                      <Badge bg="light" text="dark" className="fw-normal">
+                        {parseFloat(todo.cost || 0).toFixed(2)} €
+                      </Badge>
+                    </td>
+                    <td>
+                      <div className="d-flex gap-2">
+                        <Button 
+                          variant="outline-primary" 
+                          size="sm"
+                          onClick={() => handleEditTodo(todo.id)}
+                        >
+                          <PencilSquare size={14} className="me-1" />
+                          Muokkaa
+                        </Button>
+                        <Button 
+                          variant="outline-danger" 
+                          size="sm"
+                          onClick={() => handleShowDeleteConfirm(todo)}
+                        >
+                          <Trash size={14} />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
+        </Col>
+      </Row>
+
+      {/* Modals */}
       <AddTodoForm
         propertyId={propertyId}
         refreshData={refreshData}
@@ -239,132 +443,22 @@ const handleCloseForm = () => {
         show={showAddForm}
       />
 
-      <section className='todopage'>
-        <h4>Tehtäviä</h4>
-        <section className='d-flex justify-content-between'>
-        <span>Tehtävien määrä: {filteredTodos.length}</span>
-        <p>Tehtävien hinta yhteensä: {filteredTodos.reduce((acc, todo) => acc + parseFloat(todo.cost), 0)} €</p>
-        </section>
-        <hr></hr>
-        <section className='d-flex justify-content-between mb-3'>
-          <section className='d-flex'>
-            <button className={`link-black ${activeButton === 'sortNewest' ? 'active' : ''}`} onClick={() => { sortNewest(); setActiveButton('sortNewest'); }}>Uusin</button>
-            <button className={`link-black ${activeButton === 'sortOldest' ? 'active' : ''}`} onClick={() => { sortOldest(); setActiveButton('sortOldest'); }}>Vanhin</button>
-            <button className={`link-black ${activeButton === 'sortCheapest' ? 'active' : ''}`} onClick={() => { sortCheapest(); setActiveButton('sortCheapest'); }}>Halvin</button>
-            <button className={`link-black ${activeButton === 'sortExpensive' ? 'active' : ''}`} onClick={() => { sortExpensive(); setActiveButton('sortExpensive'); }}>Kallein</button>
-            <button className={`link-black ${activeButton === 'sortDone' ? 'active' : ''}`} onClick={() => { sortDone(); setActiveButton('sortDone'); }}>Tehty</button>
-            <button className={`link-black ${activeButton === 'sortNotDone' ? 'active' : ''}`} onClick={() => { sortNotDone(); setActiveButton('sortNotDone'); }}>Tekemättä</button>
-          </section>
-          <section className='d-flex'>
-            <button className={`link-black ${viewMode === 'list' ? 'active' : ''}`} onClick={() => setViewMode('list')}>List View</button>
-            <button className={`link-black ${viewMode === 'cards' ? 'active' : ''}`} onClick={() => setViewMode('cards')}>Card View</button>
-          </section>
-        </section>
+      {showEditForm && (
+        <EditTodoForm
+          todo={todos.find(todo => todo.id === showFormId)}
+          handleUpdateTodo={handleUpdateTodo}
+          handleCloseForm={handleCloseForm}
+        />
+      )}
 
-        <section className='mb-3 ml-3'>
-          {uniqueYears.map((year) => (
-            <div key={year} className='form-check form-check-inline border border-primary p-2 rounded px-4'>
-              <input
-                className='form-check-input p-2 border border-primary'
-                type='checkbox'
-                id={`year-${year}`}
-                value={year}
-                onChange={() => handleYearSelection(year)}
-                checked={selectedYears.includes(year)}
-              />
-              <label className='form-check-label' htmlFor={`year-${year}`}>{year}</label>
-            </div>
-          ))}
-        </section>
-
-        {viewMode === 'list' ? (
-          <table className='table table-striped'>
-            <thead className='thead-dark'>
-              <tr>
-                <th>Todo</th>
-                <th>Tehty</th>
-                <th>Hinta</th>
-                <th>Päiväys</th>
-                <th>Muokkaa</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTodos.map((todo, index) => {
-                const currentYear = new Date(todo.date).getFullYear();
-                const nextYear = index < filteredTodos.length - 1 ? new Date(filteredTodos[index + 1].date).getFullYear() : null;
-                const addBottomLine = nextYear && currentYear !== nextYear;
-                const backgroundColor = colorMap[currentYear];
-
-                return (
-                  <tr key={todo.id} style={{ backgroundColor }} className={`panel ${todo.isCompleted ? 'panel-success' : 'panel-danger'} ${addBottomLine ? 'bottom-line' : ''}`}>
-                    <td className='bg-light'>{todo.action}</td>
-                    <td style={{ backgroundColor: todo.isCompleted ? 'lightgreen' : 'lightcoral' }}>
-                      {todo.isCompleted ? 'Kyllä' : 'Ei'}
-                    </td>
-                    <td className='bg-light'>{todo.cost} €</td>
-                    <td>{new Date(todo.date).toLocaleDateString()}</td>
-                    <td className='bg-light'>
-                      <button className='edit-link' onClick={() => handleEditTodo(todo.id)}>Muokkaa</button>
-                      <button className='delete-link' onClick={() => handleShowDeleteConfirm(todo)}>Poista</button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        ) : (
-          <div className='row'>
-            {filteredTodos.map((todo, index) => {
-              const currentYear = new Date(todo.date).getFullYear();
-              const nextYear = index < filteredTodos.length - 1 ? new Date(filteredTodos[index + 1].date).getFullYear() : null;
-              const addBottomLine = nextYear && currentYear !== nextYear;
-              const backgroundColor = colorMap[currentYear];
-
-              return (
-                <div key={todo.id} className={`col-12 col-sm-6 col-md-4 col-lg-3 mb-3`}>
-                  <div className='card' style={{ backgroundColor }}>
-                    <div className='card-body'>
-                      <section className='d-flex justify-content-between'>
-                      <h5 className='card-title p-1'>{todo.action}</h5> 
-                      <h5 className='card-title'>
-                        <span className=' border border-dark p-1 rounded'>
-                        {new Date(todo.date).getFullYear()}</span></h5>
-                      </section>
-
-                      
-                        Tehty: <span className={`card-text ${todo.isCompleted ? 'bg-success p-1 rounded' : 'bg-warning p-1 rounded'}`}>{todo.isCompleted ? 'Kyllä' : 'Ei'}
-                      </span>                      
-<p className='card-text'>Hinta: {todo.cost} €</p>
-                      <p className='card-text'>Päiväys: {new Date(todo.date).toLocaleDateString()}</p>
-                      <section className=''>
-                        <button className='edit-link bg-light rounded p-1' onClick={() => handleEditTodo(todo.id)}>Muokkaa</button>
-                        <button className='delete-link bg-light rounded p-1 ml-1' onClick={() => handleShowDeleteConfirm(todo)}>Poista</button>
-                      </section>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {showEditForm && (
-          <EditTodoForm
-            todo={todos.find(todo => todo.id === showFormId)}
-            handleUpdateTodo={handleUpdateTodo}
-            handleCloseForm={handleCloseForm}
-          />
-        )}
-
-{showDeleteConfirm && (
+      {showDeleteConfirm && (
         <DeleteConfirmation
           handleDeleteProperty={handleDeleteTodo}
           setShowDeleteConfirm={setShowDeleteConfirm}
           todoTitle={todoToDelete?.action}
         />
       )}
-      </section>
-    </div>
+    </Container>
   );
 };
 

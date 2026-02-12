@@ -3,14 +3,15 @@ import axios from 'axios';
 import UrlUpload from '../forms/UrlUpload';
 import config from '../configuration/config';
 import { toast } from 'react-toastify';
-import { Container, Card, Row, Col, Button, Badge, Alert } from 'react-bootstrap';
-import { Link45deg, Trash, FileEarmarkText, InfoCircle, Download, EyeFill } from 'react-bootstrap-icons';
+import { Container, Card, Row, Col, Button, Badge, Alert, ButtonGroup, Table } from 'react-bootstrap';
+import { Link45deg, Trash, FileEarmarkText, InfoCircle, Download, EyeFill, Grid3x3GapFill, ListUl } from 'react-bootstrap-icons';
 import DeleteConfirmation from '../notifications/DeleteConfirmation';
 
 const ResearchPage = ({ propertyId }) => {
   const [files, setFiles] = useState([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [fileToDelete, setFileToDelete] = useState(null);
+  const [viewMode, setViewMode] = useState('cards'); // 'cards' or 'list'
 
   const fetchFiles = async () => {
     try {
@@ -62,11 +63,30 @@ const ResearchPage = ({ propertyId }) => {
 
       <Row>
         <Col>
-          <h4 className="mb-3">
-            <FileEarmarkText size={20} className="me-2" />
-            Tallennetut tiedostot
-            <Badge bg="primary" className="ms-2">{files.length}</Badge>
-          </h4>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <h4 className="mb-0">
+              <FileEarmarkText size={20} className="me-2" />
+              Tallennetut tiedostot
+              <Badge bg="primary" className="ms-2">{files.length}</Badge>
+            </h4>
+            
+            <ButtonGroup size="sm">
+              <Button 
+                variant={viewMode === 'cards' ? 'primary' : 'outline-primary'}
+                onClick={() => setViewMode('cards')}
+              >
+                <Grid3x3GapFill size={16} className="me-1" />
+                Kortit
+              </Button>
+              <Button 
+                variant={viewMode === 'list' ? 'primary' : 'outline-primary'}
+                onClick={() => setViewMode('list')}
+              >
+                <ListUl size={16} className="me-1" />
+                Lista
+              </Button>
+            </ButtonGroup>
+          </div>
           
           {files.length === 0 ? (
             <Alert variant="info" className="d-flex align-items-center">
@@ -77,7 +97,7 @@ const ResearchPage = ({ propertyId }) => {
                 <small>Lataa ensimmäinen dokumentti yllä olevalla lomakkeella</small>
               </div>
             </Alert>
-          ) : (
+          ) : viewMode === 'cards' ? (
             <Row className="g-3">
               {files.map(file => {
                 let validUrl = file.url;
@@ -153,6 +173,83 @@ const ResearchPage = ({ propertyId }) => {
                 );
               })}
             </Row>
+          ) : (
+            <Table hover responsive className="border">
+              <thead className="table-light">
+                <tr>
+                  <th style={{ width: '40px' }}></th>
+                  <th>Nimi</th>
+                  <th>Kuvaus</th>
+                  <th style={{ width: '150px' }}>Ladattu</th>
+                  <th style={{ width: '250px' }}>Toiminnot</th>
+                </tr>
+              </thead>
+              <tbody>
+                {files.map(file => {
+                  let validUrl = file.url;
+                  if (validUrl && !validUrl.match(/^https?:\/\//i)) {
+                    validUrl = 'https://' + validUrl;
+                  }
+                  
+                  return (
+                    <tr key={file._id}>
+                      <td className="text-center">
+                        <FileEarmarkText size={24} className="text-primary" />
+                      </td>
+                      <td>
+                        <strong>{file.name}</strong>
+                      </td>
+                      <td>
+                        <span className="text-muted" style={{
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden'
+                        }}>
+                          {file.description || '-'}
+                        </span>
+                      </td>
+                      <td className="text-muted small">
+                        {new Date(file.uploadedAt).toLocaleDateString('fi-FI')}
+                      </td>
+                      <td>
+                        <div className="d-flex gap-2">
+                          <Button 
+                            variant="outline-primary" 
+                            size="sm" 
+                            href={validUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                          >
+                            <EyeFill size={14} className="me-1" />
+                            Esikatsele
+                          </Button>
+                          <Button 
+                            variant="primary" 
+                            size="sm" 
+                            href={validUrl}
+                            download
+                          >
+                            <Download size={14} className="me-1" />
+                            Lataa
+                          </Button>
+                          <Button 
+                            variant="outline-danger" 
+                            size="sm"
+                            onClick={() => { 
+                              setFileToDelete(file._id); 
+                              setShowDeleteConfirm(true); 
+                            }}
+                          >
+                            <Trash size={14} />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </Table>
           )}
         </Col>
       </Row>
