@@ -209,7 +209,7 @@ function PropertyImageGallery({ propertyId }) {
                             key={image.id}
                             className="d-flex justify-content-between align-items-center"
                             style={{
-                                padding: '0.75rem 1rem',
+                                padding: '0.5rem 0.6rem',
                                 transition: 'background-color 0.2s ease',
                                 cursor: 'pointer'
                             }}
@@ -220,10 +220,10 @@ function PropertyImageGallery({ propertyId }) {
                             <div className="d-flex align-items-center flex-grow-1">
                                 <div
                                     style={{
-                                        width: '60px',
-                                        height: '60px',
-                                        marginRight: '1rem',
-                                        borderRadius: '8px',
+                                        width: '45px',
+                                        height: '45px',
+                                        marginRight: '0.6rem',
+                                        borderRadius: '6px',
                                         overflow: 'hidden',
                                         flexShrink: 0,
                                         backgroundColor: '#f8f9fa'
@@ -243,7 +243,7 @@ function PropertyImageGallery({ propertyId }) {
                                     />
                                 </div>
                                 <div className="flex-grow-1">
-                                    <div style={{ fontWeight: '600', color: '#2c3e50', marginBottom: '0.25rem' }}>
+                                    <div style={{ fontWeight: '600', color: '#2c3e50', marginBottom: '0.15rem', fontSize: '0.85rem' }}>
                                         {image.image_name || 'Nimetön kuva'}
                                     </div>
                                     {image.description && (
@@ -264,7 +264,7 @@ function PropertyImageGallery({ propertyId }) {
                                     </div>
                                 </div>
                             </div>
-                            <div className="d-flex gap-2">
+                            <div className="d-flex gap-1" style={{ flexShrink: 0 }}>
                                 <Button
                                     variant="outline-primary"
                                     size="sm"
@@ -272,9 +272,9 @@ function PropertyImageGallery({ propertyId }) {
                                         e.stopPropagation();
                                         handleEdit(image);
                                     }}
-                                    style={{ borderRadius: '6px' }}
+                                    style={{ borderRadius: '4px', padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1 }}
                                 >
-                                    <PencilSquare />
+                                    <PencilSquare size={12} />
                                 </Button>
                                 <Button
                                     variant="outline-danger"
@@ -284,12 +284,12 @@ function PropertyImageGallery({ propertyId }) {
                                         handleDelete(image);
                                     }}
                                     disabled={deleting === image.id}
-                                    style={{ borderRadius: '6px' }}
+                                    style={{ borderRadius: '4px', padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1 }}
                                 >
                                     {deleting === image.id ? (
                                         <Spinner animation="border" size="sm" />
                                     ) : (
-                                        <Trash3 />
+                                        <Trash3 size={12} />
                                     )}
                                 </Button>
                             </div>
