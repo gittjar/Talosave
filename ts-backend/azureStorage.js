@@ -5,19 +5,29 @@ require('dotenv').config();
 const AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING;
 const CONTAINER_NAME = process.env.AZURE_STORAGE_CONTAINER_NAME || 'renovation-images';
 
+// Supported containers
+const CONTAINERS = {
+    'renovation-images': null,
+    'property-images': null,
+    'property-documents': null
+};
+
 // Create blob service client
 let blobServiceClient;
-let containerClient;
 
 try {
     if (AZURE_STORAGE_CONNECTION_STRING) {
         blobServiceClient = BlobServiceClient.fromConnectionString(AZURE_STORAGE_CONNECTION_STRING);
-        containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
         
-        // Create container if it doesn't exist
-        containerClient.createIfNotExists({ access: 'blob' })
-            .then(() => console.log(`Azure Blob Storage container '${CONTAINER_NAME}' ready`))
-            .catch(err => console.error('Azure Blob Storage initialization error:', err.message));
+        // Initialize all containers
+        for (const containerName of Object.keys(CONTAINERS)) {
+            const client = blobServiceClient.getContainerClient(containerName);
+            CONTAINERS[containerName] = client;
+            
+            client.createIfNotExists({ access: 'blob' })
+                .then(() => console.log(`Azure Blob Storage container '${containerName}' ready`))
+                .catch(err => console.error(`Azure container '${containerName}' initialization error:`, err.message));
+        }
     } else {
         console.warn('Azure Storage connection string not found in .env - file uploads will use fallback method');
     }
@@ -26,14 +36,25 @@ try {
 }
 
 /**
+ * Get container client by name
+ * @param {string} containerName - Container name (default: CONTAINER_NAME from env)
+ * @returns {ContainerClient}
+ */
+function getContainerClient(containerName) {
+    return CONTAINERS[containerName] || CONTAINERS[CONTAINER_NAME];
+}
+
+/**
  * Upload a file buffer to Azure Blob Storage
  * @param {Buffer} fileBuffer - File content as buffer
  * @param {string} fileName - Original file name
  * @param {string} mimeType - File MIME type
+ * @param {string} [containerName] - Target container (default: renovation-images)
  * @returns {Promise<{url: string, blobName: string}>}
  */
-async function uploadToAzure(fileBuffer, fileName, mimeType) {
-    if (!containerClient) {
+async function uploadToAzure(fileBuffer, fileName, mimeType, containerName) {
+    const client = getContainerClient(containerName);
+    if (!client) {
         throw new Error('Azure Blob Storage not configured');
     }
 
@@ -43,7 +64,7 @@ async function uploadToAzure(fileBuffer, fileName, mimeType) {
     const blobName = `${timestamp}-${sanitizedFileName}`;
 
     // Get block blob client
-    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    const blockBlobClient = client.getBlockBlobClient(blobName);
 
     // Upload buffer
     await blockBlobClient.upload(fileBuffer, fileBuffer.length, {
@@ -61,14 +82,16 @@ async function uploadToAzure(fileBuffer, fileName, mimeType) {
 /**
  * Delete a blob from Azure Blob Storage
  * @param {string} blobName - Name of the blob to delete
+ * @param {string} [containerName] - Container name (default: renovation-images)
  * @returns {Promise<boolean>}
  */
-async function deleteFromAzure(blobName) {
-    if (!containerClient) {
+async function deleteFromAzure(blobName, containerName) {
+    const client = getContainerClient(containerName);
+    if (!client) {
         throw new Error('Azure Blob Storage not configured');
     }
 
-    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    const blockBlobClient = client.getBlockBlobClient(blobName);
     await blockBlobClient.delete();
     return true;
 }
@@ -93,5 +116,6 @@ module.exports = {
     uploadToAzure,
     deleteFromAzure,
     extractBlobName,
-    isAzureConfigured: () => !!containerClient
+    getContainerClient,
+    isAzureConfigured: () => !!blobServiceClient
 };

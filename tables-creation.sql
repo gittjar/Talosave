@@ -219,3 +219,14 @@ CREATE TABLE TS_RenovationImages (
     file_size INT,
     FOREIGN KEY (renovation_id) REFERENCES TS_Renovations(id) ON DELETE CASCADE
 );
+
+CREATE TABLE TS_PropertyImages (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    property_id INT NOT NULL,
+    image_url NVARCHAR(500) NOT NULL,
+    image_name NVARCHAR(255),
+    description NVARCHAR(500),
+    upload_date DATETIME DEFAULT GETDATE(),
+    file_size INT,
+    FOREIGN KEY (property_id) REFERENCES TS_Properties(propertyid) ON DELETE CASCADE
+);

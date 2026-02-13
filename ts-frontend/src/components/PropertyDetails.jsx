@@ -12,11 +12,13 @@ import HouseBasicInformation from './HouseBasicInformation.jsx';
 import { XLg, PencilSquare, BuildingUp, List } from 'react-bootstrap-icons';
 import { Tab, Nav, Navbar, Offcanvas, Button, Badge } from 'react-bootstrap';
 import ConsumptionDetails from './ConsumptionDetails.jsx';
-import { HouseDoor, Tools, CardChecklist, BarChartFill, HouseCheck, Gear, CurrencyExchange, Lightning } from 'react-bootstrap-icons';
+import { HouseDoor, Tools, CardChecklist, BarChartFill, HouseCheck, Gear, CurrencyExchange, Lightning, ImageFill } from 'react-bootstrap-icons';
 import ResearchPage from './ResearchPage.jsx';
 import ChangeOwnerForm from '../forms/ChangeOwnerForm.jsx';
 import ElectricityPrice from './ElectricityPrice.jsx';
 import Services from './Services.jsx';
+import PropertyImageUpload from '../forms/PropertyImageUpload.jsx';
+import PropertyImageGallery from './PropertyImageGallery.jsx';
 
 export const PropertyContext = createContext();
 
@@ -35,6 +37,7 @@ const PropertyDetails = () => {
   const [todosCount, setTodosCount] = useState(0);
   const [servicesCount, setServicesCount] = useState(0);
   const [researchCount, setResearchCount] = useState(0);
+  const [imagesCount, setImagesCount] = useState(0);
   const [newPropertyName, setNewPropertyName] = useState('');
   const [newStreetAddress, setNewStreetAddress] = useState('');
   const [newPostNumber, setNewPostNumber] = useState('');
@@ -128,6 +131,14 @@ const PropertyDetails = () => {
       .then(response => response.json())
       .then(data => setResearchCount(data.length))
       .catch(error => console.error('Error fetching research count:', error));
+
+    // Fetch images count
+    fetch(`${config.baseURL}/api/properties/${id}/images`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(response => response.json())
+      .then(data => setImagesCount(data.length))
+      .catch(error => console.error('Error fetching images count:', error));
   }, [id, refreshKey]);
 
   if (!property) {
@@ -283,6 +294,13 @@ const PropertyDetails = () => {
       count: null
     },
     {
+      key: "9",
+      icon: <ImageFill />,
+      label: "Kuvat",
+      shortLabel: "Kuvat",
+      count: imagesCount
+    },
+    {
       key: "2", 
       icon: <Tools />,
       label: "Remontit",
@@ -391,6 +409,13 @@ const PropertyDetails = () => {
       .then(response => response.json())
       .then(data => setResearchCount(data.length))
       .catch(error => console.error('Error refreshing research count:', error));
+
+    fetch(`${config.baseURL}/api/properties/${id}/images`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(response => response.json())
+      .then(data => setImagesCount(data.length))
+      .catch(error => console.error('Error refreshing images count:', error));
   };
 
   
@@ -592,6 +617,19 @@ const PropertyDetails = () => {
       
       <Tab.Pane eventKey="8">
       <ElectricityPrice />
+      </Tab.Pane>
+
+      <Tab.Pane eventKey="9">
+        <PropertyImageUpload 
+          propertyId={id} 
+          onUploadSuccess={() => {
+            document.dispatchEvent(new CustomEvent('property-image-uploaded', { 
+              detail: { propertyId: id } 
+            }));
+            refreshData();
+          }} 
+        />
+        <PropertyImageGallery propertyId={id} />
       </Tab.Pane>
     </Tab.Content>
   </Tab.Container>

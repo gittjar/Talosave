@@ -23,6 +23,7 @@ const getRenovation = require('../routesrenovations/get');
 const deleteRenovation = require('../routesrenovations/delete');
 const putRenovation = require('../routesrenovations/put');
 const renovationImages = require('../routesrenovations/images');
+const propertyImages = require('./propertyImages');
 
 // Consumption routes
 const getElectricConsumption = require('../consumptionsroutes/getElec');
@@ -85,6 +86,9 @@ function setupRoutes(app) {
     app.use('/api', deleteRenovation);
     app.use('/api', putRenovation);
     app.use('/api/renovations', renovationImages);
+
+    // Property images routes
+    app.use('/api/properties', propertyImages);
 
     // Todo routes
     app.use('/api', todoRouter);

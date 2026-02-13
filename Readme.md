@@ -208,6 +208,29 @@ CREATE TABLE TS_RenovationImages (
 - ✏️ Kuvan nimen ja kuvauksen muokkaus
 - 🗑️ Cascade delete remontin poiston yhteydessä
 
+#### TS_PropertyImages
+Kohteen/rakennuksen kuvien tallennus Azure Blob Storageen
+```sql
+CREATE TABLE TS_PropertyImages (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    property_id INT NOT NULL,
+    image_url NVARCHAR(500) NOT NULL,      -- Azure Blob Storage URL
+    image_name NVARCHAR(255),               -- Kuvan nimi
+    description NVARCHAR(500),              -- Kuvan kuvaus/selite
+    upload_date DATETIME DEFAULT GETDATE(),
+    file_size INT,                          -- Tiedostokoko tavuina
+    FOREIGN KEY (property_id) REFERENCES TS_Properties(propertyid) ON DELETE CASCADE
+);
+```
+
+**Ominaisuudet:**
+- 📤 Suora tiedostolataus (JPEG, PNG, GIF, WEBP, HEIC)
+- 🔄 HEIC → JPEG automaattinen konversio (iOS-tuki)
+- 🖼️ 4K-resoluution automaattinen optimointi
+- ☁️ Azure Blob Storage integraatio
+- ✏️ Kuvan nimen ja kuvauksen muokkaus
+- 🗑️ Cascade delete kohteen poiston yhteydessä
+
 [📖 Katso kaikki taulut: tables-creation.sql](tables-creation.sql)
 
 ---

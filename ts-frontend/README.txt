@@ -110,6 +110,15 @@ Database
 │   ├── propertyid (FK -> TS_Properties)
 │   ├── image_url
 │
+├── TS_PropertyImages
+│   ├── id (PK)
+│   ├── property_id (FK -> TS_Properties, CASCADE DELETE)
+│   ├── image_url (Azure Blob Storage URL)
+│   ├── image_name
+│   ├── description (kuvan kuvaus/selite, max 500 merkkiä)
+│   ├── upload_date
+│   ├── file_size (bytes)
+│
 ├── TS_Tutkimukset
 │   ├── id (PK)
 │   ├── propertyid (FK -> TS_Properties)

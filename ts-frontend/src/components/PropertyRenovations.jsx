@@ -237,12 +237,12 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
               <Button
                 variant={selectedYear === 'all' ? 'dark' : 'outline-primary'}
                 onClick={() => setSelectedYear('all')}
-                className={`d-flex flex-column align-items-center px-3 py-2 ${selectedYear === 'all' ? 'text-white' : 'text-dark'}`}
+                className={`d-flex flex-column align-items-center px-3 py-2 year-filter-btn ${selectedYear === 'all' ? 'text-white' : 'text-dark'}`}
               >
                 <div className="fw-bold">Kaikki</div>
                 <small className="d-flex flex-column align-items-center mt-1">
                   <span>{yearStats['all']?.count || 0} kpl</span>
-                  <span className={selectedYear === 'all' ? 'text-white' : 'text-primary'}>
+                  <span className={`price-text ${selectedYear === 'all' ? 'text-white' : 'text-primary'}`}>
                     {(yearStats['all']?.total || 0).toLocaleString('fi-FI')} €
                   </span>
                 </small>
@@ -253,7 +253,7 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                   key={year}
                   variant={selectedYear === year.toString() ? 'dark' : 'outline-primary'}
                   onClick={() => setSelectedYear(year.toString())}
-                  className={`d-flex flex-column align-items-center px-3 py-2 ${selectedYear === year.toString() ? 'text-white' : 'text-dark'}`}
+                  className={`d-flex flex-column align-items-center px-3 py-2 year-filter-btn ${selectedYear === year.toString() ? 'text-white' : 'text-dark'}`}
                 >
                   <div className="fw-bold">
                     <Calendar3 className="me-1" size={14} />
@@ -261,7 +261,7 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                   </div>
                   <small className="d-flex flex-column align-items-center mt-1">
                     <span>{yearStats[year]?.count || 0} kpl</span>
-                    <span className={selectedYear === year.toString() ? 'text-white' : 'text-primary'}>
+                    <span className={`price-text ${selectedYear === year.toString() ? 'text-white' : 'text-primary'}`}>
                       {(yearStats[year]?.total || 0).toLocaleString('fi-FI')} €
                     </span>
                   </small>
