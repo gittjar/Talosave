@@ -308,7 +308,7 @@ function PropertyImageGallery({ propertyId }) {
                                 style={{
                                     transition: 'all 0.3s ease',
                                     overflow: 'hidden',
-                                    borderRadius: '8px'
+                                    borderRadius: '3px'
                                 }}
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.transform = 'translateY(-4px)';
@@ -319,33 +319,39 @@ function PropertyImageGallery({ propertyId }) {
                                     e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
                                 }}
                             >
-                                {/* Yläkaista — päivämäärä, nimi, koko */}
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        padding: '3px 8px',
-                                        backgroundColor: '#1a1a1a',
-                                        color: '#ccc',
-                                        fontSize: '0.65rem'
-                                    }}
-                                >
-                                    <span>{formatDate(image.upload_date)}</span>
-                                    <span style={{ color: '#fff', fontWeight: '500', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '50%', textAlign: 'center' }}>
-                                        {image.image_name || 'Nimetön kuva'}
-                                    </span>
-                                    <span>{formatFileSize(image.file_size)}</span>
-                                </div>
-                                {/* Kuva */}
+                                {/* Kuva + ylä- ja alakaista päällä */}
                                 <div
                                     style={{
                                         cursor: 'pointer',
                                         backgroundColor: '#f0f0f0',
                                         aspectRatio: '4 / 3',
-                                        overflow: 'hidden'
+                                        overflow: 'hidden',
+                                        position: 'relative'
                                     }}
                                     onClick={() => handleImageClick(image)}
                                 >
+                                    {/* Yläkaista — kuvan päällä */}
+                                    <div
+                                        style={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            left: 0,
+                                            right: 0,
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            padding: '3px 8px',
+                                            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                                            color: '#ccc',
+                                            fontSize: '0.65rem',
+                                            zIndex: 1
+                                        }}
+                                    >
+                                        <span>{formatDate(image.upload_date)}</span>
+                                        <span style={{ color: '#fff', fontWeight: '500', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '50%', textAlign: 'center' }}>
+                                            {image.image_name || 'Nimetön kuva'}
+                                        </span>
+                                        <span>{formatFileSize(image.file_size)}</span>
+                                    </div>
                                     <Card.Img
                                         src={image.image_url}
                                         alt={image.image_name || 'Kohteen kuva'}
@@ -353,7 +359,8 @@ function PropertyImageGallery({ propertyId }) {
                                             width: '100%',
                                             height: '100%',
                                             objectFit: 'cover',
-                                            transition: 'transform 0.3s ease'
+                                            transition: 'transform 0.3s ease',
+                                            borderRadius: '0'
                                         }}
                                         onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
                                         onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
@@ -362,50 +369,55 @@ function PropertyImageGallery({ propertyId }) {
                                             e.target.src = 'https://via.placeholder.com/400x300?text=Kuva+ei+saatavilla';
                                         }}
                                     />
-                                </div>
-                                {/* Alakaista — kuvaus, muokkaa ja poista */}
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        padding: '3px 8px',
-                                        backgroundColor: '#1a1a1a',
-                                        fontSize: '0.65rem'
-                                    }}
-                                >
-                                    <span
-                                        onClick={() => handleEdit(image)}
-                                        style={{ color: '#8cb4ff', cursor: 'pointer', flexShrink: 0 }}
-                                        onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
-                                        onMouseLeave={(e) => e.currentTarget.style.color = '#8cb4ff'}
+                                    {/* Alakaista — kuvan päällä */}
+                                    <div
+                                        onClick={(e) => e.stopPropagation()}
+                                        style={{
+                                            position: 'absolute',
+                                            bottom: 0,
+                                            left: 0,
+                                            right: 0,
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            padding: '3px 8px',
+                                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                            fontSize: '0.65rem'
+                                        }}
                                     >
-                                        Muokkaa
-                                    </span>
-                                    {image.description && (
                                         <span
-                                            title={image.description}
-                                            style={{
-                                                color: '#aaa',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap',
-                                                margin: '0 8px',
-                                                textAlign: 'center',
-                                                flex: 1
-                                            }}
+                                            onClick={() => handleEdit(image)}
+                                            style={{ color: '#8cb4ff', cursor: 'pointer', flexShrink: 0 }}
+                                            onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
+                                            onMouseLeave={(e) => e.currentTarget.style.color = '#8cb4ff'}
                                         >
-                                            {image.description}
+                                            Muokkaa
                                         </span>
-                                    )}
-                                    <span
-                                        onClick={() => handleDelete(image)}
-                                        style={{ color: '#ff8c8c', cursor: deleting === image.id ? 'wait' : 'pointer', flexShrink: 0 }}
-                                        onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
-                                        onMouseLeave={(e) => e.currentTarget.style.color = '#ff8c8c'}
-                                    >
-                                        {deleting === image.id ? 'Poistetaan...' : 'Poista'}
-                                    </span>
+                                        {image.description && (
+                                            <span
+                                                title={image.description}
+                                                style={{
+                                                    color: '#ddd',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap',
+                                                    margin: '0 8px',
+                                                    textAlign: 'center',
+                                                    flex: 1
+                                                }}
+                                            >
+                                                {image.description}
+                                            </span>
+                                        )}
+                                        <span
+                                            onClick={() => handleDelete(image)}
+                                            style={{ color: '#ff8c8c', cursor: deleting === image.id ? 'wait' : 'pointer', flexShrink: 0 }}
+                                            onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
+                                            onMouseLeave={(e) => e.currentTarget.style.color = '#ff8c8c'}
+                                        >
+                                            {deleting === image.id ? 'Poistetaan...' : 'Poista'}
+                                        </span>
+                                    </div>
                                 </div>
                             </Card>
                         </Col>

@@ -79,7 +79,7 @@ function PropertyImageUpload({ propertyId, onUploadSuccess }) {
         try {
             setLoading(true);
             setError(null);
-            setUploadProgress(5);
+            setUploadProgress(0);
 
             const token = localStorage.getItem('token');
             const formData = new FormData();
@@ -92,25 +92,42 @@ function PropertyImageUpload({ propertyId, onUploadSuccess }) {
                 formData.append('description', description.trim());
             }
 
-            setUploadProgress(20);
+            // XMLHttpRequest for real upload progress tracking
+            const result = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
 
-            const response = await fetch(`${config.apiUrl}/properties/${propertyId}/images`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: formData
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 95); // 0-95% for upload
+                        setUploadProgress(percent);
+                    }
+                });
+
+                xhr.addEventListener('load', () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        setUploadProgress(100);
+                        try {
+                            resolve(JSON.parse(xhr.responseText));
+                        } catch {
+                            resolve({});
+                        }
+                    } else {
+                        try {
+                            const errorData = JSON.parse(xhr.responseText);
+                            reject(new Error(errorData.error || 'Kuvien lataus epäonnistui'));
+                        } catch {
+                            reject(new Error(`Lataus epäonnistui (${xhr.status})`));
+                        }
+                    }
+                });
+
+                xhr.addEventListener('error', () => reject(new Error('Verkkovirhe')));
+                xhr.addEventListener('abort', () => reject(new Error('Lataus peruutettu')));
+
+                xhr.open('POST', `${config.apiUrl}/properties/${propertyId}/images`);
+                xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+                xhr.send(formData);
             });
-
-            setUploadProgress(80);
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Kuvien lataus epäonnistui');
-            }
-
-            const result = await response.json();
-            setUploadProgress(100);
 
             const count = result.count || selectedFiles.length;
             toast.success(`${count} ${count === 1 ? 'kuva' : 'kuvaa'} ladattu onnistuneesti`);
