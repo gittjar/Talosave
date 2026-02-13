@@ -300,36 +300,53 @@ function PropertyImageGallery({ propertyId }) {
 
             {/* Grid View */}
             {viewMode === 'grid' && (
-                <Row xs={1} sm={2} md={3} lg={4} className="g-4">
+                <Row xs={1} sm={2} md={3} className="g-3">
                     {images.map((image) => (
                         <Col key={image.id}>
                             <Card
-                                className="h-100 shadow-sm border-0"
+                                className="shadow-sm border-0"
                                 style={{
                                     transition: 'all 0.3s ease',
-                                    overflow: 'hidden'
+                                    overflow: 'hidden',
+                                    borderRadius: '8px'
                                 }}
                                 onMouseEnter={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(-5px)';
-                                    e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.15)';
+                                    e.currentTarget.style.transform = 'translateY(-4px)';
+                                    e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.15)';
                                 }}
                                 onMouseLeave={(e) => {
                                     e.currentTarget.style.transform = 'translateY(0)';
                                     e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
                                 }}
                             >
+                                {/* Yläkaista — päivämäärä, nimi, koko */}
                                 <div
                                     style={{
-                                        height: '220px',
-                                        overflow: 'hidden',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        padding: '3px 8px',
+                                        backgroundColor: '#1a1a1a',
+                                        color: '#ccc',
+                                        fontSize: '0.65rem'
+                                    }}
+                                >
+                                    <span>{formatDate(image.upload_date)}</span>
+                                    <span style={{ color: '#fff', fontWeight: '500', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '50%', textAlign: 'center' }}>
+                                        {image.image_name || 'Nimetön kuva'}
+                                    </span>
+                                    <span>{formatFileSize(image.file_size)}</span>
+                                </div>
+                                {/* Kuva */}
+                                <div
+                                    style={{
                                         cursor: 'pointer',
-                                        position: 'relative',
-                                        backgroundColor: '#f8f9fa'
+                                        backgroundColor: '#f0f0f0',
+                                        aspectRatio: '4 / 3',
+                                        overflow: 'hidden'
                                     }}
                                     onClick={() => handleImageClick(image)}
                                 >
                                     <Card.Img
-                                        variant="top"
                                         src={image.image_url}
                                         alt={image.image_name || 'Kohteen kuva'}
                                         style={{
@@ -345,95 +362,51 @@ function PropertyImageGallery({ propertyId }) {
                                             e.target.src = 'https://via.placeholder.com/400x300?text=Kuva+ei+saatavilla';
                                         }}
                                     />
-                                    <div
-                                        style={{
-                                            position: 'absolute',
-                                            top: 0,
-                                            left: 0,
-                                            right: 0,
-                                            bottom: 0,
-                                            background: 'linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.5))',
-                                            opacity: 0,
-                                            transition: 'opacity 0.3s ease',
-                                            display: 'flex',
-                                            alignItems: 'flex-end',
-                                            padding: '15px',
-                                            color: 'white'
-                                        }}
-                                        onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
-                                        onMouseLeave={(e) => e.currentTarget.style.opacity = 0}
-                                    >
-                                        <small>Klikkaa suurentaaksesi</small>
-                                    </div>
                                 </div>
-                                <Card.Body className="d-flex flex-column" style={{ padding: '1rem' }}>
-                                    <Card.Title
-                                        style={{
-                                            fontSize: '1rem',
-                                            fontWeight: '600',
-                                            marginBottom: '0.5rem',
-                                            color: '#2c3e50',
-                                            display: '-webkit-box',
-                                            WebkitLineClamp: 2,
-                                            WebkitBoxOrient: 'vertical',
-                                            overflow: 'hidden',
-                                            minHeight: '2.5rem'
-                                        }}
-                                        title={image.image_name}
+                                {/* Alakaista — kuvaus, muokkaa ja poista */}
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        padding: '3px 8px',
+                                        backgroundColor: '#1a1a1a',
+                                        fontSize: '0.65rem'
+                                    }}
+                                >
+                                    <span
+                                        onClick={() => handleEdit(image)}
+                                        style={{ color: '#8cb4ff', cursor: 'pointer', flexShrink: 0 }}
+                                        onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
+                                        onMouseLeave={(e) => e.currentTarget.style.color = '#8cb4ff'}
                                     >
-                                        {image.image_name || 'Nimetön kuva'}
-                                    </Card.Title>
+                                        Muokkaa
+                                    </span>
                                     {image.description && (
-                                        <Card.Text
-                                            className="small text-muted mb-3"
+                                        <span
+                                            title={image.description}
                                             style={{
-                                                display: '-webkit-box',
-                                                WebkitLineClamp: 3,
-                                                WebkitBoxOrient: 'vertical',
+                                                color: '#aaa',
                                                 overflow: 'hidden',
-                                                lineHeight: '1.4',
-                                                minHeight: '3.6rem'
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
+                                                margin: '0 8px',
+                                                textAlign: 'center',
+                                                flex: 1
                                             }}
                                         >
                                             {image.description}
-                                        </Card.Text>
+                                        </span>
                                     )}
-                                    <div className="small text-muted mb-3" style={{ marginTop: 'auto' }}>
-                                        <div className="d-flex justify-content-between align-items-center">
-                                            <span>📅 {formatDate(image.upload_date)}</span>
-                                            <span>💾 {formatFileSize(image.file_size)}</span>
-                                        </div>
-                                    </div>
-                                    <div className="d-flex gap-2">
-                                        <Button
-                                            variant="outline-primary"
-                                            size="sm"
-                                            onClick={() => handleEdit(image)}
-                                            className="flex-grow-1"
-                                            style={{ borderRadius: '8px', fontWeight: '500' }}
-                                        >
-                                            <PencilSquare className="me-1" />
-                                            Muokkaa
-                                        </Button>
-                                        <Button
-                                            variant="danger"
-                                            size="sm"
-                                            onClick={() => handleDelete(image)}
-                                            disabled={deleting === image.id}
-                                            className="flex-grow-1"
-                                            style={{ borderRadius: '8px', fontWeight: '500' }}
-                                        >
-                                            {deleting === image.id ? (
-                                                <Spinner animation="border" size="sm" />
-                                            ) : (
-                                                <>
-                                                    <Trash3 className="me-1" />
-                                                    Poista
-                                                </>
-                                            )}
-                                        </Button>
-                                    </div>
-                                </Card.Body>
+                                    <span
+                                        onClick={() => handleDelete(image)}
+                                        style={{ color: '#ff8c8c', cursor: deleting === image.id ? 'wait' : 'pointer', flexShrink: 0 }}
+                                        onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
+                                        onMouseLeave={(e) => e.currentTarget.style.color = '#ff8c8c'}
+                                    >
+                                        {deleting === image.id ? 'Poistetaan...' : 'Poista'}
+                                    </span>
+                                </div>
                             </Card>
                         </Col>
                     ))}
