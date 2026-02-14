@@ -219,6 +219,7 @@ CREATE TABLE TS_PropertyImages (
     description NVARCHAR(500),              -- Kuvan kuvaus/selite
     upload_date DATETIME DEFAULT GETDATE(),
     file_size INT,                          -- Tiedostokoko tavuina
+    sort_order INT DEFAULT 0,               -- Kuvien järjestys (drag & drop)
     FOREIGN KEY (property_id) REFERENCES TS_Properties(propertyid) ON DELETE CASCADE
 );
 ```
@@ -229,7 +230,8 @@ CREATE TABLE TS_PropertyImages (
 - 🖼️ 4K-resoluution automaattinen optimointi
 - ☁️ Azure Blob Storage integraatio
 - ✏️ Kuvan nimen ja kuvauksen muokkaus
-- 🗑️ Cascade delete kohteen poiston yhteydessä
+- � Drag & drop -järjestyksen muokkaus
+- �🗑️ Cascade delete kohteen poiston yhteydessä
 
 [📖 Katso kaikki taulut: tables-creation.sql](tables-creation.sql)
 

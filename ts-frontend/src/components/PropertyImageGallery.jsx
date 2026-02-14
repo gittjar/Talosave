@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Row, Col, Button, Spinner, Alert, Modal, Image, Form, ButtonGroup, ListGroup } from 'react-bootstrap';
-import { Trash3, PencilSquare, Grid3x3GapFill, ListUl } from 'react-bootstrap-icons';
+import { Trash3, PencilSquare, Grid3x3GapFill, ListUl, GripVertical, SortDown, SortUp } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import config from '../configuration/config';
 
@@ -18,6 +18,11 @@ function PropertyImageGallery({ propertyId }) {
     const [editFormData, setEditFormData] = useState({ image_name: '', description: '' });
     const [saving, setSaving] = useState(false);
     const [viewMode, setViewMode] = useState('grid');
+    const [draggedIndex, setDraggedIndex] = useState(null);
+    const [dragOverIndex, setDragOverIndex] = useState(null);
+    const [savingOrder, setSavingOrder] = useState(false);
+    const [sortMode, setSortMode] = useState('custom');
+    const scrollIntervalRef = { current: null };
 
     useEffect(() => {
         fetchImages();
@@ -50,7 +55,7 @@ function PropertyImageGallery({ propertyId }) {
             }
 
             const data = await response.json();
-            setImages(data);
+            setImages(sortImages(data, sortMode));
         } catch (err) {
             console.error('Error fetching property images:', err);
             setError(err.message);
@@ -151,6 +156,163 @@ function PropertyImageGallery({ propertyId }) {
         return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     };
 
+    // Sorting
+    const sortImages = (imgs, mode) => {
+        const sorted = [...imgs];
+        switch (mode) {
+            case 'custom':
+                return sorted.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+            case 'date-new':
+                return sorted.sort((a, b) => new Date(b.upload_date) - new Date(a.upload_date));
+            case 'date-old':
+                return sorted.sort((a, b) => new Date(a.upload_date) - new Date(b.upload_date));
+            case 'name-asc':
+                return sorted.sort((a, b) => (a.image_name || '').localeCompare(b.image_name || '', 'fi'));
+            case 'name-desc':
+                return sorted.sort((a, b) => (b.image_name || '').localeCompare(a.image_name || '', 'fi'));
+            case 'size-large':
+                return sorted.sort((a, b) => (b.file_size || 0) - (a.file_size || 0));
+            case 'size-small':
+                return sorted.sort((a, b) => (a.file_size || 0) - (b.file_size || 0));
+            default:
+                return sorted;
+        }
+    };
+
+    const handleSortChange = (mode) => {
+        setSortMode(mode);
+        setImages(prev => sortImages(prev, mode));
+    };
+
+    // Drag & drop handlers
+    // Auto-scroll: track mouse Y globally during drag
+    const dragMouseY = { current: null };
+
+    const startAutoScroll = () => {
+        const edgeSize = 100;
+        const tick = () => {
+            const y = dragMouseY.current;
+            if (y == null) { scrollIntervalRef.current = requestAnimationFrame(tick); return; }
+            const vh = window.innerHeight;
+            if (y < edgeSize) {
+                const speed = Math.max(2, ((edgeSize - y) / edgeSize) * 18);
+                window.scrollBy(0, -speed);
+            } else if (y > vh - edgeSize) {
+                const speed = Math.max(2, ((y - (vh - edgeSize)) / edgeSize) * 18);
+                window.scrollBy(0, speed);
+            }
+            scrollIntervalRef.current = requestAnimationFrame(tick);
+        };
+        scrollIntervalRef.current = requestAnimationFrame(tick);
+    };
+
+    const stopAutoScroll = () => {
+        if (scrollIntervalRef.current) {
+            cancelAnimationFrame(scrollIntervalRef.current);
+            scrollIntervalRef.current = null;
+        }
+        dragMouseY.current = null;
+    };
+
+    const globalDragOver = (e) => {
+        dragMouseY.current = e.clientY;
+    };
+
+    const handleDragStart = (e, index) => {
+        setDraggedIndex(index);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', index);
+
+        // Create small 40x40 thumbnail as drag image
+        const img = new window.Image();
+        img.src = images[index].image_url;
+        const canvas = document.createElement('canvas');
+        canvas.width = 40;
+        canvas.height = 40;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, 40, 40);
+        if (img.complete && img.naturalWidth > 0) {
+            ctx.drawImage(img, 0, 0, 40, 40);
+        }
+        ctx.strokeStyle = '#0d6efd';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(0, 0, 40, 40);
+        canvas.style.position = 'absolute';
+        canvas.style.top = '-9999px';
+        document.body.appendChild(canvas);
+        e.dataTransfer.setDragImage(canvas, 20, 20);
+
+        // Start global auto-scroll
+        document.addEventListener('dragover', globalDragOver);
+        startAutoScroll();
+
+        setTimeout(() => {
+            document.body.removeChild(canvas);
+            e.target.style.opacity = '0.4';
+        }, 0);
+    };
+
+    const handleDragEnd = (e) => {
+        e.target.style.opacity = '1';
+        setDraggedIndex(null);
+        setDragOverIndex(null);
+        document.removeEventListener('dragover', globalDragOver);
+        stopAutoScroll();
+    };
+
+    const handleDragOver = (e, index) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        if (dragOverIndex !== index) {
+            setDragOverIndex(index);
+        }
+    };
+
+    const handleDragLeave = () => {
+        setDragOverIndex(null);
+    };
+
+    const handleDrop = async (e, dropIndex) => {
+        e.preventDefault();
+        const fromIndex = draggedIndex;
+        setDraggedIndex(null);
+        setDragOverIndex(null);
+        document.removeEventListener('dragover', globalDragOver);
+        stopAutoScroll();
+
+        if (fromIndex === null || fromIndex === dropIndex) return;
+
+        // Reorder locally
+        const reordered = [...images];
+        const [moved] = reordered.splice(fromIndex, 1);
+        reordered.splice(dropIndex, 0, moved);
+        setImages(reordered);
+
+        // Save to backend
+        try {
+            setSavingOrder(true);
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${config.apiUrl}/properties/${propertyId}/images/reorder`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ imageIds: reordered.map(img => img.id) })
+            });
+
+            if (!response.ok) throw new Error('Järjestyksen tallennus epäonnistui');
+            toast.success('Järjestys päivitetty', { autoClose: 1500 });
+        } catch (err) {
+            console.error('Error saving order:', err);
+            toast.error(err.message);
+            fetchImages(); // Revert on failure
+        } finally {
+            setSavingOrder(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="text-center p-4">
@@ -180,9 +342,25 @@ function PropertyImageGallery({ propertyId }) {
 
     return (
         <>
-            {/* View Mode Toggle */}
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <small className="text-muted">{images.length} kuvaa</small>
+            {/* Controls: sort + view mode */}
+            <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div className="d-flex align-items-center gap-2">
+                    <small className="text-muted">{images.length} kuvaa</small>
+                    <Form.Select
+                        size="sm"
+                        value={sortMode}
+                        onChange={(e) => handleSortChange(e.target.value)}
+                        style={{ width: 'auto', fontSize: '0.8rem' }}
+                    >
+                        <option value="custom">↕ Oma järjestys (raahaa)</option>
+                        <option value="date-new">↓ Päivämäärä, uusin ensin</option>
+                        <option value="date-old">↑ Päivämäärä, vanhin ensin</option>
+                        <option value="name-asc">↓ Nimi A–Ö</option>
+                        <option value="name-desc">↑ Nimi Ö–A</option>
+                        <option value="size-large">↓ Koko, suurin ensin</option>
+                        <option value="size-small">↑ Koko, pienin ensin</option>
+                    </Form.Select>
+                </div>
                 <ButtonGroup size="sm">
                     <Button
                         variant={viewMode === 'grid' ? 'primary' : 'outline-secondary'}
@@ -204,20 +382,32 @@ function PropertyImageGallery({ propertyId }) {
             {/* List View */}
             {viewMode === 'list' && (
                 <ListGroup className="mb-3">
-                    {images.map((image) => (
+                    {images.map((image, index) => (
                         <ListGroup.Item
                             key={image.id}
                             className="d-flex justify-content-between align-items-center"
+                            draggable={sortMode === 'custom'}
+                            onDragStart={sortMode === 'custom' ? (e) => handleDragStart(e, index) : undefined}
+                            onDragEnd={sortMode === 'custom' ? handleDragEnd : undefined}
+                            onDragOver={sortMode === 'custom' ? (e) => handleDragOver(e, index) : undefined}
+                            onDragLeave={sortMode === 'custom' ? handleDragLeave : undefined}
+                            onDrop={sortMode === 'custom' ? (e) => handleDrop(e, index) : undefined}
                             style={{
                                 padding: '0.5rem 0.6rem',
-                                transition: 'background-color 0.2s ease',
-                                cursor: 'pointer'
+                                transition: 'background-color 0.2s ease, outline 0.2s ease',
+                                cursor: sortMode === 'custom' ? 'grab' : 'pointer',
+                                outline: dragOverIndex === index ? '2px dashed #0d6efd' : 'none',
+                                outlineOffset: '-2px',
+                                backgroundColor: dragOverIndex === index ? 'rgba(255, 180, 200, 0.15)' : undefined
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             onClick={() => handleImageClick(image)}
                         >
                             <div className="d-flex align-items-center flex-grow-1">
+                                {sortMode === 'custom' && (
+                                    <GripVertical size={14} style={{ cursor: 'grab', color: '#aaa', marginRight: '0.4rem', flexShrink: 0 }} />
+                                )}
                                 <div
                                     style={{
                                         width: '45px',
@@ -259,8 +449,27 @@ function PropertyImageGallery({ propertyId }) {
                                             {image.description}
                                         </div>
                                     )}
-                                    <div className="small text-muted mt-1">
-                                        📅 {formatDate(image.upload_date)} • 💾 {formatFileSize(image.file_size)}
+                                    <div className="d-flex align-items-center gap-2 mt-1">
+                                        <span style={{
+                                            fontSize: '0.7rem',
+                                            color: '#888',
+                                            backgroundColor: '#f7f7f7',
+                                            padding: '1px 6px',
+                                            borderRadius: '8px',
+                                            border: '1px solid #e8e8e8'
+                                        }}>
+                                            {formatDate(image.upload_date)}
+                                        </span>
+                                        <span style={{
+                                            fontSize: '0.7rem',
+                                            color: '#888',
+                                            backgroundColor: '#f7f7f7',
+                                            padding: '1px 6px',
+                                            borderRadius: '8px',
+                                            border: '1px solid #e8e8e8'
+                                        }}>
+                                            {formatFileSize(image.file_size)}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
@@ -301,22 +510,25 @@ function PropertyImageGallery({ propertyId }) {
             {/* Grid View */}
             {viewMode === 'grid' && (
                 <Row xs={1} sm={2} md={3} className="g-3">
-                    {images.map((image) => (
+                    {images.map((image, index) => (
                         <Col key={image.id}>
                             <Card
                                 className="shadow-sm border-0"
+                                draggable={sortMode === 'custom'}
+                                onDragStart={sortMode === 'custom' ? (e) => handleDragStart(e, index) : undefined}
+                                onDragEnd={sortMode === 'custom' ? handleDragEnd : undefined}
+                                onDragOver={sortMode === 'custom' ? (e) => handleDragOver(e, index) : undefined}
+                                onDragLeave={sortMode === 'custom' ? handleDragLeave : undefined}
+                                onDrop={sortMode === 'custom' ? (e) => handleDrop(e, index) : undefined}
                                 style={{
                                     transition: 'all 0.3s ease',
                                     overflow: 'hidden',
-                                    borderRadius: '3px'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(-4px)';
-                                    e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.15)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                                    borderRadius: '3px',
+                                    outline: dragOverIndex === index ? '2px dashed #0d6efd' : 'none',
+                                    outlineOffset: '-2px',
+                                    transform: dragOverIndex === index ? 'scale(1.02)' : undefined,
+                                    backgroundColor: dragOverIndex === index ? 'rgba(255, 180, 200, 0.15)' : undefined,
+                                    cursor: sortMode === 'custom' ? 'grab' : 'default'
                                 }}
                             >
                                 {/* Kuva + ylä- ja alakaista päällä */}
@@ -339,6 +551,7 @@ function PropertyImageGallery({ propertyId }) {
                                             right: 0,
                                             display: 'flex',
                                             justifyContent: 'space-between',
+                                            alignItems: 'center',
                                             padding: '3px 8px',
                                             backgroundColor: 'rgba(0, 0, 0, 0.4)',
                                             color: '#ccc',
@@ -346,7 +559,10 @@ function PropertyImageGallery({ propertyId }) {
                                             zIndex: 1
                                         }}
                                     >
-                                        <span>{formatDate(image.upload_date)}</span>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            {sortMode === 'custom' && <GripVertical size={10} style={{ cursor: 'grab', color: '#aaa' }} />}
+                                            {formatDate(image.upload_date)}
+                                        </span>
                                         <span style={{ color: '#fff', fontWeight: '500', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '50%', textAlign: 'center' }}>
                                             {image.image_name || 'Nimetön kuva'}
                                         </span>

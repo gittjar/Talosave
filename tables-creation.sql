@@ -228,5 +228,7 @@ CREATE TABLE TS_PropertyImages (
     description NVARCHAR(500),
     upload_date DATETIME DEFAULT GETDATE(),
     file_size INT,
+    sort_order INT DEFAULT 0,
     FOREIGN KEY (property_id) REFERENCES TS_Properties(propertyid) ON DELETE CASCADE
 );
+-- ALTER TABLE TS_PropertyImages ADD sort_order INT DEFAULT 0;

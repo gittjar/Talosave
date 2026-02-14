@@ -44,7 +44,7 @@ router.get('/:propertyId/images', async (req, res) => {
         const sqlRequest = new sql.Request();
         const result = await sqlRequest
             .input('propertyId', sql.Int, req.params.propertyId)
-            .query('SELECT * FROM TS_PropertyImages WHERE property_id = @propertyId ORDER BY upload_date DESC');
+            .query('SELECT * FROM TS_PropertyImages WHERE property_id = @propertyId ORDER BY sort_order ASC, upload_date DESC');
 
         res.json(result.recordset);
     } catch (err) {
@@ -136,10 +136,12 @@ router.post('/:propertyId/images', upload.array('images', 20), async (req, res) 
                     .input('imageName', sql.NVarChar(255), processedFilename)
                     .input('description', sql.NVarChar(500), description)
                     .input('fileSize', sql.Int, processedBuffer.length)
+                    .input('sortOrder', sql.Int, i)
                     .query(`
-                        INSERT INTO TS_PropertyImages (property_id, image_url, image_name, description, file_size)
+                        INSERT INTO TS_PropertyImages (property_id, image_url, image_name, description, file_size, sort_order)
                         OUTPUT INSERTED.*
-                        VALUES (@propertyId, @imageUrl, @imageName, @description, @fileSize)
+                        VALUES (@propertyId, @imageUrl, @imageName, @description, @fileSize,
+                            ISNULL((SELECT MAX(sort_order) FROM TS_PropertyImages WHERE property_id = @propertyId), -1) + 1)
                     `);
 
                 uploadedImages.push(result.recordset[0]);
@@ -164,6 +166,37 @@ router.post('/:propertyId/images', upload.array('images', 20), async (req, res) 
     } catch (err) {
         console.error('Error adding property images:', err);
         res.status(500).json({ error: 'Kuvien lisäys epäonnistui' });
+    }
+});
+
+// PUT - Päivitä kuvien järjestys (MUST be before /images/:imageId to avoid route conflict)
+router.put('/:propertyId/images/reorder', async (req, res) => {
+    try {
+        const { imageIds } = req.body; // array of image ids in new order
+        if (!Array.isArray(imageIds) || imageIds.length === 0) {
+            return res.status(400).json({ error: 'imageIds array required' });
+        }
+
+        const transaction = new sql.Transaction();
+        await transaction.begin();
+        try {
+            for (let i = 0; i < imageIds.length; i++) {
+                const request = new sql.Request(transaction);
+                await request
+                    .input('id', sql.Int, imageIds[i])
+                    .input('sortOrder', sql.Int, i)
+                    .input('propertyId', sql.Int, req.params.propertyId)
+                    .query('UPDATE TS_PropertyImages SET sort_order = @sortOrder WHERE id = @id AND property_id = @propertyId');
+            }
+            await transaction.commit();
+            res.json({ message: 'Järjestys päivitetty' });
+        } catch (txErr) {
+            await transaction.rollback();
+            throw txErr;
+        }
+    } catch (err) {
+        console.error('Error reordering property images:', err);
+        res.status(500).json({ error: 'Järjestyksen päivitys epäonnistui' });
     }
 });
 
