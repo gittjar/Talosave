@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Row, Col, Button, Spinner, Alert, Modal, Image, Form, ButtonGroup, ListGroup } from 'react-bootstrap';
-import { Trash3, PencilSquare, Grid3x3GapFill, ListUl, GripVertical, SortDown, SortUp } from 'react-bootstrap-icons';
+import { Trash3, PencilSquare, Grid3x3GapFill, ListUl, GripVertical, SortDown, SortUp, ChevronLeft, ChevronRight, XLg, Download } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import config from '../configuration/config';
 
@@ -18,6 +18,7 @@ function PropertyImageGallery({ propertyId }) {
     const [editFormData, setEditFormData] = useState({ image_name: '', description: '' });
     const [saving, setSaving] = useState(false);
     const [viewMode, setViewMode] = useState('grid');
+    const [showEditPanel, setShowEditPanel] = useState(false);
     const [draggedIndex, setDraggedIndex] = useState(null);
     const [dragOverIndex, setDragOverIndex] = useState(null);
     const [savingOrder, setSavingOrder] = useState(false);
@@ -75,7 +76,12 @@ function PropertyImageGallery({ propertyId }) {
             image_name: image.image_name || '',
             description: image.description || ''
         });
-        setShowEditModal(true);
+        // If lightbox is open, show inline panel; otherwise open modal
+        if (showModal) {
+            setShowEditPanel(true);
+        } else {
+            setShowEditModal(true);
+        }
     };
 
     const handleSaveEdit = async () => {
@@ -101,6 +107,12 @@ function PropertyImageGallery({ propertyId }) {
 
             toast.success('Kuvan tiedot päivitetty');
             setShowEditModal(false);
+            setShowEditPanel(false);
+            // Update selected image in lightbox if open
+            if (showModal && editingImage) {
+                const updated = { ...editingImage, ...editFormData };
+                setSelectedImage(updated);
+            }
             fetchImages();
         } catch (err) {
             console.error('Error updating image:', err);
@@ -141,9 +153,34 @@ function PropertyImageGallery({ propertyId }) {
     };
 
     const handleImageClick = (image) => {
+        const idx = images.findIndex(img => img.id === image.id);
         setSelectedImage(image);
+        setSelectedIndex(idx >= 0 ? idx : 0);
         setShowModal(true);
     };
+
+    const [selectedIndex, setSelectedIndex] = useState(0);
+
+    const navigateImage = (direction) => {
+        const newIndex = selectedIndex + direction;
+        if (newIndex >= 0 && newIndex < images.length) {
+            setSelectedIndex(newIndex);
+            setSelectedImage(images[newIndex]);
+            setShowEditPanel(false);
+        }
+    };
+
+    // Keyboard navigation
+    useEffect(() => {
+        if (!showModal) return;
+        const handleKeyDown = (e) => {
+            if (e.key === 'ArrowLeft') navigateImage(-1);
+            else if (e.key === 'ArrowRight') navigateImage(1);
+            else if (e.key === 'Escape') setShowModal(false);
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [showModal, selectedIndex, images]);
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('fi-FI');
@@ -641,47 +678,234 @@ function PropertyImageGallery({ propertyId }) {
                 </Row>
             )}
 
-            {/* Image Preview Modal */}
-            <Modal show={showModal} onHide={() => setShowModal(false)} size="lg" centered>
-                <Modal.Header closeButton>
-                    <Modal.Title>
-                        {selectedImage?.image_name || 'Kohteen kuva'}
-                    </Modal.Title>
-                </Modal.Header>
-                <Modal.Body className="text-center">
+            {/* Image Preview Lightbox */}
+            <Modal
+                show={showModal}
+                onHide={() => { setShowModal(false); setShowEditPanel(false); }}
+                size="xl"
+                centered
+                contentClassName="bg-transparent border-0"
+                dialogClassName="modal-fullscreen-lg-down"
+            >
+                <Modal.Body
+                    className="p-0 d-flex align-items-center justify-content-center position-relative"
+                    style={{ backgroundColor: 'rgba(0,0,0,0.92)', minHeight: '80vh', borderRadius: '8px' }}
+                    onClick={() => { setShowModal(false); setShowEditPanel(false); }}
+                >
                     {selectedImage && (
                         <>
-                            <Image
+                            {/* Close button */}
+                            <button
+                                onClick={(e) => { e.stopPropagation(); setShowModal(false); setShowEditPanel(false); }}
+                                style={{
+                                    position: 'absolute', top: 12, right: 16, zIndex: 10,
+                                    background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%',
+                                    width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    cursor: 'pointer', transition: 'background 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+                            >
+                                <XLg size={16} color="#fff" />
+                            </button>
+
+                            {/* Counter */}
+                            <div style={{
+                                position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)',
+                                color: '#aaa', fontSize: '0.8rem', zIndex: 10
+                            }}>
+                                {selectedIndex + 1} / {images.length}
+                            </div>
+
+                            {/* Previous arrow */}
+                            {selectedIndex > 0 && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); navigateImage(-1); }}
+                                    style={{
+                                        position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)',
+                                        background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%',
+                                        width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        cursor: 'pointer', zIndex: 10, transition: 'background 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                                >
+                                    <ChevronLeft size={22} color="#fff" />
+                                </button>
+                            )}
+
+                            {/* Next arrow */}
+                            {selectedIndex < images.length - 1 && (
+                                <button
+                                    onClick={(e) => { e.stopPropagation(); navigateImage(1); }}
+                                    style={{
+                                        position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+                                        background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%',
+                                        width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        cursor: 'pointer', zIndex: 10, transition: 'background 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                                >
+                                    <ChevronRight size={22} color="#fff" />
+                                </button>
+                            )}
+
+                            {/* Image */}
+                            <img
                                 src={selectedImage.image_url}
                                 alt={selectedImage.image_name || 'Kohteen kuva'}
-                                fluid
-                                style={{ maxHeight: '70vh' }}
+                                onClick={(e) => e.stopPropagation()}
+                                style={{
+                                    maxHeight: '78vh', maxWidth: '90%', objectFit: 'contain',
+                                    borderRadius: '4px', userSelect: 'none'
+                                }}
                             />
-                            {selectedImage.description && (
-                                <p className="mt-3 text-muted">{selectedImage.description}</p>
-                            )}
-                            <div className="mt-2 text-muted small">
-                                <span>Lisätty: {formatDate(selectedImage.upload_date)}</span>
-                                <span className="ms-3">Koko: {formatFileSize(selectedImage.file_size)}</span>
+
+                            {/* Bottom info bar */}
+                            <div
+                                onClick={(e) => e.stopPropagation()}
+                                style={{
+                                    position: 'absolute', bottom: 0, left: 0, right: 0,
+                                    background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
+                                    padding: '24px 20px 14px', display: 'flex',
+                                    justifyContent: 'space-between', alignItems: 'flex-end'
+                                }}
+                            >
+                                <div>
+                                    <div style={{ color: '#fff', fontWeight: 600, fontSize: '0.95rem', marginBottom: 2 }}>
+                                        {selectedImage.image_name || 'Nimetön kuva'}
+                                    </div>
+                                    {selectedImage.description && (
+                                        <div style={{ color: '#bbb', fontSize: '0.8rem', marginBottom: 2 }}>
+                                            {selectedImage.description}
+                                        </div>
+                                    )}
+                                    <div style={{ color: '#888', fontSize: '0.72rem' }}>
+                                        {formatDate(selectedImage.upload_date)} · {formatFileSize(selectedImage.file_size)}
+                                    </div>
+                                </div>
+                                <div className="d-flex gap-2">
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleEdit(selectedImage); }}
+                                        style={{
+                                            background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '6px',
+                                            padding: '5px 12px', color: '#8cb4ff', fontSize: '0.78rem', cursor: 'pointer',
+                                            transition: 'background 0.2s'
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+                                    >
+                                        <PencilSquare size={12} className="me-1" />Muokkaa
+                                    </button>
+                                    <button
+                                        onClick={() => { handleDelete(selectedImage); setShowModal(false); }}
+                                        style={{
+                                            background: 'rgba(255,100,100,0.15)', border: 'none', borderRadius: '6px',
+                                            padding: '5px 12px', color: '#ff8c8c', fontSize: '0.78rem', cursor: 'pointer',
+                                            transition: 'background 0.2s'
+                                        }}
+                                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,100,100,0.3)'}
+                                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,100,100,0.15)'}
+                                    >
+                                        <Trash3 size={12} className="me-1" />Poista
+                                    </button>
+                                </div>
                             </div>
                         </>
                     )}
+
+                    {/* Inline edit side panel */}
+                    {showEditPanel && editingImage && (
+                        <div
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                                position: 'absolute', top: 0, right: 0, bottom: 0,
+                                width: '320px', maxWidth: '85vw',
+                                backgroundColor: 'rgba(30, 30, 30, 0.95)',
+                                borderLeft: '1px solid rgba(255,255,255,0.1)',
+                                padding: '20px',
+                                display: 'flex', flexDirection: 'column',
+                                zIndex: 20,
+                                animation: 'slideInRight 0.25s ease'
+                            }}
+                        >
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+                                <span style={{ color: '#fff', fontWeight: 600, fontSize: '0.9rem' }}>Muokkaa tietoja</span>
+                                <button
+                                    onClick={() => setShowEditPanel(false)}
+                                    style={{
+                                        background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%',
+                                        width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    <XLg size={12} color="#aaa" />
+                                </button>
+                            </div>
+
+                            <div className="mb-3">
+                                <label style={{ color: '#aaa', fontSize: '0.75rem', marginBottom: 4, display: 'block' }}>Kuvan nimi</label>
+                                <input
+                                    type="text"
+                                    value={editFormData.image_name}
+                                    onChange={(e) => setEditFormData({ ...editFormData, image_name: e.target.value })}
+                                    placeholder="Esim. Talon julkisivu"
+                                    style={{
+                                        width: '100%', padding: '8px 10px', borderRadius: '6px',
+                                        border: '1px solid rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.08)',
+                                        color: '#fff', fontSize: '0.85rem', outline: 'none'
+                                    }}
+                                    onFocus={(e) => e.target.style.borderColor = '#0d6efd'}
+                                    onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.15)'}
+                                />
+                            </div>
+
+                            <div className="mb-3">
+                                <label style={{ color: '#aaa', fontSize: '0.75rem', marginBottom: 4, display: 'block' }}>Kuvaus</label>
+                                <textarea
+                                    value={editFormData.description}
+                                    onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                                    placeholder="Lisää tarkempi kuvaus..."
+                                    rows={3}
+                                    style={{
+                                        width: '100%', padding: '8px 10px', borderRadius: '6px',
+                                        border: '1px solid rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.08)',
+                                        color: '#fff', fontSize: '0.85rem', outline: 'none', resize: 'vertical'
+                                    }}
+                                    onFocus={(e) => e.target.style.borderColor = '#0d6efd'}
+                                    onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.15)'}
+                                />
+                                <small style={{ color: '#666', fontSize: '0.7rem' }}>Max 500 merkkiä</small>
+                            </div>
+
+                            <div className="d-flex gap-2 mt-auto">
+                                <button
+                                    onClick={() => setShowEditPanel(false)}
+                                    style={{
+                                        flex: 1, padding: '8px', borderRadius: '6px',
+                                        border: '1px solid rgba(255,255,255,0.2)', background: 'transparent',
+                                        color: '#aaa', fontSize: '0.8rem', cursor: 'pointer'
+                                    }}
+                                >
+                                    Peruuta
+                                </button>
+                                <button
+                                    onClick={handleSaveEdit}
+                                    disabled={saving}
+                                    style={{
+                                        flex: 1, padding: '8px', borderRadius: '6px',
+                                        border: 'none', background: '#0d6efd',
+                                        color: '#fff', fontSize: '0.8rem', cursor: saving ? 'wait' : 'pointer',
+                                        opacity: saving ? 0.7 : 1
+                                    }}
+                                >
+                                    {saving ? 'Tallennetaan...' : 'Tallenna'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowModal(false)}>
-                        Sulje
-                    </Button>
-                    <Button
-                        variant="danger"
-                        onClick={() => {
-                            handleDelete(selectedImage);
-                            setShowModal(false);
-                        }}
-                    >
-                        <Trash3 className="me-2" />
-                        Poista kuva
-                    </Button>
-                </Modal.Footer>
             </Modal>
 
             {/* Delete Confirmation Modal */}
