@@ -104,6 +104,7 @@ Database
 │   ├── description (kuvan kuvaus/selite, max 500 merkkiä)
 │   ├── upload_date
 │   ├── file_size (bytes)
+│   ├── sort_order (kuvien järjestys, drag & drop)
 │
 ├── TS_Images
 │   ├── id (PK)

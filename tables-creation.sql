@@ -217,8 +217,10 @@ CREATE TABLE TS_RenovationImages (
     description NVARCHAR(500),
     upload_date DATETIME DEFAULT GETDATE(),
     file_size INT,
+    sort_order INT DEFAULT 0,
     FOREIGN KEY (renovation_id) REFERENCES TS_Renovations(id) ON DELETE CASCADE
 );
+-- ALTER TABLE TS_RenovationImages ADD sort_order INT DEFAULT 0;
 
 CREATE TABLE TS_PropertyImages (
     id INT PRIMARY KEY IDENTITY(1,1),

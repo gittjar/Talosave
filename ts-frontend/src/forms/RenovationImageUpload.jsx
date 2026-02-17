@@ -1,120 +1,148 @@
 import { useState } from 'react';
-import { Form, Button, Alert, Spinner, ButtonGroup, ProgressBar, Image } from 'react-bootstrap';
-import { CloudUpload, FileImage } from 'react-bootstrap-icons';
+import { Form, Button, Alert, Spinner, ProgressBar, Image, Badge, CloseButton, Row, Col } from 'react-bootstrap';
+import { CloudUpload, FileImage, XCircleFill } from 'react-bootstrap-icons';
 import { toast } from 'react-toastify';
 import config from '../configuration/config';
 
 function RenovationImageUpload({ renovationId, onUploadSuccess }) {
-    const [imageUrl, setImageUrl] = useState('');
-    const [imageName, setImageName] = useState('');
-    const [fileSize, setFileSize] = useState('');
-    const [selectedFile, setSelectedFile] = useState(null);
-    const [previewUrl, setPreviewUrl] = useState(null);
-    const [uploadMethod, setUploadMethod] = useState('file'); // 'file' or 'url'
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [previewUrls, setPreviewUrls] = useState([]);
+    const [description, setDescription] = useState('');
     const [loading, setLoading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [error, setError] = useState(null);
     const [showForm, setShowForm] = useState(false);
 
+    const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif'];
+
     const handleFileSelect = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            // Validate file type - check both mimetype and extension for HEIC support
-            const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif'];
+        const files = Array.from(e.target.files);
+        if (files.length === 0) return;
+
+        const validFiles = [];
+        const newPreviews = [];
+
+        for (const file of files) {
             const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-            
+
             if (!file.type.startsWith('image/') && !validExtensions.includes(fileExtension)) {
-                setError('Valitse kuvatiedosto (JPEG, PNG, GIF, WEBP, HEIC)');
-                return;
+                setError(`"${file.name}" ei ole kuvatiedosto — ohitetaan`);
+                continue;
             }
 
-            // Validate file size (10MB limit)
             if (file.size > 10 * 1024 * 1024) {
-                setError('Tiedosto on liian suuri (max 10MB)');
-                return;
+                setError(`"${file.name}" on liian suuri (max 10MB) — ohitetaan`);
+                continue;
             }
 
-            setSelectedFile(file);
-            setError(null);
+            validFiles.push(file);
 
-            // Create preview - HEIC won't show preview in browser but that's ok
-            if (file.type.startsWith('image/') && !fileExtension.match(/\.heic$/i) && !fileExtension.match(/\.heif$/i)) {
+            // Create preview
+            const isHeic = /\.(heic|heif)$/i.test(file.name);
+            if (file.type.startsWith('image/') && !isHeic) {
                 const reader = new FileReader();
                 reader.onloadend = () => {
-                    setPreviewUrl(reader.result);
+                    setPreviewUrls(prev => {
+                        const updated = [...prev];
+                        const idx = validFiles.indexOf(file);
+                        updated[idx] = reader.result;
+                        return updated;
+                    });
                 };
                 reader.readAsDataURL(file);
-            } else if (fileExtension.match(/\.heic$/i) || fileExtension.match(/\.heif$/i)) {
-                // HEIC/HEIF - no preview, just show filename
-                setPreviewUrl(null);
+                newPreviews.push(null); // placeholder
+            } else {
+                newPreviews.push('heic');
             }
         }
+
+        if (validFiles.length > 0) {
+            setSelectedFiles(prev => [...prev, ...validFiles]);
+            setPreviewUrls(prev => [...prev, ...newPreviews]);
+            setError(null);
+        }
+    };
+
+    const removeFile = (index) => {
+        setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+        setPreviewUrls(prev => prev.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
-        if (uploadMethod === 'file') {
-            if (!selectedFile) {
-                setError('Valitse kuvatiedosto');
-                return;
-            }
-            await uploadFile();
-        } else {
-            if (!imageUrl.trim()) {
-                setError('Kuvan URL on pakollinen');
-                return;
-            }
 
-            // Basic URL validation
-            try {
-                new URL(imageUrl);
-            } catch {
-                setError('Anna kelvollinen URL-osoite');
-                return;
-            }
-
-            await uploadUrl();
+        if (selectedFiles.length === 0) {
+            setError('Valitse vähintään yksi kuvatiedosto');
+            return;
         }
-    };
 
-    const uploadFile = async () => {
         try {
             setLoading(true);
             setError(null);
-            setUploadProgress(10);
+            setUploadProgress(0);
 
             const token = localStorage.getItem('token');
             const formData = new FormData();
-            formData.append('image', selectedFile);
-
-            setUploadProgress(30);
-
-            const response = await fetch(`${config.apiUrl}/renovations/${renovationId}/images`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
-                body: formData
+            
+            selectedFiles.forEach(file => {
+                formData.append('images', file);
             });
 
-            setUploadProgress(80);
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Kuvan lataus epäonnistui');
+            if (description.trim()) {
+                formData.append('description', description.trim());
             }
 
-            setUploadProgress(100);
-            toast.success('Kuva ladattu onnistuneesti');
+            // XMLHttpRequest for real upload progress tracking
+            const result = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const percent = Math.round((e.loaded / e.total) * 95); // 0-95% for upload
+                        setUploadProgress(percent);
+                    }
+                });
+
+                xhr.addEventListener('load', () => {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        setUploadProgress(100);
+                        try {
+                            resolve(JSON.parse(xhr.responseText));
+                        } catch {
+                            resolve({});
+                        }
+                    } else {
+                        try {
+                            const errorData = JSON.parse(xhr.responseText);
+                            reject(new Error(errorData.error || 'Kuvien lataus epäonnistui'));
+                        } catch {
+                            reject(new Error(`Lataus epäonnistui (${xhr.status})`));
+                        }
+                    }
+                });
+
+                xhr.addEventListener('error', () => reject(new Error('Verkkovirhe')));
+                xhr.addEventListener('abort', () => reject(new Error('Lataus peruutettu')));
+
+                xhr.open('POST', `${config.apiUrl}/renovations/${renovationId}/images`);
+                xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+                xhr.send(formData);
+            });
+
+            const count = result.count || selectedFiles.length;
+            toast.success(`${count} ${count === 1 ? 'kuva' : 'kuvaa'} ladattu onnistuneesti`);
             
+            if (result.errors && result.errors.length > 0) {
+                toast.warn(`${result.errors.length} kuvaa epäonnistui`);
+            }
+
             resetForm();
-            
+
             if (onUploadSuccess) {
                 onUploadSuccess();
             }
         } catch (err) {
-            console.error('Error uploading file:', err);
+            console.error('Error uploading renovation images:', err);
             setError(err.message);
             toast.error(err.message);
         } finally {
@@ -123,64 +151,26 @@ function RenovationImageUpload({ renovationId, onUploadSuccess }) {
         }
     };
 
-    const uploadUrl = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const token = localStorage.getItem('token');
-
-            const response = await fetch(`${config.apiUrl}/renovations/${renovationId}/images`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    image_url: imageUrl,
-                    image_name: imageName || null,
-                    file_size: fileSize ? parseInt(fileSize) : null
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Kuvan lisääminen epäonnistui');
-            }
-
-            toast.success('Kuva lisätty onnistuneesti');
-            resetForm();
-            
-            if (onUploadSuccess) {
-                onUploadSuccess();
-            }
-        } catch (err) {
-            console.error('Error uploading URL:', err);
-            setError(err.message);
-            toast.error(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const resetForm = () => {
-        setImageUrl('');
-        setImageName('');
-        setFileSize('');
-        setSelectedFile(null);
-        setPreviewUrl(null);
+        setSelectedFiles([]);
+        setPreviewUrls([]);
+        setDescription('');
         setShowForm(false);
         setError(null);
         setUploadProgress(0);
     };
 
+    const totalSize = selectedFiles.reduce((sum, f) => sum + f.size, 0);
+
     if (!showForm) {
         return (
             <div className="mb-3">
-                <Button 
-                    variant="primary" 
+                <Button
+                    variant="primary"
                     onClick={() => setShowForm(true)}
                 >
                     <CloudUpload className="me-2" />
-                    Lisää kuva
+                    Lisää kuvia
                 </Button>
             </div>
         );
@@ -188,165 +178,160 @@ function RenovationImageUpload({ renovationId, onUploadSuccess }) {
 
     return (
         <div className="mb-4 p-3 border rounded bg-light">
-            <h5 className="mb-3">Lisää kuva remonttiin</h5>
-            
+            <h5 className="mb-3">Lisää kuvia remonttiin</h5>
+
             {error && <Alert variant="danger" dismissible onClose={() => setError(null)}>{error}</Alert>}
 
-            {/* Upload method selector */}
-            <div className="mb-3">
-                <ButtonGroup className="w-100">
-                    <Button 
-                        variant={uploadMethod === 'file' ? 'primary' : 'outline-primary'}
-                        onClick={() => setUploadMethod('file')}
-                        disabled={loading}
-                    >
-                        <FileImage className="me-2" />
-                        Lataa tiedosto
-                    </Button>
-                    <Button 
-                        variant={uploadMethod === 'url' ? 'primary' : 'outline-primary'}
-                        onClick={() => setUploadMethod('url')}
-                        disabled={loading}
-                    >
-                        <CloudUpload className="me-2" />
-                        URL-osoite
-                    </Button>
-                </ButtonGroup>
-            </div>
-
             <Form onSubmit={handleSubmit}>
-                {uploadMethod === 'file' ? (
-                    <>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Valitse kuva *</Form.Label>
-                            <Form.Control
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileSelect}
-                                disabled={loading}
-                            />
-                            <Form.Text className="text-muted">
-                                Tuetut formaatit: JPEG, PNG, GIF, WEBP, HEIC (iOS). Maksimikoko: 10MB
-                            </Form.Text>
-                        </Form.Group>
+                <Form.Group className="mb-3">
+                    <Form.Label>Valitse kuvat *</Form.Label>
+                    <Form.Control
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                        disabled={loading}
+                        multiple
+                    />
+                    <Form.Text className="text-muted">
+                        Voit valita useita kuvia kerralla. Tuetut formaatit: JPEG, PNG, GIF, WEBP, HEIC. Max 10MB/kuva, max 20 kuvaa.
+                    </Form.Text>
+                </Form.Group>
 
-                        {previewUrl && (
-                            <div className="mb-3 text-center">
-                                <Image 
-                                    src={previewUrl} 
-                                    alt="Esikatselu" 
-                                    thumbnail 
-                                    style={{ maxHeight: '200px', maxWidth: '100%' }}
-                                />
-                                <div className="mt-2 text-muted small">
-                                    {selectedFile?.name} ({(selectedFile?.size / 1024).toFixed(1)} KB)
-                                </div>
-                            </div>
-                        )}
-
-                        {selectedFile && !previewUrl && (
-                            <div className="mb-3 text-center">
-                                <div className="alert alert-info">
-                                    <FileImage size={32} className="mb-2" />
-                                    <div className="fw-bold">{selectedFile.name}</div>
-                                    <div className="text-muted small">
-                                        {(selectedFile.size / 1024).toFixed(1)} KB
+                {/* File previews */}
+                {selectedFiles.length > 0 && (
+                    <div className="mb-3">
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                            <span className="fw-bold">
+                                Valitut kuvat <Badge bg="primary" pill>{selectedFiles.length}</Badge>
+                            </span>
+                            <small className="text-muted">
+                                Yhteensä: {(totalSize / (1024 * 1024)).toFixed(1)} MB
+                            </small>
+                        </div>
+                        <Row xs={3} sm={4} md={5} lg={6} className="g-2">
+                            {selectedFiles.map((file, index) => (
+                                <Col key={index}>
+                                    <div 
+                                        style={{ 
+                                            position: 'relative', 
+                                            borderRadius: '8px', 
+                                            overflow: 'hidden',
+                                            border: '1px solid #dee2e6',
+                                            backgroundColor: '#fff',
+                                            aspectRatio: '1'
+                                        }}
+                                    >
+                                        {previewUrls[index] && previewUrls[index] !== 'heic' ? (
+                                            <img
+                                                src={previewUrls[index]}
+                                                alt={file.name}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'cover'
+                                                }}
+                                            />
+                                        ) : (
+                                            <div className="d-flex flex-column align-items-center justify-content-center h-100 p-1">
+                                                <FileImage size={24} className="text-muted" />
+                                                <small className="text-muted text-center" style={{ fontSize: '0.65rem', wordBreak: 'break-all' }}>
+                                                    {file.name.length > 15 ? file.name.substring(0, 12) + '...' : file.name}
+                                                </small>
+                                            </div>
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => removeFile(index)}
+                                            style={{
+                                                position: 'absolute',
+                                                top: '2px',
+                                                right: '2px',
+                                                background: 'rgba(255,255,255,0.9)',
+                                                border: 'none',
+                                                borderRadius: '50%',
+                                                padding: '0',
+                                                cursor: 'pointer',
+                                                lineHeight: '1',
+                                                display: 'flex'
+                                            }}
+                                            title="Poista"
+                                        >
+                                            <XCircleFill size={18} className="text-danger" />
+                                        </button>
+                                        <div
+                                            style={{
+                                                position: 'absolute',
+                                                bottom: 0,
+                                                left: 0,
+                                                right: 0,
+                                                background: 'rgba(0,0,0,0.6)',
+                                                color: 'white',
+                                                fontSize: '0.6rem',
+                                                padding: '2px 4px',
+                                                textAlign: 'center'
+                                            }}
+                                        >
+                                            {(file.size / 1024).toFixed(0)} KB
+                                        </div>
                                     </div>
-                                    <div className="text-muted small mt-1">
-                                        HEIC/HEIF kuva muunnetaan JPEG-muotoon palvelimella
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {loading && uploadProgress > 0 && (
-                            <ProgressBar 
-                                now={uploadProgress} 
-                                label={`${uploadProgress}%`} 
-                                className="mb-3"
-                                animated
-                            />
-                        )}
-                    </>
-                ) : (
-                    <>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Kuvan URL-osoite *</Form.Label>
-                            <Form.Control
-                                type="url"
-                                placeholder="https://example.com/image.jpg"
-                                value={imageUrl}
-                                onChange={(e) => setImageUrl(e.target.value)}
-                                required
-                                disabled={loading}
-                            />
-                            <Form.Text className="text-muted">
-                                Lataa kuva esim. Azure Blob Storageen, Google Driveen tai OneDriveen ja kopioi julkinen linkki tähän.
-                            </Form.Text>
-                        </Form.Group>
-
-                        <Form.Group className="mb-3">
-                            <Form.Label>Kuvan nimi (valinnainen)</Form.Label>
-                            <Form.Control
-                                type="text"
-                                placeholder="Esim. Keittiöremontti ennen"
-                                value={imageName}
-                                onChange={(e) => setImageName(e.target.value)}
-                                disabled={loading}
-                                maxLength={255}
-                            />
-                        </Form.Group>
-
-                        <Form.Group className="mb-3">
-                            <Form.Label>Tiedoston koko (tavua, valinnainen)</Form.Label>
-                            <Form.Control
-                                type="number"
-                                placeholder="Esim. 524288"
-                                value={fileSize}
-                                onChange={(e) => setFileSize(e.target.value)}
-                                disabled={loading}
-                                min="0"
-                            />
-                            <Form.Text className="text-muted">
-                                Tiedoston koko tavuina. Voit jättää tyhjäksi jos et tiedä.
-                            </Form.Text>
-                        </Form.Group>
-                    </>
+                                </Col>
+                            ))}
+                        </Row>
+                    </div>
                 )}
 
-                <ButtonGroup>
-                    <Button 
-                        variant="success" 
-                        type="submit" 
-                        disabled={loading || (uploadMethod === 'file' && !selectedFile)}
+                <Form.Group className="mb-3">
+                    <Form.Label>Kuvaus <small className="text-muted">(koskee kaikkia kuvia)</small></Form.Label>
+                    <Form.Control
+                        as="textarea"
+                        rows={2}
+                        placeholder="Lyhyt kuvaus kuvista..."
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        disabled={loading}
+                        maxLength={500}
+                    />
+                    <Form.Text className="text-muted">
+                        Max 500 merkkiä
+                    </Form.Text>
+                </Form.Group>
+
+                {loading && uploadProgress > 0 && (
+                    <ProgressBar
+                        now={uploadProgress}
+                        label={`${uploadProgress}%`}
+                        className="mb-3"
+                        animated
+                    />
+                )}
+
+                <div className="d-flex gap-2">
+                    <Button
+                        variant="success"
+                        type="submit"
+                        disabled={loading || selectedFiles.length === 0}
                     >
                         {loading ? (
                             <>
-                                <Spinner
-                                    as="span"
-                                    animation="border"
-                                    size="sm"
-                                    role="status"
-                                    aria-hidden="true"
-                                    className="me-2"
-                                />
-                                {uploadMethod === 'file' ? 'Ladataan...' : 'Lisätään...'}
+                                <Spinner as="span" animation="border" size="sm" className="me-2" />
+                                Ladataan {selectedFiles.length} {selectedFiles.length === 1 ? 'kuvaa' : 'kuvaa'}...
                             </>
                         ) : (
                             <>
                                 <CloudUpload className="me-2" />
-                                {uploadMethod === 'file' ? 'Lataa kuva' : 'Lisää kuva'}
+                                Lataa {selectedFiles.length > 0 ? `${selectedFiles.length} ` : ''}
+                                {selectedFiles.length === 1 ? 'kuva' : 'kuvaa'}
                             </>
                         )}
                     </Button>
-                    <Button 
-                        variant="dark" 
+                    <Button
+                        variant="dark"
                         onClick={resetForm}
                         disabled={loading}
                     >
                         Peruuta
                     </Button>
-                </ButtonGroup>
+                </div>
             </Form>
         </div>
     );
