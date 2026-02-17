@@ -44,6 +44,7 @@ const putWaterConsumptionYearly = require('../consumptionsroutes/putWaterYearly'
 const getResearch = require('../researchroutes/get');
 const deleteResearch = require('../researchroutes/delete');
 const uploadFileRouter = require('../researchroutes/uploadfile');
+const foldersRouter = require('../researchroutes/folders');
 
 // Upload routes
 const uploadRouter = require('../uploads/post');
@@ -117,6 +118,7 @@ function setupRoutes(app) {
     app.use('/api', deleteResearch);
     app.use('/api', uploadFileRouter);
     app.use('/api', uploadRouter);
+    app.use('/api/folders', foldersRouter);
 
     // External API routes
     app.use('/api/nordpool', nordpoolRouter);

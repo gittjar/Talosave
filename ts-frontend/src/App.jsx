@@ -16,7 +16,7 @@ const PropertyDetails = lazy(() => import('./components/PropertyDetails'));
 const CreateUser = lazy(() => import('./components/CreateUser'));
 const ConsumptionDetails = lazy(() => import('./components/ConsumptionDetails.jsx'));
 const ShowElectricityConsumption = lazy(() => import('./consumptions/ShowElectricityConsumption'));
-const ResearchPage = lazy(() => import('./components/ResearchPage'));
+const DocumentsPage = lazy(() => import('./components/DocumentsPage'));
 const UserSettings = lazy(() => import('./components/UserSettings.jsx'));
 const ProgramInfoPage = lazy(() => import('./components/ProgramInfoPage.jsx'));
 const DataProtection = lazy(() => import('./components/DataProtection.jsx'));
@@ -74,9 +74,9 @@ function App() {
                     <ShowElectricityConsumption />
                   </PropertyProvider>
                 } />
-                <Route path="/research" element={
+                <Route path="/documents" element={
                   <PropertyProvider>
-                    <ResearchPage />
+                    <DocumentsPage />
                   </PropertyProvider>
                 } />
                 <Route path="/services/:id" element={

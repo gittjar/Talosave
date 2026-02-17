@@ -51,7 +51,7 @@ router.post('/upload-file', getUserFromToken, upload.single('file'), async (req,
             });
         }
 
-        const { name, description, propertyId } = req.body;
+        const { name, description, propertyId, folderId } = req.body;
 
         if (!name || !propertyId) {
             return res.status(400).json({ 
@@ -80,6 +80,7 @@ router.post('/upload-file', getUserFromToken, upload.single('file'), async (req,
             description: description || '',
             url: blockBlobClient.url,
             propertyId: propertyId,
+            folderId: folderId || null,
             blobName: blobName, // Store blob name for deletion
             fileType: 'upload', // Distinguish from URL links
             uploadedAt: new Date()

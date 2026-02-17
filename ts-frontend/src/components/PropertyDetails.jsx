@@ -12,8 +12,8 @@ import HouseBasicInformation from './HouseBasicInformation.jsx';
 import { XLg, PencilSquare, BuildingUp, List } from 'react-bootstrap-icons';
 import { Tab, Nav, Navbar, Offcanvas, Button, Badge } from 'react-bootstrap';
 import ConsumptionDetails from './ConsumptionDetails.jsx';
-import { HouseDoor, Tools, CardChecklist, BarChartFill, HouseCheck, Gear, CurrencyExchange, Lightning, ImageFill } from 'react-bootstrap-icons';
-import ResearchPage from './ResearchPage.jsx';
+import { HouseDoor, Tools, CardChecklist, BarChartFill, Folder2Open, Gear, CurrencyExchange, Lightning, ImageFill } from 'react-bootstrap-icons';
+import DocumentsPage from './DocumentsPage.jsx';
 import ChangeOwnerForm from '../forms/ChangeOwnerForm.jsx';
 import ElectricityPrice from './ElectricityPrice.jsx';
 import Services from './Services.jsx';
@@ -36,7 +36,7 @@ const PropertyDetails = () => {
   const [renovationsCount, setRenovationsCount] = useState(0);
   const [todosCount, setTodosCount] = useState(0);
   const [servicesCount, setServicesCount] = useState(0);
-  const [researchCount, setResearchCount] = useState(0);
+  const [documentsCount, setDocumentsCount] = useState(0);
   const [imagesCount, setImagesCount] = useState(0);
   const [newPropertyName, setNewPropertyName] = useState('');
   const [newStreetAddress, setNewStreetAddress] = useState('');
@@ -124,13 +124,17 @@ const PropertyDetails = () => {
       .then(data => setServicesCount(data.length))
       .catch(error => console.error('Error fetching services count:', error));
 
-    // Fetch research count
-    fetch(`${config.baseURL}/api/files?propertyId=${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(response => response.json())
-      .then(data => setResearchCount(data.length))
-      .catch(error => console.error('Error fetching research count:', error));
+    // Fetch documents count (files + folders)
+    Promise.all([
+      fetch(`${config.baseURL}/api/files?propertyId=${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).then(r => r.json()),
+      fetch(`${config.baseURL}/api/folders?propertyId=${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).then(r => r.json())
+    ])
+      .then(([files, folders]) => setDocumentsCount(files.length + folders.length))
+      .catch(error => console.error('Error fetching documents count:', error));
 
     // Fetch images count
     fetch(`${config.baseURL}/api/properties/${id}/images`, {
@@ -330,10 +334,10 @@ const PropertyDetails = () => {
     },
     {
       key: "6",
-      icon: <HouseCheck />,
-      label: "Tutkimukset",
-      shortLabel: "Tutkimukset",
-      count: researchCount
+      icon: <Folder2Open />,
+      label: "Dokumentit",
+      shortLabel: "Dokumentit",
+      count: documentsCount
     },
     {
       key: "7",
@@ -403,12 +407,16 @@ const PropertyDetails = () => {
       .then(data => setServicesCount(data.length))
       .catch(error => console.error('Error refreshing services count:', error));
 
-    fetch(`${config.baseURL}/api/files?propertyId=${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(response => response.json())
-      .then(data => setResearchCount(data.length))
-      .catch(error => console.error('Error refreshing research count:', error));
+    Promise.all([
+      fetch(`${config.baseURL}/api/files?propertyId=${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).then(r => r.json()),
+      fetch(`${config.baseURL}/api/folders?propertyId=${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).then(r => r.json())
+    ])
+      .then(([files, folders]) => setDocumentsCount(files.length + folders.length))
+      .catch(error => console.error('Error refreshing documents count:', error));
 
     fetch(`${config.baseURL}/api/properties/${id}/images`, {
       headers: { Authorization: `Bearer ${token}` }
@@ -607,7 +615,7 @@ const PropertyDetails = () => {
       <ConsumptionDetails property={property}>Kulutus</ ConsumptionDetails>
       </Tab.Pane>
       <Tab.Pane eventKey="6">
-      <ResearchPage propertyId={id} />
+      <DocumentsPage propertyId={id} />
       </Tab.Pane>
 
       <Tab.Pane eventKey="7">

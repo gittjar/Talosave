@@ -33,15 +33,25 @@ const fileSchema = new mongoose.Schema({
   name: String,
   description: String, // Description of the document
   propertyId: Number,
+  folderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Folder', default: null },
   url: String, // This will store the URL (or Azure Blob URL)
   blobName: String, // Azure Blob name for deletion (optional, only for uploaded files)
   fileType: { type: String, default: 'link' }, // 'link' or 'upload'
   uploadedAt: { type: Date, default: Date.now }
 });
 
+const folderSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  propertyId: { type: Number, required: true },
+  parentFolderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Folder', default: null },
+  createdAt: { type: Date, default: Date.now }
+});
+
 const File = mongoose.model('File', fileSchema);
+const Folder = mongoose.model('Folder', folderSchema);
 
 module.exports = {
   db,
-  File
+  File,
+  Folder
 };

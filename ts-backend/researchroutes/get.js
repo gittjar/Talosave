@@ -6,8 +6,18 @@ const fs = require('fs');
 
 router.get('/files', async (req, res) => {
   try {
-    const propertyId = req.query.propertyId;
-    const files = await File.find({ propertyId: propertyId });
+    const { propertyId, folderId } = req.query;
+    const filter = { propertyId: propertyId };
+
+    // Filter by folder
+    if (folderId && folderId !== 'null' && folderId !== 'root') {
+      filter.folderId = folderId;
+    } else if (folderId === 'root' || folderId === 'null') {
+      filter.folderId = null;
+    }
+    // If no folderId param at all, return all files for the property (backwards compatible)
+
+    const files = await File.find(filter).sort({ uploadedAt: -1 });
     res.send(files);
   } catch (err) {
     console.error(err);
