@@ -89,6 +89,60 @@ router.put('/:id', getUserFromToken, async (req, res) => {
   }
 });
 
+// PUT move a folder to another parent folder
+router.put('/:id/move', getUserFromToken, async (req, res) => {
+  try {
+    const { targetFolderId } = req.body; // null = move to root
+
+    const folder = await Folder.findById(req.params.id);
+    if (!folder) {
+      return res.status(404).json({ error: 'Kansiota ei löydy' });
+    }
+
+    // Prevent moving a folder into itself or its own descendants
+    if (targetFolderId) {
+      const collectDescendants = async (parentId) => {
+        const ids = [parentId.toString()];
+        const children = await Folder.find({ parentFolderId: parentId });
+        for (const child of children) {
+          ids.push(...await collectDescendants(child._id));
+        }
+        return ids;
+      };
+      const descendantIds = await collectDescendants(folder._id);
+      if (descendantIds.includes(targetFolderId)) {
+        return res.status(400).json({ error: 'Kansiota ei voi siirtää omaan alikansioonsa' });
+      }
+    }
+
+    folder.parentFolderId = targetFolderId || null;
+    await folder.save();
+    res.json(folder);
+  } catch (err) {
+    console.error('Error moving folder:', err);
+    res.status(500).json({ error: 'Kansion siirto epäonnistui' });
+  }
+});
+
+// PUT move a file to another folder
+router.put('/move-file/:fileId', getUserFromToken, async (req, res) => {
+  try {
+    const { targetFolderId } = req.body; // null = move to root
+
+    const file = await File.findById(req.params.fileId);
+    if (!file) {
+      return res.status(404).json({ error: 'Tiedostoa ei löydy' });
+    }
+
+    file.folderId = targetFolderId || null;
+    await file.save();
+    res.json(file);
+  } catch (err) {
+    console.error('Error moving file:', err);
+    res.status(500).json({ error: 'Tiedoston siirto epäonnistui' });
+  }
+});
+
 // DELETE a folder and all its contents (recursive)
 router.delete('/:id', getUserFromToken, async (req, res) => {
   try {

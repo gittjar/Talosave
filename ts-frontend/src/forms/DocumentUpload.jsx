@@ -112,7 +112,7 @@ const DocumentUpload = ({ propertyId, folderId, onUpload }) => {
             <Form.Control
               type="file"
               onChange={handleFileChange}
-              accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.gif,.webp,.heic,.zip,.rar"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.gif,.webp,.heic,.heif,.zip,.rar"
               required
               disabled={isUploading}
               size="sm"

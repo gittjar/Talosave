@@ -6,6 +6,15 @@ const getUserFromToken = require('../middleware/getUserFromToken');
 const { File } = require('../mongo');
 require('dotenv').config();
 
+// Try to load sharp for image processing
+let sharp = null;
+try {
+    sharp = require('sharp');
+} catch (error) {
+    console.warn('⚠️  Sharp module not available for documents:', error.message);
+}
+const convert = require('heic-convert');
+
 // Configure multer for memory storage
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -60,17 +69,59 @@ router.post('/upload-file', getUserFromToken, upload.single('file'), async (req,
             });
         }
 
+        // Process image if HEIC/HEIF — convert to JPEG
+        let processedBuffer = req.file.buffer;
+        let processedMimetype = req.file.mimetype;
+        let processedFilename = req.file.originalname;
+
+        const isHeic = req.file.mimetype === 'image/heic' ||
+            req.file.mimetype === 'image/heif' ||
+            /\.(heic|heif)$/i.test(req.file.originalname);
+
+        if (isHeic) {
+            console.log(`Converting HEIC/HEIF to JPEG: ${req.file.originalname}`);
+            const outputBuffer = await convert({
+                buffer: req.file.buffer,
+                format: 'JPEG',
+                quality: 0.9
+            });
+
+            if (sharp) {
+                processedBuffer = await sharp(outputBuffer)
+                    .jpeg({ quality: 90 })
+                    .toBuffer();
+            } else {
+                processedBuffer = Buffer.from(outputBuffer);
+            }
+            processedMimetype = 'image/jpeg';
+            processedFilename = req.file.originalname.replace(/\.(heic|heif)$/i, '.jpg');
+        }
+        // Optimize other images if sharp available
+        else if (sharp && req.file.mimetype.startsWith('image/')) {
+            try {
+                const metadata = await sharp(req.file.buffer).metadata();
+                if (metadata.width > 3840 || metadata.height > 2160) {
+                    console.log(`Resizing large image: ${metadata.width}x${metadata.height}`);
+                    processedBuffer = await sharp(req.file.buffer)
+                        .resize(3840, 2160, { fit: 'inside', withoutEnlargement: true })
+                        .toBuffer();
+                }
+            } catch (sharpErr) {
+                console.warn('Sharp processing skipped:', sharpErr.message);
+            }
+        }
+
         // Generate unique blob name
         const timestamp = Date.now();
-        const fileExtension = req.file.originalname.split('.').pop();
+        const fileExtension = processedFilename.split('.').pop();
         const sanitizedName = name.replace(/[^a-zA-Z0-9.-]/g, '_');
         const blobName = `${propertyId}/${timestamp}-${sanitizedName}.${fileExtension}`;
 
         // Upload to Azure
         const blockBlobClient = documentsContainerClient.getBlockBlobClient(blobName);
-        await blockBlobClient.upload(req.file.buffer, req.file.buffer.length, {
+        await blockBlobClient.upload(processedBuffer, processedBuffer.length, {
             blobHTTPHeaders: {
-                blobContentType: req.file.mimetype
+                blobContentType: processedMimetype
             }
         });
 
