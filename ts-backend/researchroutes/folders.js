@@ -32,7 +32,7 @@ router.get('/', getUserFromToken, async (req, res) => {
       filter.parentFolderId = null;
     }
 
-    const folders = await Folder.find(filter).sort({ name: 1 });
+    const folders = await Folder.find(filter).sort({ sortOrder: 1, name: 1 });
     res.json(folders);
   } catch (err) {
     console.error('Error fetching folders:', err);
@@ -60,6 +60,41 @@ router.post('/', getUserFromToken, async (req, res) => {
   } catch (err) {
     console.error('Error creating folder:', err);
     res.status(500).json({ error: 'Kansion luonti epäonnistui' });
+  }
+});
+
+// PUT reorder folders and/or files within a parent folder
+// MUST be before /:id routes to avoid Express matching "reorder" as an :id
+router.put('/reorder', getUserFromToken, async (req, res) => {
+  try {
+    const { folderOrder, fileOrder } = req.body;
+    // folderOrder: array of folder IDs in desired order
+    // fileOrder: array of file IDs in desired order
+
+    if (folderOrder && Array.isArray(folderOrder)) {
+      const bulkOps = folderOrder.map((id, index) => ({
+        updateOne: {
+          filter: { _id: id },
+          update: { sortOrder: index }
+        }
+      }));
+      if (bulkOps.length > 0) await Folder.bulkWrite(bulkOps);
+    }
+
+    if (fileOrder && Array.isArray(fileOrder)) {
+      const bulkOps = fileOrder.map((id, index) => ({
+        updateOne: {
+          filter: { _id: id },
+          update: { sortOrder: index }
+        }
+      }));
+      if (bulkOps.length > 0) await File.bulkWrite(bulkOps);
+    }
+
+    res.json({ message: 'Järjestys päivitetty' });
+  } catch (err) {
+    console.error('Error reordering:', err);
+    res.status(500).json({ error: 'Järjestyksen päivitys epäonnistui' });
   }
 });
 

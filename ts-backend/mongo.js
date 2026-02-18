@@ -37,6 +37,7 @@ const fileSchema = new mongoose.Schema({
   url: String, // This will store the URL (or Azure Blob URL)
   blobName: String, // Azure Blob name for deletion (optional, only for uploaded files)
   fileType: { type: String, default: 'link' }, // 'link' or 'upload'
+  sortOrder: { type: Number, default: 0 },
   uploadedAt: { type: Date, default: Date.now }
 });
 
@@ -44,6 +45,7 @@ const folderSchema = new mongoose.Schema({
   name: { type: String, required: true },
   propertyId: { type: Number, required: true },
   parentFolderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Folder', default: null },
+  sortOrder: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now }
 });
 

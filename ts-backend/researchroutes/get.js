@@ -62,7 +62,7 @@ router.get('/files', async (req, res) => {
     }
     // If no folderId param at all, return all files for the property (backwards compatible)
 
-    const files = await File.find(filter).sort({ uploadedAt: -1 });
+    const files = await File.find(filter).sort({ sortOrder: 1, uploadedAt: -1 });
 
     // Generate SAS URLs for uploaded files (type 'upload' with blobName)
     const filesWithSas = files.map(f => {

@@ -65,7 +65,8 @@ const DocumentsPage = ({ propertyId }) => {
 
   // Drag & drop states
   const [draggedItem, setDraggedItem] = useState(null);
-  const [dragOverTarget, setDragOverTarget] = useState(null);
+  const [dragOverTarget, setDragOverTarget] = useState(null); // breadcrumb only
+  const [dropIndicator, setDropIndicator] = useState(null);   // { targetId, action: 'before'|'after'|'into', groupType: 'folder'|'file', folderName? }
 
   const token = localStorage.getItem('token') || localStorage.getItem('userToken');
 
@@ -254,16 +255,143 @@ const DocumentsPage = ({ propertyId }) => {
     e.target.style.opacity = '1';
     setDraggedItem(null);
     setDragOverTarget(null);
+    setDropIndicator(null);
   };
 
-  const handleDragOverFolder = (e, folderId) => {
+  // Unified drag over handler for items (folders & files)
+  const handleItemDragOver = (e, item, itemType) => {
     e.preventDefault();
     e.stopPropagation();
     e.dataTransfer.dropEffect = 'move';
-    if (draggedItem?.type === 'folder' && draggedItem?.item._id === folderId) return;
-    setDragOverTarget({ type: 'folder', id: folderId });
+    if (!draggedItem) return;
+    if (draggedItem.item._id === item._id) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    if (itemType === 'folder') {
+      // Folders have 3 zones: edges for reorder, center for move-into
+      if (viewMode === 'cards') {
+        const relX = (e.clientX - rect.left) / rect.width;
+        if (relX < 0.25) {
+          setDropIndicator({ targetId: item._id, action: 'before', groupType: 'folder', folderName: item.name });
+        } else if (relX > 0.75) {
+          setDropIndicator({ targetId: item._id, action: 'after', groupType: 'folder', folderName: item.name });
+        } else {
+          setDropIndicator({ targetId: item._id, action: 'into', groupType: 'folder', folderName: item.name });
+        }
+      } else {
+        const relY = (e.clientY - rect.top) / rect.height;
+        if (relY < 0.25) {
+          setDropIndicator({ targetId: item._id, action: 'before', groupType: 'folder', folderName: item.name });
+        } else if (relY > 0.75) {
+          setDropIndicator({ targetId: item._id, action: 'after', groupType: 'folder', folderName: item.name });
+        } else {
+          setDropIndicator({ targetId: item._id, action: 'into', groupType: 'folder', folderName: item.name });
+        }
+      }
+    } else {
+      // Files: left/right half (cards) or top/bottom half (list) for reorder
+      if (viewMode === 'cards') {
+        const relX = (e.clientX - rect.left) / rect.width;
+        setDropIndicator({ targetId: item._id, action: relX < 0.5 ? 'before' : 'after', groupType: 'file' });
+      } else {
+        const relY = (e.clientY - rect.top) / rect.height;
+        setDropIndicator({ targetId: item._id, action: relY < 0.5 ? 'before' : 'after', groupType: 'file' });
+      }
+    }
   };
 
+  const handleItemDragLeave = (e) => {
+    e.preventDefault();
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setDropIndicator(null);
+    }
+  };
+
+  const handleItemDrop = async (e, targetItem, targetType) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!draggedItem || !dropIndicator) {
+      setDropIndicator(null);
+      setDraggedItem(null);
+      return;
+    }
+
+    const { action } = dropIndicator;
+
+    // Move into folder
+    if (action === 'into' && targetType === 'folder') {
+      if (draggedItem.type === 'folder' && draggedItem.item._id === targetItem._id) return;
+      try {
+        if (draggedItem.type === 'file') {
+          await axios.put(`${config.baseURL}/api/folders/move-file/${draggedItem.item._id}`,
+            { targetFolderId: targetItem._id }, { headers: { Authorization: `Bearer ${token}` } });
+          toast.success(`"${draggedItem.item.name}" siirretty kansioon "${targetItem.name}"`);
+        } else {
+          await axios.put(`${config.baseURL}/api/folders/${draggedItem.item._id}/move`,
+            { targetFolderId: targetItem._id }, { headers: { Authorization: `Bearer ${token}` } });
+          toast.success(`Kansio "${draggedItem.item.name}" siirretty kansioon "${targetItem.name}"`);
+        }
+        fetchContents();
+      } catch (err) {
+        console.error('Error moving item:', err);
+        toast.error(err.response?.data?.error || 'Siirto epäonnistui');
+      }
+      setDropIndicator(null);
+      setDraggedItem(null);
+      return;
+    }
+
+    // Reorder
+    const sourceType = draggedItem.type;
+    const sourceItem = draggedItem.item;
+
+    if (sourceType === 'folder' && targetType === 'folder') {
+      const newOrder = [...folders];
+      const fromIdx = newOrder.findIndex(f => f._id === sourceItem._id);
+      if (fromIdx === -1) { setDropIndicator(null); setDraggedItem(null); return; }
+      newOrder.splice(fromIdx, 1);
+      let insertIdx = newOrder.findIndex(f => f._id === targetItem._id);
+      if (insertIdx === -1) { setDropIndicator(null); setDraggedItem(null); return; }
+      if (action === 'after') insertIdx += 1;
+      newOrder.splice(insertIdx, 0, sourceItem);
+      setFolders(newOrder);
+      saveReorder(newOrder.map(f => f._id), null);
+    } else if (sourceType === 'file' && targetType === 'file') {
+      const newOrder = [...files];
+      const fromIdx = newOrder.findIndex(f => f._id === sourceItem._id);
+      if (fromIdx === -1) { setDropIndicator(null); setDraggedItem(null); return; }
+      newOrder.splice(fromIdx, 1);
+      let insertIdx = newOrder.findIndex(f => f._id === targetItem._id);
+      if (insertIdx === -1) { setDropIndicator(null); setDraggedItem(null); return; }
+      if (action === 'after') insertIdx += 1;
+      newOrder.splice(insertIdx, 0, sourceItem);
+      setFiles(newOrder);
+      saveReorder(null, newOrder.map(f => f._id));
+    }
+    // Cross-type reorder onto non-folder: ignore
+
+    setDropIndicator(null);
+    setDraggedItem(null);
+  };
+
+  const saveReorder = async (folderOrder, fileOrder) => {
+    try {
+      await axios.put(`${config.baseURL}/api/folders/reorder`, {
+        folderOrder,
+        fileOrder
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+    } catch (err) {
+      console.error('Error saving reorder:', err);
+      toast.error('Järjestyksen tallennus epäonnistui');
+      fetchContents();
+    }
+  };
+
+  // Breadcrumb drag handlers (unchanged)
   const handleDragOverBreadcrumb = (e, targetId) => {
     e.preventDefault();
     e.stopPropagation();
@@ -276,33 +404,6 @@ const DocumentsPage = ({ propertyId }) => {
     if (!e.currentTarget.contains(e.relatedTarget)) {
       setDragOverTarget(null);
     }
-  };
-
-  const handleDropOnFolder = async (e, targetFolderId) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragOverTarget(null);
-    if (!draggedItem) return;
-    if (draggedItem.type === 'folder' && draggedItem.item._id === targetFolderId) return;
-    if (draggedItem.type === 'file' && draggedItem.item.folderId === targetFolderId) return;
-    if (draggedItem.type === 'folder' && draggedItem.item.parentFolderId === targetFolderId) return;
-
-    try {
-      if (draggedItem.type === 'file') {
-        await axios.put(`${config.baseURL}/api/folders/move-file/${draggedItem.item._id}`,
-          { targetFolderId }, { headers: { Authorization: `Bearer ${token}` } });
-        toast.success(`"${draggedItem.item.name}" siirretty`);
-      } else {
-        await axios.put(`${config.baseURL}/api/folders/${draggedItem.item._id}/move`,
-          { targetFolderId }, { headers: { Authorization: `Bearer ${token}` } });
-        toast.success(`Kansio "${draggedItem.item.name}" siirretty`);
-      }
-      fetchContents();
-    } catch (err) {
-      console.error('Error moving item:', err);
-      toast.error(err.response?.data?.error || 'Siirto epäonnistui');
-    }
-    setDraggedItem(null);
   };
 
   const handleDropOnBreadcrumb = async (e, targetFolderId) => {
@@ -341,8 +442,13 @@ const DocumentsPage = ({ propertyId }) => {
     return url;
   };
 
-  const isDragOverFolder = (folderId) =>
-    dragOverTarget?.type === 'folder' && dragOverTarget?.id === folderId;
+  // Drop indicator helpers
+  const isDropBefore = (itemId) =>
+    dropIndicator?.targetId === itemId && dropIndicator?.action === 'before';
+  const isDropAfter = (itemId) =>
+    dropIndicator?.targetId === itemId && dropIndicator?.action === 'after';
+  const isDropInto = (itemId) =>
+    dropIndicator?.targetId === itemId && dropIndicator?.action === 'into';
 
   const isDragOverBreadcrumb = (targetId) =>
     dragOverTarget?.type === 'breadcrumb' && dragOverTarget?.id === targetId;
@@ -462,25 +568,69 @@ const DocumentsPage = ({ propertyId }) => {
           {/* ── Folders ── */}
           {folders.map(folder => (
             <Col key={folder._id} xs={6} sm={4} md={3} lg={2}>
-              <Card
-                className="h-100 border-0 shadow-sm text-center"
-                draggable
-                onDragStart={(e) => handleDragStart(e, 'folder', folder)}
-                onDragEnd={handleDragEnd}
-                onDragOver={(e) => handleDragOverFolder(e, folder._id)}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => handleDropOnFolder(e, folder._id)}
-                style={{
-                  cursor: 'pointer', transition: 'all 0.2s', borderRadius: '8px',
-                  ...(isDragOverFolder(folder._id) ? {
-                    outline: '2px dashed #0d6efd', outlineOffset: '-2px',
-                    backgroundColor: 'rgba(13, 110, 253, 0.06)', transform: 'scale(1.03)'
-                  } : {})
-                }}
-                onMouseEnter={(e) => { if (!isDragOverFolder(folder._id)) { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.12)'; } }}
-                onMouseLeave={(e) => { if (!isDragOverFolder(folder._id)) { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; } }}
-                onClick={() => navigateToFolder(folder)}
+              <div style={{ position: 'relative' }}
+                onDragOver={(e) => handleItemDragOver(e, folder, 'folder')}
+                onDragLeave={handleItemDragLeave}
+                onDrop={(e) => handleItemDrop(e, folder, 'folder')}
               >
+                {/* Left insertion indicator */}
+                {isDropBefore(folder._id) && (
+                  <div style={{
+                    position: 'absolute', left: '-6px', top: 0, bottom: 0, width: '4px',
+                    backgroundColor: '#0d6efd', borderRadius: '2px', zIndex: 10
+                  }}>
+                    <div style={{
+                      position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                      backgroundColor: '#0d6efd', color: '#fff', padding: '2px 8px', borderRadius: '4px',
+                      fontSize: '0.65rem', whiteSpace: 'nowrap', zIndex: 11, fontWeight: '600'
+                    }}>Siirrä tähän</div>
+                  </div>
+                )}
+                {/* Right insertion indicator */}
+                {isDropAfter(folder._id) && (
+                  <div style={{
+                    position: 'absolute', right: '-6px', top: 0, bottom: 0, width: '4px',
+                    backgroundColor: '#0d6efd', borderRadius: '2px', zIndex: 10
+                  }}>
+                    <div style={{
+                      position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                      backgroundColor: '#0d6efd', color: '#fff', padding: '2px 8px', borderRadius: '4px',
+                      fontSize: '0.65rem', whiteSpace: 'nowrap', zIndex: 11, fontWeight: '600'
+                    }}>Siirrä tähän</div>
+                  </div>
+                )}
+                {/* Move into folder overlay */}
+                {isDropInto(folder._id) && (
+                  <div style={{
+                    position: 'absolute', inset: 0, zIndex: 10,
+                    backgroundColor: 'rgba(13, 110, 253, 0.15)',
+                    border: '2px dashed #0d6efd', borderRadius: '8px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    pointerEvents: 'none'
+                  }}>
+                    <span style={{
+                      backgroundColor: 'rgba(13, 110, 253, 0.9)', color: '#fff',
+                      padding: '4px 10px', borderRadius: '6px', fontSize: '0.7rem',
+                      fontWeight: '600', textAlign: 'center', lineHeight: '1.3'
+                    }}>Siirrä kansioon<br />"{folder.name}"</span>
+                  </div>
+                )}
+                <Card
+                  className="h-100 border-0 shadow-sm text-center"
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, 'folder', folder)}
+                  onDragEnd={handleDragEnd}
+                  style={{
+                    cursor: 'pointer', transition: 'all 0.2s', borderRadius: '8px',
+                    ...(isDropInto(folder._id) ? {
+                      outline: '2px dashed #0d6efd', outlineOffset: '-2px',
+                      backgroundColor: 'rgba(13, 110, 253, 0.06)', transform: 'scale(1.03)'
+                    } : {})
+                  }}
+                  onMouseEnter={(e) => { if (!isDropInto(folder._id)) { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.12)'; } }}
+                  onMouseLeave={(e) => { if (!isDropInto(folder._id)) { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; } }}
+                  onClick={() => navigateToFolder(folder)}
+                >
                 <Card.Body className="d-flex flex-column align-items-center py-3 px-2">
                   <GripVertical size={12} className="text-muted mb-1" style={{ cursor: 'grab' }} />
                   <FolderFill size={40} className="text-warning mb-2" />
@@ -501,6 +651,7 @@ const DocumentsPage = ({ propertyId }) => {
                   </div>
                 </Card.Body>
               </Card>
+              </div>
             </Col>
           ))}
 
@@ -510,6 +661,37 @@ const DocumentsPage = ({ propertyId }) => {
             const isImage = isImageFile(file);
             return (
               <Col key={file._id} xs={6} sm={4} md={3} lg={3}>
+                <div style={{ position: 'relative' }}
+                  onDragOver={(e) => handleItemDragOver(e, file, 'file')}
+                  onDragLeave={handleItemDragLeave}
+                  onDrop={(e) => handleItemDrop(e, file, 'file')}
+                >
+                  {/* Left insertion indicator */}
+                  {isDropBefore(file._id) && (
+                    <div style={{
+                      position: 'absolute', left: '-6px', top: 0, bottom: 0, width: '4px',
+                      backgroundColor: '#0d6efd', borderRadius: '2px', zIndex: 10
+                    }}>
+                      <div style={{
+                        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                        backgroundColor: '#0d6efd', color: '#fff', padding: '2px 8px', borderRadius: '4px',
+                        fontSize: '0.65rem', whiteSpace: 'nowrap', zIndex: 11, fontWeight: '600'
+                      }}>Siirrä tähän</div>
+                    </div>
+                  )}
+                  {/* Right insertion indicator */}
+                  {isDropAfter(file._id) && (
+                    <div style={{
+                      position: 'absolute', right: '-6px', top: 0, bottom: 0, width: '4px',
+                      backgroundColor: '#0d6efd', borderRadius: '2px', zIndex: 10
+                    }}>
+                      <div style={{
+                        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                        backgroundColor: '#0d6efd', color: '#fff', padding: '2px 8px', borderRadius: '4px',
+                        fontSize: '0.65rem', whiteSpace: 'nowrap', zIndex: 11, fontWeight: '600'
+                      }}>Siirrä tähän</div>
+                    </div>
+                  )}
                 <Card
                   className="h-100 border-0 shadow-sm"
                   draggable
@@ -585,6 +767,7 @@ const DocumentsPage = ({ propertyId }) => {
                     </div>
                   </div>
                 </Card>
+                </div>
               </Col>
             );
           })}
@@ -594,25 +777,68 @@ const DocumentsPage = ({ propertyId }) => {
         <ListGroup>
           {/* ── Folders ── */}
           {folders.map(folder => (
+            <div key={folder._id} style={{ position: 'relative' }}
+              onDragOver={(e) => handleItemDragOver(e, folder, 'folder')}
+              onDragLeave={handleItemDragLeave}
+              onDrop={(e) => handleItemDrop(e, folder, 'folder')}
+            >
+              {/* Top insertion indicator */}
+              {isDropBefore(folder._id) && (
+                <div style={{
+                  position: 'absolute', top: '-2px', left: 0, right: 0, height: '4px',
+                  backgroundColor: '#0d6efd', borderRadius: '2px', zIndex: 10
+                }}>
+                  <div style={{
+                    position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                    backgroundColor: '#0d6efd', color: '#fff', padding: '2px 10px', borderRadius: '4px',
+                    fontSize: '0.65rem', whiteSpace: 'nowrap', zIndex: 11, fontWeight: '600'
+                  }}>Siirrä tähän</div>
+                </div>
+              )}
+              {/* Bottom insertion indicator */}
+              {isDropAfter(folder._id) && (
+                <div style={{
+                  position: 'absolute', bottom: '-2px', left: 0, right: 0, height: '4px',
+                  backgroundColor: '#0d6efd', borderRadius: '2px', zIndex: 10
+                }}>
+                  <div style={{
+                    position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                    backgroundColor: '#0d6efd', color: '#fff', padding: '2px 10px', borderRadius: '4px',
+                    fontSize: '0.65rem', whiteSpace: 'nowrap', zIndex: 11, fontWeight: '600'
+                  }}>Siirrä tähän</div>
+                </div>
+              )}
+              {/* Move into folder overlay */}
+              {isDropInto(folder._id) && (
+                <div style={{
+                  position: 'absolute', inset: 0, zIndex: 10,
+                  backgroundColor: 'rgba(13, 110, 253, 0.12)',
+                  border: '2px dashed #0d6efd', borderRadius: '4px',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  pointerEvents: 'none'
+                }}>
+                  <span style={{
+                    backgroundColor: 'rgba(13, 110, 253, 0.9)', color: '#fff',
+                    padding: '4px 12px', borderRadius: '6px', fontSize: '0.75rem',
+                    fontWeight: '600'
+                  }}>Siirrä kansioon "{folder.name}"</span>
+                </div>
+              )}
             <ListGroup.Item
-              key={folder._id}
               className="d-flex justify-content-between align-items-center"
               draggable
               onDragStart={(e) => handleDragStart(e, 'folder', folder)}
               onDragEnd={handleDragEnd}
-              onDragOver={(e) => handleDragOverFolder(e, folder._id)}
-              onDragLeave={handleDragLeave}
-              onDrop={(e) => handleDropOnFolder(e, folder._id)}
               style={{
                 cursor: 'pointer', padding: '0.5rem 0.75rem',
-                ...(isDragOverFolder(folder._id) ? {
+                ...(isDropInto(folder._id) ? {
                   outline: '2px dashed #0d6efd', outlineOffset: '-2px',
                   backgroundColor: 'rgba(13, 110, 253, 0.08)'
                 } : {})
               }}
               onClick={() => navigateToFolder(folder)}
-              onMouseEnter={(e) => { if (!isDragOverFolder(folder._id)) e.currentTarget.style.backgroundColor = '#f8f9fa'; }}
-              onMouseLeave={(e) => { if (!isDragOverFolder(folder._id)) e.currentTarget.style.backgroundColor = ''; }}
+              onMouseEnter={(e) => { if (!isDropInto(folder._id)) e.currentTarget.style.backgroundColor = '#f8f9fa'; }}
+              onMouseLeave={(e) => { if (!isDropInto(folder._id)) e.currentTarget.style.backgroundColor = ''; }}
             >
               <div className="d-flex align-items-center gap-2">
                 <GripVertical size={12} className="text-muted" style={{ cursor: 'grab' }} />
@@ -635,6 +861,7 @@ const DocumentsPage = ({ propertyId }) => {
                 </Button>
               </div>
             </ListGroup.Item>
+            </div>
           ))}
 
           {/* ── Files ── */}
@@ -642,8 +869,38 @@ const DocumentsPage = ({ propertyId }) => {
             const validUrl = getValidUrl(file.url);
             const isImage = isImageFile(file);
             return (
+              <div key={file._id} style={{ position: 'relative' }}
+                onDragOver={(e) => handleItemDragOver(e, file, 'file')}
+                onDragLeave={handleItemDragLeave}
+                onDrop={(e) => handleItemDrop(e, file, 'file')}
+              >
+                {/* Top insertion indicator */}
+                {isDropBefore(file._id) && (
+                  <div style={{
+                    position: 'absolute', top: '-2px', left: 0, right: 0, height: '4px',
+                    backgroundColor: '#0d6efd', borderRadius: '2px', zIndex: 10
+                  }}>
+                    <div style={{
+                      position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                      backgroundColor: '#0d6efd', color: '#fff', padding: '2px 10px', borderRadius: '4px',
+                      fontSize: '0.65rem', whiteSpace: 'nowrap', zIndex: 11, fontWeight: '600'
+                    }}>Siirrä tähän</div>
+                  </div>
+                )}
+                {/* Bottom insertion indicator */}
+                {isDropAfter(file._id) && (
+                  <div style={{
+                    position: 'absolute', bottom: '-2px', left: 0, right: 0, height: '4px',
+                    backgroundColor: '#0d6efd', borderRadius: '2px', zIndex: 10
+                  }}>
+                    <div style={{
+                      position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                      backgroundColor: '#0d6efd', color: '#fff', padding: '2px 10px', borderRadius: '4px',
+                      fontSize: '0.65rem', whiteSpace: 'nowrap', zIndex: 11, fontWeight: '600'
+                    }}>Siirrä tähän</div>
+                  </div>
+                )}
               <ListGroup.Item
-                key={file._id}
                 className="d-flex justify-content-between align-items-center"
                 draggable
                 onDragStart={(e) => handleDragStart(e, 'file', file)}
@@ -705,6 +962,7 @@ const DocumentsPage = ({ propertyId }) => {
                   </Button>
                 </div>
               </ListGroup.Item>
+              </div>
             );
           })}
         </ListGroup>
