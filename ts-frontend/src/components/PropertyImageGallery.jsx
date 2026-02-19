@@ -20,7 +20,7 @@ function PropertyImageGallery({ propertyId }) {
     const [viewMode, setViewMode] = useState('grid');
     const [showEditPanel, setShowEditPanel] = useState(false);
     const [draggedIndex, setDraggedIndex] = useState(null);
-    const [dragOverIndex, setDragOverIndex] = useState(null);
+    const [dropIndicator, setDropIndicator] = useState(null); // { index, action: 'before'|'after' }
     const [savingOrder, setSavingOrder] = useState(false);
     const [sortMode, setSortMode] = useState('custom');
     const scrollIntervalRef = { current: null };
@@ -293,7 +293,7 @@ function PropertyImageGallery({ propertyId }) {
     const handleDragEnd = (e) => {
         e.target.style.opacity = '1';
         setDraggedIndex(null);
-        setDragOverIndex(null);
+        setDropIndicator(null);
         document.removeEventListener('dragover', globalDragOver);
         stopAutoScroll();
     };
@@ -301,20 +301,29 @@ function PropertyImageGallery({ propertyId }) {
     const handleDragOver = (e, index) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
-        if (dragOverIndex !== index) {
-            setDragOverIndex(index);
+        if (draggedIndex === index) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        if (viewMode === 'grid') {
+            const relX = (e.clientX - rect.left) / rect.width;
+            setDropIndicator({ index, action: relX < 0.5 ? 'before' : 'after' });
+        } else {
+            const relY = (e.clientY - rect.top) / rect.height;
+            setDropIndicator({ index, action: relY < 0.5 ? 'before' : 'after' });
         }
     };
 
-    const handleDragLeave = () => {
-        setDragOverIndex(null);
+    const handleDragLeave = (e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+            setDropIndicator(null);
+        }
     };
 
     const handleDrop = async (e, dropIndex) => {
         e.preventDefault();
         const fromIndex = draggedIndex;
+        const indicator = dropIndicator;
         setDraggedIndex(null);
-        setDragOverIndex(null);
+        setDropIndicator(null);
         document.removeEventListener('dragover', globalDragOver);
         stopAutoScroll();
 
@@ -323,7 +332,13 @@ function PropertyImageGallery({ propertyId }) {
         // Reorder locally
         const reordered = [...images];
         const [moved] = reordered.splice(fromIndex, 1);
-        reordered.splice(dropIndex, 0, moved);
+        let insertIdx = indicator ? reordered.findIndex((_, i) => {
+            const origIdx = i >= fromIndex ? i + 1 : i;
+            return origIdx === dropIndex;
+        }) : dropIndex;
+        if (insertIdx === -1) insertIdx = dropIndex > fromIndex ? dropIndex - 1 : dropIndex;
+        if (indicator?.action === 'after') insertIdx += 1;
+        reordered.splice(insertIdx, 0, moved);
         setImages(reordered);
 
         // Save to backend
@@ -420,22 +435,44 @@ function PropertyImageGallery({ propertyId }) {
             {viewMode === 'list' && (
                 <ListGroup className="mb-3">
                     {images.map((image, index) => (
+                        <div key={image.id} style={{ position: 'relative' }}
+                            onDragOver={sortMode === 'custom' ? (e) => handleDragOver(e, index) : undefined}
+                            onDragLeave={sortMode === 'custom' ? handleDragLeave : undefined}
+                            onDrop={sortMode === 'custom' ? (e) => handleDrop(e, index) : undefined}
+                        >
+                            {dropIndicator?.index === index && dropIndicator?.action === 'before' && (
+                                <div style={{
+                                    position: 'absolute', top: '-2px', left: 0, right: 0, height: '4px',
+                                    backgroundColor: '#0d6efd', borderRadius: '2px', zIndex: 10
+                                }}>
+                                    <div style={{
+                                        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                                        backgroundColor: '#0d6efd', color: '#fff', padding: '2px 10px', borderRadius: '4px',
+                                        fontSize: '0.65rem', whiteSpace: 'nowrap', zIndex: 11, fontWeight: '600'
+                                    }}>Siirrä tähän</div>
+                                </div>
+                            )}
+                            {dropIndicator?.index === index && dropIndicator?.action === 'after' && (
+                                <div style={{
+                                    position: 'absolute', bottom: '-2px', left: 0, right: 0, height: '4px',
+                                    backgroundColor: '#0d6efd', borderRadius: '2px', zIndex: 10
+                                }}>
+                                    <div style={{
+                                        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                                        backgroundColor: '#0d6efd', color: '#fff', padding: '2px 10px', borderRadius: '4px',
+                                        fontSize: '0.65rem', whiteSpace: 'nowrap', zIndex: 11, fontWeight: '600'
+                                    }}>Siirrä tähän</div>
+                                </div>
+                            )}
                         <ListGroup.Item
-                            key={image.id}
                             className="d-flex justify-content-between align-items-center"
                             draggable={sortMode === 'custom'}
                             onDragStart={sortMode === 'custom' ? (e) => handleDragStart(e, index) : undefined}
                             onDragEnd={sortMode === 'custom' ? handleDragEnd : undefined}
-                            onDragOver={sortMode === 'custom' ? (e) => handleDragOver(e, index) : undefined}
-                            onDragLeave={sortMode === 'custom' ? handleDragLeave : undefined}
-                            onDrop={sortMode === 'custom' ? (e) => handleDrop(e, index) : undefined}
                             style={{
                                 padding: '0.5rem 0.6rem',
-                                transition: 'background-color 0.2s ease, outline 0.2s ease',
-                                cursor: sortMode === 'custom' ? 'grab' : 'pointer',
-                                outline: dragOverIndex === index ? '2px dashed #0d6efd' : 'none',
-                                outlineOffset: '-2px',
-                                backgroundColor: dragOverIndex === index ? 'rgba(255, 180, 200, 0.15)' : undefined
+                                transition: 'background-color 0.2s ease',
+                                cursor: sortMode === 'custom' ? 'grab' : 'pointer'
                             }}
                             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
                             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
@@ -540,6 +577,7 @@ function PropertyImageGallery({ propertyId }) {
                                 </Button>
                             </div>
                         </ListGroup.Item>
+                        </div>
                     ))}
                 </ListGroup>
             )}
@@ -549,22 +587,44 @@ function PropertyImageGallery({ propertyId }) {
                 <Row xs={1} sm={2} md={3} className="g-3">
                     {images.map((image, index) => (
                         <Col key={image.id}>
+                            <div style={{ position: 'relative' }}
+                                onDragOver={sortMode === 'custom' ? (e) => handleDragOver(e, index) : undefined}
+                                onDragLeave={sortMode === 'custom' ? handleDragLeave : undefined}
+                                onDrop={sortMode === 'custom' ? (e) => handleDrop(e, index) : undefined}
+                            >
+                                {dropIndicator?.index === index && dropIndicator?.action === 'before' && (
+                                    <div style={{
+                                        position: 'absolute', left: '-6px', top: 0, bottom: 0, width: '4px',
+                                        backgroundColor: '#0d6efd', borderRadius: '2px', zIndex: 10
+                                    }}>
+                                        <div style={{
+                                            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                                            backgroundColor: '#0d6efd', color: '#fff', padding: '2px 8px', borderRadius: '4px',
+                                            fontSize: '0.65rem', whiteSpace: 'nowrap', zIndex: 11, fontWeight: '600'
+                                        }}>Siirrä tähän</div>
+                                    </div>
+                                )}
+                                {dropIndicator?.index === index && dropIndicator?.action === 'after' && (
+                                    <div style={{
+                                        position: 'absolute', right: '-6px', top: 0, bottom: 0, width: '4px',
+                                        backgroundColor: '#0d6efd', borderRadius: '2px', zIndex: 10
+                                    }}>
+                                        <div style={{
+                                            position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                                            backgroundColor: '#0d6efd', color: '#fff', padding: '2px 8px', borderRadius: '4px',
+                                            fontSize: '0.65rem', whiteSpace: 'nowrap', zIndex: 11, fontWeight: '600'
+                                        }}>Siirrä tähän</div>
+                                    </div>
+                                )}
                             <Card
                                 className="shadow-sm border-0"
                                 draggable={sortMode === 'custom'}
                                 onDragStart={sortMode === 'custom' ? (e) => handleDragStart(e, index) : undefined}
                                 onDragEnd={sortMode === 'custom' ? handleDragEnd : undefined}
-                                onDragOver={sortMode === 'custom' ? (e) => handleDragOver(e, index) : undefined}
-                                onDragLeave={sortMode === 'custom' ? handleDragLeave : undefined}
-                                onDrop={sortMode === 'custom' ? (e) => handleDrop(e, index) : undefined}
                                 style={{
                                     transition: 'all 0.3s ease',
                                     overflow: 'hidden',
                                     borderRadius: '3px',
-                                    outline: dragOverIndex === index ? '2px dashed #0d6efd' : 'none',
-                                    outlineOffset: '-2px',
-                                    transform: dragOverIndex === index ? 'scale(1.02)' : undefined,
-                                    backgroundColor: dragOverIndex === index ? 'rgba(255, 180, 200, 0.15)' : undefined,
                                     cursor: sortMode === 'custom' ? 'grab' : 'default'
                                 }}
                             >
@@ -673,6 +733,7 @@ function PropertyImageGallery({ propertyId }) {
                                     </div>
                                 </div>
                             </Card>
+                            </div>
                         </Col>
                     ))}
                 </Row>
