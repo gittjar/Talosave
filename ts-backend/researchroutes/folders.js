@@ -15,6 +15,36 @@ if (AZURE_STORAGE_CONNECTION_STRING) {
   documentsContainerClient = blobServiceClient.getContainerClient(DOCUMENTS_CONTAINER_NAME);
 }
 
+// Folder name validation helper
+function validateFolderName(name) {
+  const trimmed = name.trim();
+  
+  if (!trimmed) {
+    return { valid: false, error: 'Kansion nimi ei voi olla tyhjä' };
+  }
+  
+  if (trimmed.length > 50) {
+    return { valid: false, error: 'Kansion nimi on liian pitkä (max 50 merkkiä)' };
+  }
+  
+  if (trimmed !== name) {
+    return { valid: false, error: 'Kansion nimi ei voi alkaa tai loppua välilyönnillä' };
+  }
+  
+  // Check for invalid characters (filesystem-unsafe chars)
+  const invalidCharsRegex = /[\/\\:*?"<>|]/;
+  if (invalidCharsRegex.test(trimmed)) {
+    return { valid: false, error: 'Kansion nimi ei voi sisältää merkkejä: / \\ : * ? " < > |' };
+  }
+  
+  // Check for only dots or spaces
+  if (/^[\.\s]+$/.test(trimmed)) {
+    return { valid: false, error: 'Kansion nimi ei voi koostua pelkistä pisteistä tai välilyönneistä' };
+  }
+  
+  return { valid: true };
+}
+
 // GET all folders for a property (optionally filtered by parentFolderId)
 router.get('/', getUserFromToken, async (req, res) => {
   try {
@@ -47,6 +77,12 @@ router.post('/', getUserFromToken, async (req, res) => {
 
     if (!name || !propertyId) {
       return res.status(400).json({ error: 'Kansion nimi ja propertyId ovat pakollisia' });
+    }
+
+    // Validate folder name
+    const validation = validateFolderName(name);
+    if (!validation.valid) {
+      return res.status(400).json({ error: validation.error });
     }
 
     const folder = new Folder({
@@ -105,6 +141,12 @@ router.put('/:id', getUserFromToken, async (req, res) => {
 
     if (!name) {
       return res.status(400).json({ error: 'Kansion nimi on pakollinen' });
+    }
+
+    // Validate folder name
+    const validation = validateFolderName(name);
+    if (!validation.valid) {
+      return res.status(400).json({ error: validation.error });
     }
 
     const folder = await Folder.findByIdAndUpdate(

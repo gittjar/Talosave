@@ -167,9 +167,43 @@ const DocumentsPage = ({ propertyId }) => {
     }
   };
 
+  // ─── Folder name validation ───────────────────────────────
+  const validateFolderName = (name) => {
+    const trimmed = name.trim();
+    
+    if (!trimmed) {
+      return { valid: false, error: 'Kansion nimi ei voi olla tyhjä' };
+    }
+    
+    if (trimmed.length > 50) {
+      return { valid: false, error: 'Kansion nimi on liian pitkä (max 50 merkkiä)' };
+    }
+    
+    if (trimmed !== name) {
+      return { valid: false, error: 'Kansion nimi ei voi alkaa tai loppua välilyönnillä' };
+    }
+    
+    // Check for invalid characters (filesystem-unsafe chars)
+    const invalidChars = /[\/\\:*?"<>|]/;
+    if (invalidChars.test(trimmed)) {
+      return { valid: false, error: 'Kansion nimi ei voi sisältää merkkejä: / \\ : * ? " < > |' };
+    }
+    
+    // Check for only dots or spaces
+    if (/^[\.\s]+$/.test(trimmed)) {
+      return { valid: false, error: 'Kansion nimi ei voi koostua pelkistä pisteistä tai välilyönneistä' };
+    }
+    
+    return { valid: true };
+  };
+
   // ─── Folder CRUD ──────────────────────────────────────────
   const createFolder = async () => {
-    if (!newFolderName.trim()) return;
+    const validation = validateFolderName(newFolderName);
+    if (!validation.valid) {
+      toast.error(validation.error);
+      return;
+    }
     try {
       setCreatingFolder(true);
       await axios.post(`${config.baseURL}/api/folders`, {
@@ -179,33 +213,39 @@ const DocumentsPage = ({ propertyId }) => {
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      toast.success('Kansio luotu');
+      toast.success(`Kansio "${newFolderName.trim()}" luotu`);
       setNewFolderName('');
       setShowCreateFolder(false);
       fetchContents();
     } catch (err) {
       console.error('Error creating folder:', err);
-      toast.error('Kansion luonti epäonnistui');
+      toast.error(`Kansion "${newFolderName.trim()}" luonti epäonnistui`);
     } finally {
       setCreatingFolder(false);
     }
   };
 
   const renameFolder = async () => {
-    if (!renameFolderName.trim() || !renamingFolder) return;
+    if (!renamingFolder) return;
+    
+    const validation = validateFolderName(renameFolderName);
+    if (!validation.valid) {
+      toast.error(validation.error);
+      return;
+    }
     try {
       await axios.put(`${config.baseURL}/api/folders/${renamingFolder._id}`, {
         name: renameFolderName.trim()
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      toast.success('Kansio nimetty uudelleen');
+      toast.success(`Kansio nimetty: "${renameFolderName.trim()}"`);
       setShowRenameFolder(false);
       setRenamingFolder(null);
       fetchContents();
     } catch (err) {
       console.error('Error renaming folder:', err);
-      toast.error('Kansion nimeäminen epäonnistui');
+      toast.error(`Kansion nimeäminen epäonnistui: "${renameFolderName.trim()}"`);
     }
   };
 
@@ -216,13 +256,13 @@ const DocumentsPage = ({ propertyId }) => {
       await axios.delete(`${config.baseURL}/api/folders/${folderToDelete._id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      toast.success('Kansio ja sen sisältö poistettu');
+      toast.success(`Kansio "${folderToDelete.name}" poistettu`);
       setShowDeleteFolderConfirm(false);
       setFolderToDelete(null);
       fetchContents();
     } catch (err) {
       console.error('Error deleting folder:', err);
-      toast.error('Kansion poisto epäonnistui');
+      toast.error(`Kansion "${folderToDelete?.name || 'tuntematon'}" poisto epäonnistui`);
     } finally {
       setDeleting(false);
     }
@@ -231,18 +271,19 @@ const DocumentsPage = ({ propertyId }) => {
   // ─── File delete ──────────────────────────────────────────
   const deleteFile = async () => {
     if (!fileToDelete) return;
+    const fileName = files.find(f => f._id === fileToDelete)?.name || 'Tiedosto';
     try {
       setDeleting(true);
       await axios.delete(`${config.baseURL}/api/files/${fileToDelete}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      toast.success('Tiedosto poistettu');
+      toast.success(`Tiedosto "${fileName}" poistettu`);
       setShowDeleteConfirm(false);
       setFileToDelete(null);
       fetchContents();
     } catch (err) {
       console.error('Error deleting file:', err);
-      toast.error('Tiedoston poisto epäonnistui');
+      toast.error(`Tiedoston "${fileName}" poisto epäonnistui`);
     } finally {
       setDeleting(false);
     }
@@ -269,7 +310,7 @@ const DocumentsPage = ({ propertyId }) => {
       await axios.put(`${config.baseURL}/api/files/${editingFile._id}`, editFormData, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      toast.success('Tiedoston tiedot päivitetty');
+      toast.success(`Tiedosto "${editFormData.name}" päivitetty`);
       setShowEditModal(false);
       setShowEditPanel(false);
       if (showLightbox && editingFile) {
@@ -283,7 +324,7 @@ const DocumentsPage = ({ propertyId }) => {
       }
     } catch (err) {
       console.error('Error updating file:', err);
-      toast.error('Tiedoston päivitys epäonnistui');
+      toast.error(`Tiedoston "${editFormData.name}" päivitys epäonnistui`);
     } finally {
       setSaving(false);
     }
@@ -1290,7 +1331,10 @@ const DocumentsPage = ({ propertyId }) => {
               <Form.Label>Kansion nimi</Form.Label>
               <Form.Control type="text" placeholder="Esim. Energiatodistukset"
                 value={newFolderName} onChange={(e) => setNewFolderName(e.target.value)}
-                autoFocus maxLength={100} />
+                autoFocus maxLength={50} />
+              <Form.Text className="text-muted" style={{ fontSize: '0.75rem' }}>
+                Max 50 merkkiä. Ei erikoismerkkejä: / \ : * ? " &lt; &gt; |
+              </Form.Text>
             </Form.Group>
           </Form>
         </Modal.Body>
@@ -1298,7 +1342,7 @@ const DocumentsPage = ({ propertyId }) => {
           <Button variant="secondary" size="sm" onClick={() => setShowCreateFolder(false)} disabled={creatingFolder}>
             Peruuta
           </Button>
-          <Button variant="primary" size="sm" onClick={createFolder} disabled={creatingFolder || !newFolderName.trim()}>
+          <Button variant="primary" size="sm" onClick={createFolder} disabled={creatingFolder || !validateFolderName(newFolderName).valid}>
             {creatingFolder ? <><Spinner animation="border" size="sm" className="me-1" />Luodaan...</> : 'Luo kansio'}
           </Button>
         </Modal.Footer>
@@ -1314,13 +1358,16 @@ const DocumentsPage = ({ propertyId }) => {
             <Form.Group>
               <Form.Label>Uusi nimi</Form.Label>
               <Form.Control type="text" value={renameFolderName}
-                onChange={(e) => setRenameFolderName(e.target.value)} autoFocus maxLength={100} />
+                onChange={(e) => setRenameFolderName(e.target.value)} autoFocus maxLength={50} />
+              <Form.Text className="text-muted" style={{ fontSize: '0.75rem' }}>
+                Max 50 merkkiä. Ei erikoismerkkejä: / \ : * ? " &lt; &gt; |
+              </Form.Text>
             </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" size="sm" onClick={() => setShowRenameFolder(false)}>Peruuta</Button>
-          <Button variant="primary" size="sm" onClick={renameFolder} disabled={!renameFolderName.trim()}>Tallenna</Button>
+          <Button variant="primary" size="sm" onClick={renameFolder} disabled={!validateFolderName(renameFolderName).valid}>Tallenna</Button>
         </Modal.Footer>
       </Modal>
 
