@@ -83,6 +83,26 @@ router.get('/files', async (req, res) => {
   }
 });
 
+// PUT update file name and description
+router.put('/files/:id', async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const file = await File.findById(req.params.id);
+    if (!file) {
+      return res.status(404).json({ error: 'Tiedostoa ei löydy' });
+    }
+
+    if (name !== undefined) file.name = name;
+    if (description !== undefined) file.description = description;
+    await file.save();
+
+    res.json(file);
+  } catch (err) {
+    console.error('Error updating file:', err);
+    res.status(500).json({ error: 'Tiedoston päivitys epäonnistui' });
+  }
+});
+
 router.get('/files/:id', async (req, res) => {
   try {
     const file = await File.findById(req.params.id);

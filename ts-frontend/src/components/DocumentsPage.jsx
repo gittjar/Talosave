@@ -59,6 +59,13 @@ const DocumentsPage = ({ propertyId }) => {
 
   const [viewMode, setViewMode] = useState('list');
 
+  // Edit states
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingFile, setEditingFile] = useState(null);
+  const [editFormData, setEditFormData] = useState({ name: '', description: '' });
+  const [saving, setSaving] = useState(false);
+  const [showEditPanel, setShowEditPanel] = useState(false);
+
   // Lightbox states
   const [showLightbox, setShowLightbox] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -238,6 +245,47 @@ const DocumentsPage = ({ propertyId }) => {
       toast.error('Tiedoston poisto epäonnistui');
     } finally {
       setDeleting(false);
+    }
+  };
+
+  // ─── File edit ────────────────────────────────────────────
+  const handleEdit = (file) => {
+    setEditingFile(file);
+    setEditFormData({
+      name: file.name || '',
+      description: file.description || ''
+    });
+    if (showLightbox) {
+      setShowEditPanel(true);
+    } else {
+      setShowEditModal(true);
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingFile) return;
+    try {
+      setSaving(true);
+      await axios.put(`${config.baseURL}/api/files/${editingFile._id}`, editFormData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success('Tiedoston tiedot päivitetty');
+      setShowEditModal(false);
+      setShowEditPanel(false);
+      if (showLightbox && editingFile) {
+        // Update lightbox display immediately
+        const updatedFiles = files.map(f =>
+          f._id === editingFile._id ? { ...f, ...editFormData } : f
+        );
+        setFiles(updatedFiles);
+      } else {
+        fetchContents();
+      }
+    } catch (err) {
+      console.error('Error updating file:', err);
+      toast.error('Tiedoston päivitys epäonnistui');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -744,25 +792,41 @@ const DocumentsPage = ({ propertyId }) => {
                       <span style={{ maxWidth: '60%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.name || 'Nimetön'}</span>
                     </div>
                     {/* Bottom overlay bar */}
-                    <div style={{
-                      position: 'absolute', bottom: 0, left: 0, right: 0,
-                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      backgroundColor: 'rgba(0,0,0,0.65)', color: '#fff',
-                      padding: '4px 8px', fontSize: '0.7rem'
-                    }}>
-                      <a href={validUrl} target="_blank" rel="noopener noreferrer"
-                        style={{ color: '#ccc', textDecoration: 'none', cursor: 'pointer', fontSize: '0.65rem' }}
-                        onClick={(e) => e.stopPropagation()}>
-                        <EyeFill size={11} className="me-1" />Avaa
-                      </a>
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      style={{
+                        position: 'absolute', bottom: 0, left: 0, right: 0,
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        backgroundColor: 'rgba(0,0,0,0.75)', color: '#fff',
+                        padding: '6px 10px', fontSize: '0.7rem'
+                      }}
+                    >
+                      <span
+                        onClick={() => handleEdit(file)}
+                        style={{ color: '#8cb4ff', cursor: 'pointer', flexShrink: 0 }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = '#8cb4ff'}
+                      >
+                        Muokkaa
+                      </span>
                       {file.description && (
-                        <span style={{ maxWidth: '45%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#aaa', fontSize: '0.6rem' }}>
+                        <span
+                          title={file.description}
+                          style={{
+                            color: '#ddd', overflow: 'hidden', textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap', margin: '0 8px', textAlign: 'center', flex: 1
+                          }}
+                        >
                           {file.description}
                         </span>
                       )}
-                      <span style={{ cursor: 'pointer', color: '#ff9999', fontSize: '0.65rem' }}
-                        onClick={(e) => { e.stopPropagation(); setFileToDelete(file._id); setShowDeleteConfirm(true); }}>
-                        <Trash size={11} className="me-1" />Poista
+                      <span
+                        onClick={() => { setFileToDelete(file._id); setShowDeleteConfirm(true); }}
+                        style={{ color: '#ff8c8c', cursor: 'pointer', flexShrink: 0 }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = '#ff8c8c'}
+                      >
+                        Poista
                       </span>
                     </div>
                   </div>
@@ -951,6 +1015,11 @@ const DocumentsPage = ({ propertyId }) => {
                     </Button>
                   )}
                   <Button variant="outline-primary" size="sm"
+                    onClick={(e) => { e.stopPropagation(); handleEdit(file); }}
+                    style={{ borderRadius: '4px', padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1 }}>
+                    <PencilSquare size={10} />
+                  </Button>
+                  <Button variant="outline-primary" size="sm"
                     href={validUrl} target="_blank" rel="noopener noreferrer"
                     style={{ borderRadius: '4px', padding: '2px 6px', fontSize: '0.7rem', lineHeight: 1 }}>
                     {isImage ? <Download size={10} /> : <EyeFill size={10} />}
@@ -972,7 +1041,7 @@ const DocumentsPage = ({ propertyId }) => {
       {showLightbox && imageFiles.length > 0 && (
         <Modal
           show
-          onHide={() => setShowLightbox(false)}
+          onHide={() => { setShowLightbox(false); setShowEditPanel(false); }}
           size="xl"
           centered
           contentClassName="bg-transparent border-0 shadow-none"
@@ -980,7 +1049,7 @@ const DocumentsPage = ({ propertyId }) => {
           style={{ zIndex: 1060 }}
         >
           <div
-            onClick={() => setShowLightbox(false)}
+            onClick={() => { setShowLightbox(false); setShowEditPanel(false); }}
             style={{
               position: 'fixed', inset: 0,
               backgroundColor: 'rgba(0,0,0,0.92)',
@@ -991,7 +1060,7 @@ const DocumentsPage = ({ propertyId }) => {
           >
             {/* Close */}
             <button
-              onClick={(e) => { e.stopPropagation(); setShowLightbox(false); }}
+              onClick={(e) => { e.stopPropagation(); setShowLightbox(false); setShowEditPanel(false); }}
               style={{
                 position: 'absolute', top: '16px', right: '16px',
                 background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '50%',
@@ -1083,6 +1152,11 @@ const DocumentsPage = ({ propertyId }) => {
                 </div>
                 <div className="d-flex gap-2">
                   <Button variant="outline-light" size="sm"
+                    onClick={(e) => { e.stopPropagation(); handleEdit(imageFiles[lightboxIndex]); }}
+                    style={{ borderColor: 'rgba(255,255,255,0.4)' }}>
+                    <PencilSquare size={14} className="me-1" />Muokkaa
+                  </Button>
+                  <Button variant="outline-light" size="sm"
                     href={getValidUrl(imageFiles[lightboxIndex]?.url)}
                     download onClick={(e) => e.stopPropagation()}>
                     <Download size={14} className="me-1" />Lataa
@@ -1099,7 +1173,105 @@ const DocumentsPage = ({ propertyId }) => {
                 </div>
               </div>
             </div>
+
+          {/* ─── Inline Edit Side Panel ─── */}
+          {showEditPanel && (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: 'absolute', top: 0, right: 0, bottom: 0,
+                width: '320px', maxWidth: '85vw',
+                backgroundColor: 'rgba(30, 30, 30, 0.95)',
+                borderLeft: '1px solid rgba(255,255,255,0.1)',
+                padding: '20px',
+                display: 'flex', flexDirection: 'column',
+                zIndex: 1082,
+                animation: 'slideInRight 0.25s ease'
+              }}
+            >
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <span style={{ color: '#fff', fontWeight: 600, fontSize: '0.9rem' }}>Muokkaa tietoja</span>
+                <button
+                  onClick={() => setShowEditPanel(false)}
+                  style={{
+                    background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%',
+                    width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <XLg size={12} color="#aaa" />
+                </button>
+              </div>
+
+              <div className="mb-3">
+                <label style={{ color: '#aaa', fontSize: '0.75rem', marginBottom: 4, display: 'block' }}>Nimi</label>
+                <input
+                  type="text"
+                  value={editFormData.name}
+                  onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                  placeholder="Esim. Energiatodistus"
+                  style={{
+                    width: '100%', padding: '8px 10px', borderRadius: '6px',
+                    border: '1px solid rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.08)',
+                    color: '#fff', fontSize: '0.85rem', outline: 'none'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#0d6efd'}
+                  onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.15)'}
+                />
+              </div>
+
+              <div className="mb-3">
+                <label style={{ color: '#aaa', fontSize: '0.75rem', marginBottom: 4, display: 'block' }}>Kuvaus</label>
+                <textarea
+                  value={editFormData.description}
+                  onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                  placeholder="Lisää tarkempi kuvaus..."
+                  rows={3}
+                  style={{
+                    width: '100%', padding: '8px 10px', borderRadius: '6px',
+                    border: '1px solid rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.08)',
+                    color: '#fff', fontSize: '0.85rem', outline: 'none', resize: 'vertical'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#0d6efd'}
+                  onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.15)'}
+                />
+                <small style={{ color: '#666', fontSize: '0.7rem' }}>Max 500 merkkiä</small>
+              </div>
+
+              <div className="d-flex gap-2 mt-auto">
+                <button
+                  onClick={() => setShowEditPanel(false)}
+                  style={{
+                    flex: 1, padding: '8px', borderRadius: '6px',
+                    border: '1px solid rgba(255,255,255,0.2)', background: 'transparent',
+                    color: '#aaa', fontSize: '0.8rem', cursor: 'pointer'
+                  }}
+                >
+                  Peruuta
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  disabled={saving}
+                  style={{
+                    flex: 1, padding: '8px', borderRadius: '6px',
+                    border: 'none', background: '#0d6efd',
+                    color: '#fff', fontSize: '0.8rem', cursor: saving ? 'wait' : 'pointer',
+                    opacity: saving ? 0.7 : 1
+                  }}
+                >
+                  {saving ? 'Tallennetaan...' : 'Tallenna'}
+                </button>
+              </div>
+            </div>
+          )}
           </div>
+
+          <style>{`
+            @keyframes slideInRight {
+              from { transform: translateX(100%); opacity: 0; }
+              to { transform: translateX(0); opacity: 1; }
+            }
+          `}</style>
         </Modal>
       )}
 
@@ -1189,6 +1361,40 @@ const DocumentsPage = ({ propertyId }) => {
             <Button variant="secondary" onClick={() => { setShowDeleteFolderConfirm(false); setFolderToDelete(null); }} disabled={deleting}>Peruuta</Button>
             <Button variant="danger" onClick={deleteFolder} disabled={deleting}>
               {deleting ? <><Spinner animation="border" size="sm" className="me-1" />Poistetaan...</> : <><Trash className="me-1" />Poista kansio</>}
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
+      {/* Edit File Modal */}
+      {showEditModal && editingFile && (
+        <Modal show centered onHide={() => { setShowEditModal(false); setEditingFile(null); }}>
+          <Modal.Header closeButton>
+            <Modal.Title style={{ fontSize: '1rem' }}>
+              <PencilSquare className="me-2" />Muokkaa tiedostoa
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form.Group className="mb-3">
+              <Form.Label>Nimi</Form.Label>
+              <Form.Control
+                type="text" value={editFormData.name}
+                onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Kuvaus</Form.Label>
+              <Form.Control
+                as="textarea" rows={3} value={editFormData.description}
+                onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" size="sm" onClick={() => { setShowEditModal(false); setEditingFile(null); }} disabled={saving}>
+              Peruuta
+            </Button>
+            <Button variant="primary" size="sm" onClick={handleSaveEdit} disabled={saving}>
+              {saving ? <><Spinner animation="border" size="sm" className="me-1" />Tallennetaan...</> : 'Tallenna'}
             </Button>
           </Modal.Footer>
         </Modal>
