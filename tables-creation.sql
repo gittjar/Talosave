@@ -154,7 +154,8 @@ CREATE TABLE TS_PropertyUsers (
     password NVARCHAR(255),
     email NVARCHAR(255),
     phone NVARCHAR(255),
-    role NVARCHAR(255)
+    role NVARCHAR(255),
+    storageUsed BIGINT NOT NULL DEFAULT 0  -- Storage quota tracking in bytes (50MB free tier)
 );
 
 CREATE TABLE TS_UserProperties (

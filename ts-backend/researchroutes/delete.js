@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { File } = require('../mongo');
 const { BlobServiceClient } = require('@azure/storage-blob');
+const { removeStorageUsage } = require('../middleware/storageQuota');
 require('dotenv').config();
 
 // Azure Storage configuration
@@ -31,6 +32,16 @@ router.delete('/files/:id', async (req, res) => {
       } catch (azureError) {
         console.error('Error deleting from Azure:', azureError.message);
         // Continue with MongoDB deletion even if Azure deletion fails
+      }
+    }
+
+    // Update user's storage usage if file has size and userId
+    if (file.fileSize && file.userId) {
+      try {
+        await removeStorageUsage(file.userId, file.fileSize);
+      } catch (quotaError) {
+        console.error('Error updating storage usage:', quotaError.message);
+        // Continue with deletion even if quota update fails
       }
     }
 

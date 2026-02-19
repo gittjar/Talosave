@@ -4,6 +4,8 @@ const { File } = require('../mongo');
 const { BlobServiceClient, BlobSASPermissions, StorageSharedKeyCredential, generateBlobSASQueryParameters } = require('@azure/storage-blob');
 const path = require('path');
 const fs = require('fs');
+const getUserFromToken = require('../middleware/getUserFromToken');
+const { getUserStorageUsage } = require('../middleware/storageQuota');
 require('dotenv').config();
 
 // Azure SAS URL generation setup
@@ -116,6 +118,35 @@ router.get('/files/:id', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).send('Error retrieving file');
+  }
+});
+
+// Get user's storage quota/usage
+router.get('/storage-quota', getUserFromToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const usage = await getUserStorageUsage(userId);
+    
+    // Convert to MB for easier display
+    const response = {
+      used: usage.used,
+      usedMB: (usage.used / (1024 * 1024)).toFixed(2),
+      limit: usage.limit,
+      limitMB: (usage.limit / (1024 * 1024)).toFixed(0),
+      available: usage.available,
+      availableMB: (usage.available / (1024 * 1024)).toFixed(2),
+      percentUsed: ((usage.used / usage.limit) * 100).toFixed(1)
+    };
+
+    res.json(response);
+  } catch (err) {
+    console.error('Error getting storage quota:', err);
+    // Return null/empty if quota not configured yet
+    if (err.message && err.message.includes('Invalid column name')) {
+      console.warn('⚠️  Storage quota not configured - column missing');
+      return res.json(null);
+    }
+    res.status(500).json({ error: 'Virhe tallennustilan tietojen haussa' });
   }
 });
 

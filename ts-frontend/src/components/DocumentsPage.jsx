@@ -75,6 +75,10 @@ const DocumentsPage = ({ propertyId }) => {
   const [dragOverTarget, setDragOverTarget] = useState(null); // breadcrumb only
   const [dropIndicator, setDropIndicator] = useState(null);   // { targetId, action: 'before'|'after'|'into', groupType: 'folder'|'file', folderName? }
 
+  // Storage quota states
+  const [storageQuota, setStorageQuota] = useState(null);
+  const [loadingQuota, setLoadingQuota] = useState(false);
+
   const token = localStorage.getItem('token') || localStorage.getItem('userToken');
 
   // ─── Data fetching ────────────────────────────────────────
@@ -106,6 +110,25 @@ const DocumentsPage = ({ propertyId }) => {
   useEffect(() => {
     fetchContents();
   }, [fetchContents]);
+
+  // ─── Storage quota fetching ───────────────────────────────
+  const fetchStorageQuota = useCallback(async () => {
+    try {
+      setLoadingQuota(true);
+      const response = await axios.get(`${config.baseURL}/api/storage-quota`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setStorageQuota(response.data);
+    } catch (err) {
+      console.error('Error fetching storage quota:', err);
+    } finally {
+      setLoadingQuota(false);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    fetchStorageQuota();
+  }, [fetchStorageQuota]);
 
   // ─── Lightbox keyboard navigation ─────────────────────────
   const imageFiles = files.filter(f => isImageFile(f));
@@ -281,6 +304,7 @@ const DocumentsPage = ({ propertyId }) => {
       setShowDeleteConfirm(false);
       setFileToDelete(null);
       fetchContents();
+      fetchStorageQuota(); // Refresh quota after deletion
     } catch (err) {
       console.error('Error deleting file:', err);
       toast.error(`Tiedoston "${fileName}" poisto epäonnistui`);
@@ -563,46 +587,85 @@ const DocumentsPage = ({ propertyId }) => {
       </Row>
 
       {/* Breadcrumb + Actions bar */}
-      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" style={{ backgroundColor: '#f8f9fa', padding: '8px 12px', borderRadius: '6px' }}>
-        <div className="d-flex align-items-center gap-2 flex-wrap">
+      <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" style={{ backgroundColor: '#f8f9fa', padding: '10px 16px', borderRadius: '8px', border: '1px solid #e9ecef' }}>
+        <div className="d-flex align-items-center gap-2">
+          {/* Back button */}
           {folderPath.length > 0 && (
-            <Button variant="outline-secondary" size="sm" onClick={navigateBack} style={{ padding: '3px 8px' }}>
+            <Button 
+              variant="light" 
+              size="sm" 
+              onClick={navigateBack} 
+              style={{ 
+                padding: '4px 10px', 
+                border: '1px solid #dee2e6',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+              className="shadow-sm"
+            >
               <ArrowLeft size={14} />
+              <span style={{ fontSize: '0.85rem' }}>Takaisin</span>
             </Button>
           )}
-          <Breadcrumb className="mb-0" style={{ fontSize: '0.85rem' }}>
-            <Breadcrumb.Item
+
+          {/* Breadcrumb path */}
+          <div className="d-flex align-items-center gap-1" style={{ fontSize: '0.9rem' }}>
+            {/* Root/Home */}
+            <div
               onClick={navigateToRoot}
-              active={folderPath.length === 0}
-              style={{
-                cursor: folderPath.length > 0 ? 'pointer' : 'default',
-                ...(isDragOverBreadcrumb('root') ? { backgroundColor: '#cfe2ff', borderRadius: '4px', padding: '0 4px' } : {})
-              }}
               onDragOver={(e) => folderPath.length > 0 && handleDragOverBreadcrumb(e, 'root')}
               onDragLeave={handleDragLeave}
               onDrop={(e) => folderPath.length > 0 && handleDropOnBreadcrumb(e, null)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '4px 8px',
+                borderRadius: '4px',
+                cursor: folderPath.length > 0 ? 'pointer' : 'default',
+                fontWeight: folderPath.length === 0 ? '600' : '500',
+                color: folderPath.length === 0 ? '#0d6efd' : '#495057',
+                backgroundColor: isDragOverBreadcrumb('root') ? '#cfe2ff' : 'transparent',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => folderPath.length > 0 && (e.currentTarget.style.backgroundColor = '#e9ecef')}
+              onMouseLeave={(e) => !isDragOverBreadcrumb('root') && (e.currentTarget.style.backgroundColor = 'transparent')}
             >
-              <HouseFill size={12} className="me-1" />
-              Juuri
-            </Breadcrumb.Item>
+              <HouseFill size={14} style={{ marginBottom: '1px' }} />
+              <span>Koti</span>
+            </div>
+
+            {/* Folder path with separators */}
             {folderPath.map((folder, index) => (
-              <Breadcrumb.Item
-                key={folder._id}
-                onClick={() => navigateToBreadcrumb(index)}
-                active={index === folderPath.length - 1}
-                style={{
-                  cursor: index < folderPath.length - 1 ? 'pointer' : 'default',
-                  ...(isDragOverBreadcrumb(folder._id) ? { backgroundColor: '#cfe2ff', borderRadius: '4px', padding: '0 4px' } : {})
-                }}
-                onDragOver={(e) => index < folderPath.length - 1 && handleDragOverBreadcrumb(e, folder._id)}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => index < folderPath.length - 1 && handleDropOnBreadcrumb(e, folder._id)}
-              >
-                {folder.name}
-              </Breadcrumb.Item>
+              <div key={folder._id} className="d-flex align-items-center gap-1">
+                <span style={{ color: '#6c757d', fontSize: '0.9rem' }}>/</span>
+                <div
+                  onClick={() => navigateToBreadcrumb(index)}
+                  onDragOver={(e) => index < folderPath.length - 1 && handleDragOverBreadcrumb(e, folder._id)}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => index < folderPath.length - 1 && handleDropOnBreadcrumb(e, folder._id)}
+                  style={{
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    cursor: index < folderPath.length - 1 ? 'pointer' : 'default',
+                    fontWeight: index === folderPath.length - 1 ? '600' : '500',
+                    color: index === folderPath.length - 1 ? '#0d6efd' : '#495057',
+                    backgroundColor: isDragOverBreadcrumb(folder._id) ? '#cfe2ff' : 'transparent',
+                    transition: 'all 0.2s',
+                    whiteSpace: 'nowrap'
+                  }}
+                  onMouseEnter={(e) => index < folderPath.length - 1 && (e.currentTarget.style.backgroundColor = '#e9ecef')}
+                  onMouseLeave={(e) => !isDragOverBreadcrumb(folder._id) && (e.currentTarget.style.backgroundColor = 'transparent')}
+                >
+                  {folder.name}
+                </div>
+              </div>
             ))}
-          </Breadcrumb>
+          </div>
         </div>
+
+        {/* Action buttons */}
         <div className="d-flex align-items-center gap-2">
           <Button variant="outline-primary" size="sm"
             onClick={() => { setShowCreateFolder(true); setNewFolderName(''); }}>
@@ -627,7 +690,34 @@ const DocumentsPage = ({ propertyId }) => {
       {/* Upload area */}
       <Row className="mb-3">
         <Col lg={8} xl={6}>
-          <DocumentUpload propertyId={propertyId} folderId={currentFolderId} onUpload={fetchContents} />
+          <DocumentUpload propertyId={propertyId} folderId={currentFolderId} onUpload={() => { fetchContents(); fetchStorageQuota(); }} />
+          
+          {/* Storage quota display */}
+          {storageQuota && (
+            <div className="mt-2 p-2 border rounded bg-light d-flex align-items-center justify-content-between" style={{ fontSize: '0.85rem' }}>
+              <div className="d-flex align-items-center gap-2 flex-grow-1">
+                <span className="text-muted">Tallennustila:</span>
+                <div className="flex-grow-1" style={{ maxWidth: '200px' }}>
+                  <div className="progress" style={{ height: '8px' }}>
+                    <div 
+                      className={`progress-bar ${parseFloat(storageQuota.percentUsed) > 90 ? 'bg-danger' : parseFloat(storageQuota.percentUsed) > 75 ? 'bg-warning' : 'bg-success'}`}
+                      role="progressbar"
+                      style={{ width: `${storageQuota.percentUsed}%` }}
+                      aria-valuenow={storageQuota.percentUsed}
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    />
+                  </div>
+                </div>
+                <span>
+                  <strong>{storageQuota.usedMB}</strong> / {storageQuota.limitMB} MB
+                </span>
+              </div>
+              {parseFloat(storageQuota.percentUsed) > 90 && (
+                <Badge bg="danger" className="ms-2">Lähes täynnä</Badge>
+              )}
+            </div>
+          )}
         </Col>
       </Row>
 

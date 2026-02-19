@@ -4,6 +4,7 @@ const multer = require('multer');
 const { BlobServiceClient } = require('@azure/storage-blob');
 const getUserFromToken = require('../middleware/getUserFromToken');
 const { File } = require('../mongo');
+const { checkStorageQuota, addStorageUsage } = require('../middleware/storageQuota');
 require('dotenv').config();
 
 // Try to load sharp for image processing
@@ -67,6 +68,24 @@ router.post('/upload-file', getUserFromToken, upload.single('file'), async (req,
                 success: false, 
                 error: 'Nimi ja propertyId ovat pakollisia' 
             });
+        }
+
+        // Check storage quota before processing (graceful if quota not configured yet)
+        const userId = req.user.id;
+        const fileSize = req.file.size;
+        
+        try {
+            const quotaCheck = await checkStorageQuota(userId, fileSize);
+            if (!quotaCheck.allowed) {
+                return res.status(413).json({ 
+                    success: false, 
+                    error: quotaCheck.message,
+                    usage: quotaCheck.usage
+                });
+            }
+        } catch (quotaError) {
+            // If quota check fails (e.g., column doesn't exist), log and continue
+            console.warn('⚠️  Storage quota check failed, continuing with upload:', quotaError.message);
         }
 
         // Process image if HEIC/HEIF — convert to JPEG
@@ -134,10 +153,19 @@ router.post('/upload-file', getUserFromToken, upload.single('file'), async (req,
             folderId: folderId || null,
             blobName: blobName, // Store blob name for deletion
             fileType: 'upload', // Distinguish from URL links
+            fileSize: processedBuffer.length,
+            userId: userId,
             uploadedAt: new Date()
         });
 
         await newFile.save();
+        
+        // Update user's storage usage (graceful if quota not configured)
+        try {
+            await addStorageUsage(userId, processedBuffer.length);
+        } catch (quotaError) {
+            console.warn('⚠️  Failed to update storage quota:', quotaError.message);
+        }
 
         res.json({ 
             success: true, 

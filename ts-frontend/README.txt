@@ -151,7 +151,8 @@ Database
 │   ├── password
 │   ├── email
 │   ├── phone
-│   └── role
+│   ├── role
+│   └── storageUsed (BIGINT, tallennustilan käyttö tavuina, 50MB vapaa kiintiö)
 │
 ├── TS_UserProperties
 │   ├── userid (PK, FK -> TS_PropertyUsers)
@@ -180,3 +181,33 @@ Database
     ├── documenturl
     ├── createdat
     └── updatedat
+
+MongoDB Collections
+│
+├── Files (Document Storage)
+│   ├── _id (ObjectId, PK)
+│   ├── name (dokumentin nimi)
+│   ├── description (kuvaus)
+│   ├── propertyId (Number, viittaus TS_Properties)
+│   ├── folderId (ObjectId, viittaus Folder, null = juuressa)
+│   ├── url (Azure Blob URL tai linkki)
+│   ├── blobName (Azure Blob nimi poistoa varten)
+│   ├── fileType ('link' tai 'upload')
+│   ├── sortOrder (järjestys drag & drop)
+│   ├── uploadedAt (Date)
+│   ├── fileSize (bytes, käytetään kiintiölaskennassa)
+│   └── userId (Number, viittaus TS_PropertyUsers, tiedoston lataaja)
+│
+└── Folders (Document Organization)
+    ├── _id (ObjectId, PK)
+    ├── name (kansion nimi, max 50 merkkiä, ei erikoismerkkejä)
+    ├── propertyId (Number, viittaus TS_Properties)
+    ├── parentFolderId (ObjectId, viittaus Folder, null = juuressa)
+    ├── sortOrder (järjestys drag & drop)
+    └── createdAt (Date)
+
+Storage Quota
+- Free tier: 50 MB per user (tracked in TS_PropertyUsers.storageUsed)
+- Quota check on file upload via /api/storage-quota endpoint
+- Usage updated automatically on upload/delete operations
+- Frontend displays progress bar and warning when limit approached

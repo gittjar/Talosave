@@ -92,6 +92,14 @@ const DocumentUpload = ({ propertyId, folderId, onUpload }) => {
         console.error('Upload error:', error);
         updateFile(item.id, { status: 'error', progress: 0 });
         errorCount++;
+        
+        // Handle quota exceeded error
+        if (error.response?.status === 413) {
+          const message = error.response.data?.error || 'Tallennustila täynnä';
+          toast.error(message, { autoClose: 5000 });
+          // Stop uploading remaining files
+          break;
+        }
       }
     }
 

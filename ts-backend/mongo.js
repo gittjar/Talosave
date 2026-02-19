@@ -38,7 +38,9 @@ const fileSchema = new mongoose.Schema({
   blobName: String, // Azure Blob name for deletion (optional, only for uploaded files)
   fileType: { type: String, default: 'link' }, // 'link' or 'upload'
   sortOrder: { type: Number, default: 0 },
-  uploadedAt: { type: Date, default: Date.now }
+  uploadedAt: { type: Date, default: Date.now },
+  fileSize: { type: Number, default: 0 }, // Size in bytes
+  userId: { type: Number, required: false } // User who uploaded the file
 });
 
 const folderSchema = new mongoose.Schema({
