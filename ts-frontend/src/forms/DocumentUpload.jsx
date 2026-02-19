@@ -3,92 +3,133 @@ import axios from 'axios';
 import config from '../configuration/config.js';
 import { toast } from 'react-toastify';
 import { Form, Button, Card, ProgressBar, Badge, Row, Col } from 'react-bootstrap';
-import { CloudArrowUp, FileEarmarkText, XCircleFill } from 'react-bootstrap-icons';
+import { CloudArrowUp, FileEarmarkText, XCircleFill, CheckCircleFill, ExclamationCircleFill } from 'react-bootstrap-icons';
 
 const DocumentUpload = ({ propertyId, folderId, onUpload }) => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [file, setFile] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const [files, setFiles] = useState([]); // Array of { file, name, description, status, progress }
   const [isUploading, setIsUploading] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const formRef = useRef();
+  const fileInputRef = useRef();
 
   const token = localStorage.getItem('token') || localStorage.getItem('userToken');
 
-  const submitFile = async (event) => {
+  const handleFilesChange = (event) => {
+    const selectedFiles = Array.from(event.target.files);
+    const maxSize = 10 * 1024 * 1024;
+    const newFiles = [];
+    let rejected = 0;
+
+    selectedFiles.forEach((f) => {
+      if (f.size > maxSize) {
+        rejected++;
+        return;
+      }
+      newFiles.push({
+        id: Date.now() + Math.random(),
+        file: f,
+        name: f.name.split('.').slice(0, -1).join('.') || f.name,
+        description: '',
+        status: 'pending', // pending | uploading | done | error
+        progress: 0
+      });
+    });
+
+    if (rejected > 0) {
+      toast.error(`${rejected} tiedosto${rejected > 1 ? 'a' : ''} liian suuri (max 10MB)`);
+    }
+    if (newFiles.length > 0) {
+      setFiles(prev => [...prev, ...newFiles]);
+    }
+    // Reset input so same files can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeFile = (id) => {
+    setFiles(prev => prev.filter(f => f.id !== id));
+  };
+
+  const updateFile = (id, updates) => {
+    setFiles(prev => prev.map(f => f.id === id ? { ...f, ...updates } : f));
+  };
+
+  const submitFiles = async (event) => {
     event.preventDefault();
 
-    if (!file) {
-      toast.error('Valitse tiedosto ensin!');
+    const pendingFiles = files.filter(f => f.status === 'pending');
+    if (pendingFiles.length === 0) {
+      toast.error('Ei ladattavia tiedostoja');
       return;
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('name', name);
-    formData.append('description', description);
-    formData.append('propertyId', propertyId);
-    if (folderId) {
-      formData.append('folderId', folderId);
-    }
-
     setIsUploading(true);
-    setUploadProgress(0);
+    let successCount = 0;
+    let errorCount = 0;
 
-    try {
-      await axios.post(`${config.baseURL}/api/upload-file`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${token}`
-        },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          setUploadProgress(percentCompleted);
-        }
-      });
+    for (const item of pendingFiles) {
+      updateFile(item.id, { status: 'uploading', progress: 0 });
 
-      resetForm();
-      toast.success('Tiedosto ladattu onnistuneesti!');
+      const formData = new FormData();
+      formData.append('file', item.file);
+      formData.append('name', item.name);
+      formData.append('description', item.description);
+      formData.append('propertyId', propertyId);
+      if (folderId) formData.append('folderId', folderId);
+
+      try {
+        await axios.post(`${config.baseURL}/api/upload-file`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`
+          },
+          onUploadProgress: (progressEvent) => {
+            const pct = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            updateFile(item.id, { progress: pct });
+          }
+        });
+        updateFile(item.id, { status: 'done', progress: 100 });
+        successCount++;
+      } catch (error) {
+        console.error('Upload error:', error);
+        updateFile(item.id, { status: 'error', progress: 0 });
+        errorCount++;
+      }
+    }
+
+    setIsUploading(false);
+
+    if (successCount > 0) {
+      toast.success(`${successCount} tiedosto${successCount > 1 ? 'a' : ''} ladattu onnistuneesti!`);
       if (onUpload) onUpload();
-    } catch (error) {
-      console.error('Upload error:', error);
-      toast.error(error.response?.data?.error || 'Tiedoston lataus epäonnistui!');
-    } finally {
-      setIsUploading(false);
-      setUploadProgress(0);
     }
-  };
+    if (errorCount > 0) {
+      toast.error(`${errorCount} tiedoston lataus epäonnistui`);
+    }
 
-  const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
-    if (selectedFile) {
-      if (selectedFile.size > 10 * 1024 * 1024) {
-        toast.error('Tiedosto on liian suuri (max 10MB)');
-        return;
-      }
-      setFile(selectedFile);
-      if (!name) {
-        setName(selectedFile.name.split('.').slice(0, -1).join('.') || selectedFile.name);
-      }
-    }
+    // Remove completed files after a short delay
+    setTimeout(() => {
+      setFiles(prev => prev.filter(f => f.status !== 'done'));
+      // If all done, close form
+      setFiles(prev => {
+        if (prev.length === 0) setShowForm(false);
+        return prev;
+      });
+    }, 1500);
   };
 
   const resetForm = () => {
-    setFile(null);
-    setName('');
-    setDescription('');
+    setFiles([]);
     setShowForm(false);
-    setUploadProgress(0);
-    if (formRef.current) formRef.current.reset();
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
+
+  const pendingCount = files.filter(f => f.status === 'pending').length;
 
   if (!showForm) {
     return (
       <div className="mb-3">
         <Button variant="primary" size="sm" onClick={() => setShowForm(true)}>
           <CloudArrowUp size={16} className="me-2" />
-          Lataa tiedosto
+          Lataa tiedostoja
         </Button>
       </div>
     );
@@ -100,85 +141,124 @@ const DocumentUpload = ({ propertyId, folderId, onUpload }) => {
         <div className="d-flex justify-content-between align-items-center mb-2">
           <h6 className="mb-0">
             <CloudArrowUp size={16} className="me-2" />
-            Lataa dokumentti
+            Lataa dokumentteja
+            {files.length > 0 && (
+              <Badge bg="primary" className="ms-2" style={{ fontSize: '0.7rem' }}>{files.length}</Badge>
+            )}
           </h6>
           <Button variant="link" size="sm" className="text-muted p-0" onClick={resetForm}>
             Peruuta
           </Button>
         </div>
 
-        <Form ref={formRef} onSubmit={submitFile}>
+        <Form onSubmit={submitFiles}>
+          {/* File input - always visible for adding more */}
           <Form.Group className="mb-2">
             <Form.Control
+              ref={fileInputRef}
               type="file"
-              onChange={handleFileChange}
+              onChange={handleFilesChange}
               accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg,.gif,.webp,.heic,.heif,.zip,.rar"
-              required
               disabled={isUploading}
               size="sm"
+              multiple
             />
             <Form.Text className="text-muted" style={{ fontSize: '0.7rem' }}>
-              PDF, Word, Excel, PowerPoint, kuvat, arkistot (max 10MB)
+              PDF, Word, Excel, PowerPoint, kuvat, arkistot (max 10MB / tiedosto). Voit valita useita kerralla.
             </Form.Text>
           </Form.Group>
 
-          {file && (
-            <div className="mb-2 d-flex align-items-center gap-2 p-2" style={{ backgroundColor: '#f8f9fa', borderRadius: '4px', fontSize: '0.8rem' }}>
-              <FileEarmarkText size={16} className="text-primary flex-shrink-0" />
-              <span className="text-truncate">{file.name}</span>
-              <Badge bg="secondary" style={{ fontSize: '0.65rem' }}>{(file.size / 1024).toFixed(0)} KB</Badge>
-              <XCircleFill
-                size={14}
-                className="text-danger ms-auto flex-shrink-0"
-                style={{ cursor: 'pointer' }}
-                onClick={() => { setFile(null); if (formRef.current) formRef.current.reset(); }}
-              />
+          {/* File list */}
+          {files.length > 0 && (
+            <div className="mb-2" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              {files.map((item) => (
+                <div
+                  key={item.id}
+                  className="mb-2 p-2"
+                  style={{
+                    backgroundColor: item.status === 'done' ? '#d4edda' : item.status === 'error' ? '#f8d7da' : '#f8f9fa',
+                    borderRadius: '6px', border: '1px solid #e9ecef',
+                    transition: 'background-color 0.3s'
+                  }}
+                >
+                  {/* File header row */}
+                  <div className="d-flex align-items-center gap-2 mb-1" style={{ fontSize: '0.8rem' }}>
+                    {item.status === 'done' ? (
+                      <CheckCircleFill size={14} className="text-success flex-shrink-0" />
+                    ) : item.status === 'error' ? (
+                      <ExclamationCircleFill size={14} className="text-danger flex-shrink-0" />
+                    ) : (
+                      <FileEarmarkText size={14} className="text-primary flex-shrink-0" />
+                    )}
+                    <span className="text-truncate" style={{ flex: 1 }}>{item.file.name}</span>
+                    <Badge bg="secondary" style={{ fontSize: '0.6rem' }}>
+                      {(item.file.size / 1024).toFixed(0)} KB
+                    </Badge>
+                    {item.status === 'pending' && !isUploading && (
+                      <XCircleFill
+                        size={14}
+                        className="text-danger flex-shrink-0"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => removeFile(item.id)}
+                      />
+                    )}
+                  </div>
+
+                  {/* Name and description inputs - only for pending */}
+                  {item.status === 'pending' && (
+                    <Row className="g-1 mb-1">
+                      <Col sm={6}>
+                        <Form.Control
+                          type="text"
+                          value={item.name}
+                          onChange={(e) => updateFile(item.id, { name: e.target.value })}
+                          placeholder="Nimi"
+                          disabled={isUploading}
+                          size="sm"
+                          style={{ fontSize: '0.75rem' }}
+                        />
+                      </Col>
+                      <Col sm={6}>
+                        <Form.Control
+                          type="text"
+                          value={item.description}
+                          onChange={(e) => updateFile(item.id, { description: e.target.value })}
+                          placeholder="Kuvaus (valinnainen)"
+                          disabled={isUploading}
+                          size="sm"
+                          style={{ fontSize: '0.75rem' }}
+                        />
+                      </Col>
+                    </Row>
+                  )}
+
+                  {/* Progress bar during upload */}
+                  {item.status === 'uploading' && (
+                    <ProgressBar
+                      now={item.progress}
+                      label={`${item.progress}%`}
+                      animated
+                      variant="success"
+                      style={{ height: '14px', fontSize: '0.65rem' }}
+                    />
+                  )}
+                </div>
+              ))}
             </div>
-          )}
-
-          <Row className="g-2 mb-2">
-            <Col sm={6}>
-              <Form.Control
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Dokumentin nimi"
-                required
-                disabled={isUploading}
-                size="sm"
-              />
-            </Col>
-            <Col sm={6}>
-              <Form.Control
-                type="text"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Kuvaus (valinnainen)"
-                disabled={isUploading}
-                size="sm"
-              />
-            </Col>
-          </Row>
-
-          {isUploading && (
-            <ProgressBar
-              now={uploadProgress}
-              label={`${uploadProgress}%`}
-              animated
-              variant="success"
-              className="mb-2"
-              style={{ height: '18px' }}
-            />
           )}
 
           <Button
             variant="success"
             type="submit"
             size="sm"
-            disabled={isUploading || !file}
+            disabled={isUploading || pendingCount === 0}
           >
             <CloudArrowUp size={14} className="me-1" />
-            {isUploading ? 'Ladataan...' : 'Lataa'}
+            {isUploading
+              ? 'Ladataan...'
+              : pendingCount > 1
+                ? `Lataa ${pendingCount} tiedostoa`
+                : 'Lataa'}
           </Button>
         </Form>
       </Card.Body>
