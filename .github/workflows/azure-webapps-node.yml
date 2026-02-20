@@ -34,7 +34,7 @@ jobs:
         cache: 'npm'
 
     - name: Install, build, and test backend
-      if: ${{ github.event.inputs.deploy_target == 'backend' || github.event.inputs.deploy_target == 'both' }}
+      if: ${{ !github.event.inputs.deploy_target || github.event.inputs.deploy_target == 'backend' || github.event.inputs.deploy_target == 'both' }}
       run: |
         cd ${{ env.AZURE_WEBAPP_PACKAGE_PATH_BACKEND }}
         npm install --legacy-peer-deps
@@ -42,7 +42,7 @@ jobs:
         npm run test --if-present
 
     - name: Install, build, and test frontend
-      if: ${{ github.event.inputs.deploy_target == 'frontend' || github.event.inputs.deploy_target == 'both' }}
+      if: ${{ !github.event.inputs.deploy_target || github.event.inputs.deploy_target == 'frontend' || github.event.inputs.deploy_target == 'both' }}
       run: |
         cd ${{ env.AZURE_WEBAPP_PACKAGE_PATH_FRONTEND }}
         npm install --legacy-peer-deps
@@ -50,21 +50,21 @@ jobs:
         npm run test --if-present
 
     - name: Upload backend artifact for deployment job
-      if: ${{ github.event.inputs.deploy_target == 'backend' || github.event.inputs.deploy_target == 'both' }}
+      if: ${{ !github.event.inputs.deploy_target || github.event.inputs.deploy_target == 'backend' || github.event.inputs.deploy_target == 'both' }}
       uses: actions/upload-artifact@v4
       with:
         name: backend-app
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH_BACKEND }}
 
     - name: Upload frontend artifact for deployment job
-      if: ${{ github.event.inputs.deploy_target == 'frontend' || github.event.inputs.deploy_target == 'both' }}
+      if: ${{ !github.event.inputs.deploy_target || github.event.inputs.deploy_target == 'frontend' || github.event.inputs.deploy_target == 'both' }}
       uses: actions/upload-artifact@v4
       with:
         name: frontend-app
         path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH_FRONTEND }}/dist
 
   deploy-backend:
-    if: ${{ github.event.inputs.deploy_target == 'backend' || github.event.inputs.deploy_target == 'both' }}
+    if: ${{ !github.event.inputs.deploy_target || github.event.inputs.deploy_target == 'backend' || github.event.inputs.deploy_target == 'both' }}
     permissions:
       contents: none
     runs-on: ubuntu-latest
@@ -93,7 +93,7 @@ jobs:
         package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH_BACKEND }}
 
   deploy-frontend:
-    if: ${{ github.event.inputs.deploy_target == 'frontend' || github.event.inputs.deploy_target == 'both' }}
+    if: ${{ !github.event.inputs.deploy_target || github.event.inputs.deploy_target == 'frontend' || github.event.inputs.deploy_target == 'both' }}
     permissions:
       contents: none
     runs-on: ubuntu-latest
