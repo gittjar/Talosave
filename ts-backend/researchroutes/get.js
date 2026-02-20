@@ -5,7 +5,7 @@ const { BlobServiceClient, BlobSASPermissions, StorageSharedKeyCredential, gener
 const path = require('path');
 const fs = require('fs');
 const getUserFromToken = require('../middleware/getUserFromToken');
-const { getUserStorageUsage } = require('../middleware/storageQuota');
+const { getUserStorageUsage, getAllStorageUsage } = require('../middleware/storageQuota');
 require('dotenv').config();
 
 // Azure SAS URL generation setup
@@ -125,17 +125,46 @@ router.get('/files/:id', async (req, res) => {
 router.get('/storage-quota', getUserFromToken, async (req, res) => {
   try {
     const userId = req.user.id;
-    const usage = await getUserStorageUsage(userId);
+    const allUsage = await getAllStorageUsage(userId);
     
-    // Convert to MB for easier display
+    // Convert to MB for easier display (return numbers, not strings)
     const response = {
-      used: usage.used,
-      usedMB: (usage.used / (1024 * 1024)).toFixed(2),
-      limit: usage.limit,
-      limitMB: (usage.limit / (1024 * 1024)).toFixed(0),
-      available: usage.available,
-      availableMB: (usage.available / (1024 * 1024)).toFixed(2),
-      percentUsed: ((usage.used / usage.limit) * 100).toFixed(1)
+      documents: {
+        used: allUsage.documents.used,
+        usedMB: allUsage.documents.used / (1024 * 1024),
+        limit: allUsage.documents.limit,
+        limitMB: allUsage.documents.limit / (1024 * 1024),
+        available: allUsage.documents.available,
+        availableMB: allUsage.documents.available / (1024 * 1024),
+        percentUsed: (allUsage.documents.used / allUsage.documents.limit) * 100
+      },
+      propertyImages: {
+        used: allUsage.propertyImages.used,
+        usedMB: allUsage.propertyImages.used / (1024 * 1024),
+        limit: allUsage.propertyImages.limit,
+        limitMB: allUsage.propertyImages.limit / (1024 * 1024),
+        available: allUsage.propertyImages.available,
+        availableMB: allUsage.propertyImages.available / (1024 * 1024),
+        percentUsed: (allUsage.propertyImages.used / allUsage.propertyImages.limit) * 100
+      },
+      renovationImages: {
+        used: allUsage.renovationImages.used,
+        usedMB: allUsage.renovationImages.used / (1024 * 1024),
+        limit: allUsage.renovationImages.limit,
+        limitMB: allUsage.renovationImages.limit / (1024 * 1024),
+        available: allUsage.renovationImages.available,
+        availableMB: allUsage.renovationImages.available / (1024 * 1024),
+        percentUsed: (allUsage.renovationImages.used / allUsage.renovationImages.limit) * 100
+      },
+      total: {
+        used: allUsage.total.used,
+        usedMB: allUsage.total.used / (1024 * 1024),
+        limit: allUsage.total.limit,
+        limitMB: allUsage.total.limit / (1024 * 1024),
+        available: allUsage.total.available,
+        availableMB: allUsage.total.available / (1024 * 1024),
+        percentUsed: (allUsage.total.used / allUsage.total.limit) * 100
+      }
     };
 
     res.json(response);

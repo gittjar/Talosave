@@ -694,27 +694,59 @@ const DocumentsPage = ({ propertyId }) => {
           
           {/* Storage quota display */}
           {storageQuota && (
-            <div className="mt-2 p-2 border rounded bg-light d-flex align-items-center justify-content-between" style={{ fontSize: '0.85rem' }}>
-              <div className="d-flex align-items-center gap-2 flex-grow-1">
-                <span className="text-muted">Tallennustila:</span>
-                <div className="flex-grow-1" style={{ maxWidth: '200px' }}>
-                  <div className="progress" style={{ height: '8px' }}>
-                    <div 
-                      className={`progress-bar ${parseFloat(storageQuota.percentUsed) > 90 ? 'bg-danger' : parseFloat(storageQuota.percentUsed) > 75 ? 'bg-warning' : 'bg-success'}`}
-                      role="progressbar"
-                      style={{ width: `${storageQuota.percentUsed}%` }}
-                      aria-valuenow={storageQuota.percentUsed}
-                      aria-valuemin="0"
-                      aria-valuemax="100"
-                    />
+            <div className="mt-3 p-3 border rounded bg-light">
+              <h6 className="mb-3">Tallennustilan käyttö</h6>
+              
+              {/* Documents quota */}
+              <div className="mb-3">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <span className="fw-bold">Dokumentit</span>
+                  <span className="text-muted small">
+                    {storageQuota.documents.usedMB.toFixed(1)} MB käytetty / {storageQuota.documents.availableMB.toFixed(1)} MB jäljellä
+                  </span>
+                </div>
+                <div className="progress" style={{ height: '20px' }}>
+                  <div 
+                    className={`progress-bar ${
+                      parseFloat(storageQuota.documents.percentUsed) >= 80 ? 'bg-danger' : 
+                      parseFloat(storageQuota.documents.percentUsed) >= 60 ? 'bg-warning' : 
+                      'bg-success'
+                    }`}
+                    role="progressbar"
+                    style={{ width: `${Math.min(100, storageQuota.documents.percentUsed)}%` }}
+                  >
+                    {parseFloat(storageQuota.documents.percentUsed).toFixed(1)}%
                   </div>
                 </div>
-                <span>
-                  <strong>{storageQuota.usedMB}</strong> / {storageQuota.limitMB} MB
-                </span>
               </div>
-              {parseFloat(storageQuota.percentUsed) > 90 && (
-                <Badge bg="danger" className="ms-2">Lähes täynnä</Badge>
+
+              {/* Total quota */}
+              <div className="mb-2">
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <span className="fw-bold">Yhteensä (kaikki tiedostot)</span>
+                  <span className="text-muted small">
+                    {storageQuota.total.usedMB.toFixed(1)} MB käytetty / {storageQuota.total.availableMB.toFixed(1)} MB jäljellä
+                  </span>
+                </div>
+                <div className="progress" style={{ height: '20px' }}>
+                  <div 
+                    className={`progress-bar ${
+                      parseFloat(storageQuota.total.percentUsed) >= 80 ? 'bg-danger' : 
+                      parseFloat(storageQuota.total.percentUsed) >= 60 ? 'bg-warning' : 
+                      'bg-success'
+                    }`}
+                    role="progressbar"
+                    style={{ width: `${Math.min(100, storageQuota.total.percentUsed)}%` }}
+                  >
+                    {parseFloat(storageQuota.total.percentUsed).toFixed(1)}%
+                  </div>
+                </div>
+              </div>
+
+              {parseFloat(storageQuota.total.percentUsed) >= 80 && (
+                <div className="alert alert-danger mt-2 mb-0 py-2 small" role="alert">
+                  <strong>Varoitus:</strong> Tallennustila täyttymässä ({parseFloat(storageQuota.total.percentUsed).toFixed(1)}% käytetty).
+                </div>
               )}
             </div>
           )}

@@ -10,7 +10,7 @@ import PropertyRenovations from './PropertyRenovations.jsx';
 import Todos from './Todos.jsx';
 import HouseBasicInformation from './HouseBasicInformation.jsx';
 import { XLg, PencilSquare, BuildingUp, List } from 'react-bootstrap-icons';
-import { Tab, Nav, Navbar, Offcanvas, Button, Badge } from 'react-bootstrap';
+import { Tab, Nav, Navbar, Offcanvas, Button, Badge, ProgressBar } from 'react-bootstrap';
 import ConsumptionDetails from './ConsumptionDetails.jsx';
 import { HouseDoor, Tools, CardChecklist, BarChartFill, Folder2Open, Gear, CurrencyExchange, Lightning, ImageFill } from 'react-bootstrap-icons';
 import DocumentsPage from './DocumentsPage.jsx';
@@ -38,6 +38,7 @@ const PropertyDetails = () => {
   const [servicesCount, setServicesCount] = useState(0);
   const [documentsCount, setDocumentsCount] = useState(0);
   const [imagesCount, setImagesCount] = useState(0);
+  const [storageQuota, setStorageQuota] = useState(null);
   const [newPropertyName, setNewPropertyName] = useState('');
   const [newStreetAddress, setNewStreetAddress] = useState('');
   const [newPostNumber, setNewPostNumber] = useState('');
@@ -144,6 +145,31 @@ const PropertyDetails = () => {
       .then(data => setImagesCount(data.length))
       .catch(error => console.error('Error fetching images count:', error));
   }, [id, refreshKey]);
+
+  // Fetch storage quota
+  const fetchStorageQuota = async () => {
+    try {
+      const token = localStorage.getItem('userToken');
+      const response = await fetch(`${config.baseURL}/api/storage-quota`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setStorageQuota(data);
+      } else {
+        console.error('Failed to fetch storage quota');
+      }
+    } catch (error) {
+      console.error('Error fetching storage quota:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchStorageQuota();
+  }, [refreshKey]);
 
   if (!property) {
     return <div>Loading...</div>;
@@ -628,6 +654,59 @@ const PropertyDetails = () => {
       </Tab.Pane>
 
       <Tab.Pane eventKey="9">
+        {/* Storage Quota Display */}
+        {storageQuota && (
+          <div style={{ marginBottom: '30px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+            <h6 style={{ marginBottom: '15px' }}>Tallennustilan käyttö</h6>
+            
+            {/* Property Images Quota */}
+            <div style={{ marginBottom: '15px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                <span style={{ fontWeight: '500' }}>Kiinteistökuvat</span>
+                <span style={{ fontSize: '0.9rem', color: '#666' }}>
+                  {storageQuota.propertyImages.usedMB.toFixed(1)} MB käytetty / {storageQuota.propertyImages.availableMB.toFixed(1)} MB jäljellä
+                </span>
+              </div>
+              <ProgressBar 
+                now={storageQuota.propertyImages.percentUsed} 
+                variant={
+                  storageQuota.propertyImages.percentUsed >= 80 ? 'danger' : 
+                  storageQuota.propertyImages.percentUsed >= 60 ? 'warning' : 
+                  'success'
+                }
+                style={{ height: '20px' }}
+                label={`${storageQuota.propertyImages.percentUsed.toFixed(1)}%`}
+              />
+            </div>
+
+            {/* Total Quota */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                <span style={{ fontWeight: '500' }}>Yhteensä (kaikki tiedostot)</span>
+                <span style={{ fontSize: '0.9rem', color: '#666' }}>
+                  {storageQuota.total.usedMB.toFixed(1)} MB käytetty / {storageQuota.total.availableMB.toFixed(1)} MB jäljellä
+                </span>
+              </div>
+              <ProgressBar 
+                now={storageQuota.total.percentUsed} 
+                variant={
+                  storageQuota.total.percentUsed >= 80 ? 'danger' : 
+                  storageQuota.total.percentUsed >= 60 ? 'warning' : 
+                  'success'
+                }
+                style={{ height: '20px' }}
+                label={`${storageQuota.total.percentUsed.toFixed(1)}%`}
+              />
+            </div>
+
+            {storageQuota.total.percentUsed >= 80 && (
+              <div style={{ marginTop: '10px', padding: '8px', backgroundColor: '#fff3cd', borderRadius: '4px', fontSize: '0.9rem', color: '#856404' }}>
+                ⚠️ Tallennustilasi on melkein täynnä. Poista vanhoja tiedostoja vapauttaaksesi tilaa.
+              </div>
+            )}
+          </div>
+        )}
+
         <PropertyImageUpload 
           propertyId={id} 
           onUploadSuccess={() => {
@@ -635,6 +714,7 @@ const PropertyDetails = () => {
               detail: { propertyId: id } 
             }));
             refreshData();
+            fetchStorageQuota();
           }} 
         />
         <PropertyImageGallery propertyId={id} />

@@ -75,7 +75,7 @@ router.post('/upload-file', getUserFromToken, upload.single('file'), async (req,
         const fileSize = req.file.size;
         
         try {
-            const quotaCheck = await checkStorageQuota(userId, fileSize);
+            const quotaCheck = await checkStorageQuota(userId, fileSize, 'documents');
             if (!quotaCheck.allowed) {
                 return res.status(413).json({ 
                     success: false, 
@@ -162,7 +162,7 @@ router.post('/upload-file', getUserFromToken, upload.single('file'), async (req,
         
         // Update user's storage usage (graceful if quota not configured)
         try {
-            await addStorageUsage(userId, processedBuffer.length);
+            await addStorageUsage(userId, processedBuffer.length, 'documents');
         } catch (quotaError) {
             console.warn('⚠️  Failed to update storage quota:', quotaError.message);
         }

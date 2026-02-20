@@ -10,7 +10,7 @@ function PropertyImageUpload({ propertyId, onUploadSuccess }) {
     const [showForm, setShowForm] = useState(false);
     const fileInputRef = useRef();
 
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || localStorage.getItem('userToken');
     const validExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif'];
 
     const handleFileSelect = (e) => {

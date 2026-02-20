@@ -155,7 +155,9 @@ CREATE TABLE TS_PropertyUsers (
     email NVARCHAR(255),
     phone NVARCHAR(255),
     role NVARCHAR(255),
-    storageUsed BIGINT NOT NULL DEFAULT 0  -- Storage quota tracking in bytes (50MB free tier)
+    storageUsed BIGINT NOT NULL DEFAULT 0,  -- Documents storage in bytes (50MB free tier)
+    propertyImagesUsed BIGINT NOT NULL DEFAULT 0,  -- Property images storage in bytes (20MB free tier)
+    renovationImagesUsed BIGINT NOT NULL DEFAULT 0  -- Renovation images storage in bytes (50MB free tier)
 );
 
 CREATE TABLE TS_UserProperties (

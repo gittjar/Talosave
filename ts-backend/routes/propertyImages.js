@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const sql = require('mssql');
 const multer = require('multer');
+const getUserFromToken = require('../middleware/getUserFromToken');
+const { checkStorageQuota, addStorageUsage, removeStorageUsage } = require('../middleware/storageQuota');
 
 // Try to load sharp, but don't crash if it fails
 let sharp = null;
@@ -54,9 +56,10 @@ router.get('/:propertyId/images', async (req, res) => {
 });
 
 // POST - Lisää kuvia kohteeseen (tukee useaa tiedostoa kerralla)
-router.post('/:propertyId/images', upload.array('images', 20), async (req, res) => {
+router.post('/:propertyId/images', getUserFromToken, upload.array('images', 20), async (req, res) => {
     try {
         const propertyId = req.params.propertyId;
+        const userId = req.user.id;
 
         if (!req.files || req.files.length === 0) {
             return res.status(400).json({
@@ -68,6 +71,20 @@ router.post('/:propertyId/images', upload.array('images', 20), async (req, res) 
             return res.status(503).json({
                 error: 'Azure Blob Storage ei ole konfiguroitu.'
             });
+        }
+
+        // Check storage quota for total size of all files
+        const totalSize = req.files.reduce((sum, file) => sum + file.size, 0);
+        try {
+            const quotaCheck = await checkStorageQuota(userId, totalSize, 'propertyImages');
+            if (!quotaCheck.allowed) {
+                return res.status(413).json({
+                    error: quotaCheck.message,
+                    usage: quotaCheck.usage
+                });
+            }
+        } catch (quotaError) {
+            console.warn('⚠️  Storage quota check failed, continuing:', quotaError.message);
         }
 
         const description = req.body.description || null;
@@ -158,6 +175,16 @@ router.post('/:propertyId/images', upload.array('images', 20), async (req, res) 
             });
         }
 
+        // Update storage quota
+        const totalUploadedSize = uploadedImages.reduce((sum, img) => sum + (img.file_size || 0), 0);
+        if (totalUploadedSize > 0) {
+            try {
+                await addStorageUsage(userId, totalUploadedSize, 'propertyImages');
+            } catch (quotaError) {
+                console.warn('⚠️  Failed to update storage quota:', quotaError.message);
+            }
+        }
+
         res.status(201).json({
             uploaded: uploadedImages,
             count: uploadedImages.length,
@@ -226,13 +253,18 @@ router.delete('/images/:imageId', async (req, res) => {
         const sqlRequest = new sql.Request();
         const imageResult = await sqlRequest
             .input('imageId', sql.Int, req.params.imageId)
-            .query('SELECT image_url FROM TS_PropertyImages WHERE id = @imageId');
+            .query(`
+                SELECT pi.image_url, pi.file_size, p.userid 
+                FROM TS_PropertyImages pi
+                JOIN TS_Properties p ON pi.property_id = p.propertyid
+                WHERE pi.id = @imageId
+            `);
 
         if (imageResult.recordset.length === 0) {
             return res.status(404).json({ error: 'Kuvaa ei löytynyt' });
         }
 
-        const imageUrl = imageResult.recordset[0].image_url;
+        const { image_url: imageUrl, file_size: fileSize, userid: userId } = imageResult.recordset[0];
 
         // Delete from database
         const deleteRequest = new sql.Request();
@@ -250,6 +282,15 @@ router.delete('/images/:imageId', async (req, res) => {
                 }
             } catch (blobErr) {
                 console.warn('Failed to delete blob from Azure:', blobErr.message);
+            }
+        }
+
+        // Update storage quota
+        if (fileSize && userId) {
+            try {
+                await removeStorageUsage(userId, fileSize, 'propertyImages');
+            } catch (quotaError) {
+                console.warn('⚠️  Failed to update storage quota:', quotaError.message);
             }
         }
 

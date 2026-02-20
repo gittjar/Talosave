@@ -152,7 +152,9 @@ Database
 │   ├── email
 │   ├── phone
 │   ├── role
-│   └── storageUsed (BIGINT, tallennustilan käyttö tavuina, 50MB vapaa kiintiö)
+│   ├── storageUsed (BIGINT, dokumenttien tallennustila tavuina, 50MB vapaa)
+│   ├── propertyImagesUsed (BIGINT, kiinteistökuvien tallennustila tavuina, 20MB vapaa)
+│   └── renovationImagesUsed (BIGINT, remonttikuvien tallennustila tavuina, 50MB vapaa)
 │
 ├── TS_UserProperties
 │   ├── userid (PK, FK -> TS_PropertyUsers)
@@ -207,7 +209,11 @@ MongoDB Collections
     └── createdAt (Date)
 
 Storage Quota
-- Free tier: 50 MB per user (tracked in TS_PropertyUsers.storageUsed)
-- Quota check on file upload via /api/storage-quota endpoint
-- Usage updated automatically on upload/delete operations
-- Frontend displays progress bar and warning when limit approached
+- Free tier total: 120 MB per user
+  - Documents: 50 MB (tracked in TS_PropertyUsers.storageUsed)
+  - Property Images: 20 MB (tracked in TS_PropertyUsers.propertyImagesUsed)
+  - Renovation Images: 50 MB (tracked in TS_PropertyUsers.renovationImagesUsed)
+- Quota check on file upload via /api/storage-quota endpoint (returns all three quotas)
+- Usage updated automatically on upload/delete operations for each type
+- Frontend displays total usage bar + breakdown by category with color coding
+- Warning when total or individual quota approaching limit
