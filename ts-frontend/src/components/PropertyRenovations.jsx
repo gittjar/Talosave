@@ -517,7 +517,7 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                                         fetchStorageQuota();
                                       }} 
                                     />
-                                    <RenovationImageGallery renovationId={renovation.id} />
+                                    <RenovationImageGallery renovationId={renovation.id} onUpdate={fetchStorageQuota} />
                                   </div>
                                   
                                   <hr />

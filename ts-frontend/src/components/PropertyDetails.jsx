@@ -717,7 +717,7 @@ const PropertyDetails = () => {
             fetchStorageQuota();
           }} 
         />
-        <PropertyImageGallery propertyId={id} />
+        <PropertyImageGallery propertyId={id} onDelete={fetchStorageQuota} />
       </Tab.Pane>
     </Tab.Content>
   </Tab.Container>

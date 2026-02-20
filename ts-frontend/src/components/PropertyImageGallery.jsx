@@ -4,7 +4,7 @@ import { Trash3, PencilSquare, Grid3x3GapFill, ListUl, GripVertical, SortDown, S
 import { toast } from 'react-toastify';
 import config from '../configuration/config';
 
-function PropertyImageGallery({ propertyId }) {
+function PropertyImageGallery({ propertyId, onDelete }) {
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -142,6 +142,7 @@ function PropertyImageGallery({ propertyId }) {
 
             toast.success('Kuva poistettu onnistuneesti');
             setImages(images.filter(img => img.id !== imageToDelete.id));
+            if (onDelete) onDelete();
         } catch (err) {
             console.error('Error deleting image:', err);
             toast.error(err.message);
