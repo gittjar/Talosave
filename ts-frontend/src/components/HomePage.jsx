@@ -52,7 +52,7 @@ const HomePage = () => {
               <div className="hero-content">
                 <Badge bg="light" text="primary" className="mb-3 px-3 py-2 fs-6">
                   <Star className="me-2" size={16} />
-                  TaloSave App Beta v.1.0
+                  Talotieto App Beta v.1.0
                 </Badge>
                 <h1 className="display-5 fw-bold mb-3">
                   Kiinteistöjen hallinta
@@ -226,7 +226,7 @@ const HomePage = () => {
           <Row className="text-center mb-5">
             <Col lg={8} className="mx-auto">
               <h2 className="display-5 fw-bold mb-3">
-                Miksi valita TaloSave?
+                Miksi valita Talotieto?
               </h2>
               <p className="lead text-muted">
                 Kattava ratkaisu kiinteistöjen hallintaan modernilla käyttöliittymällä

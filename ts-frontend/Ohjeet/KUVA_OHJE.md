@@ -67,7 +67,7 @@ TaloSave tukee kahta tapaa lisätä kuvia remontteihin:
    - **Imgur:** Lataa kuva → Kopioi "Direct Link"
    - **Azure Blob Storage:** Lataa container:iin ja kopioi blob URL
 
-2. **Lisää linkki TaloSave:en**
+2. **Lisää linkki Talotietoon**
    - Klikkaa "Lisää kuva"
    - Valitse "URL-osoite" -välilehti
    - Liitä kuvan URL "Kuvan URL-osoite" -kenttään
@@ -192,5 +192,5 @@ Jos kohtaat ongelmia:
 
 ---
 
-**TaloSave** - Talon omistajan digitaalinen tietopankki  
+**Talotieto** - Talon omistajan digitaalinen tietopankki  
 © 2024-2026

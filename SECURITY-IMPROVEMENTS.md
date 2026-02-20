@@ -148,4 +148,4 @@ Installed with: `npm install express-rate-limit --legacy-peer-deps`
 
 **Implemented:** January 23, 2026
 **Developer:** GitHub Copilot
-**System:** TaloSave Property Management
+**System:** Talotieto Property Management

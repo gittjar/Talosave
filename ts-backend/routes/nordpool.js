@@ -11,7 +11,7 @@ router.get('/prices', async (req, res) => {
       {
         headers: {
           'Accept': 'application/json',
-          'User-Agent': 'TalosaveApp/1.0'
+          'User-Agent': 'TalotietoApp/1.0'
         }
       }
     );

@@ -1,5 +1,5 @@
 ===========================================
-TALOSAVE - DEPLOYMENT OHJEET
+TALOTIETO - DEPLOYMENT OHJEET
 ===========================================
 
 PROJEKTIN RAKENNE
