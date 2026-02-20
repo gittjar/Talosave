@@ -4,7 +4,7 @@ import { Trash3, PencilSquare, Grid3x3GapFill, ListUl, GripVertical, SortDown, S
 import { toast } from 'react-toastify';
 import config from '../configuration/config';
 
-function RenovationImageGallery({ renovationId, onUpdate }) {
+function PropertyImageGallery({ propertyId, onDelete }) {
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -28,15 +28,16 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
     useEffect(() => {
         fetchImages();
 
+        // Listen for upload events
         const handleUpload = (event) => {
-            if (event.detail.renovationId === renovationId) {
+            if (event.detail.propertyId === propertyId) {
                 fetchImages();
             }
         };
 
-        document.addEventListener('renovation-image-uploaded', handleUpload);
-        return () => document.removeEventListener('renovation-image-uploaded', handleUpload);
-    }, [renovationId]);
+        document.addEventListener('property-image-uploaded', handleUpload);
+        return () => document.removeEventListener('property-image-uploaded', handleUpload);
+    }, [propertyId]);
 
     const fetchImages = async () => {
         try {
@@ -44,7 +45,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
             setError(null);
             const token = localStorage.getItem('token');
 
-            const response = await fetch(`${config.apiUrl}/renovations/${renovationId}/images`, {
+            const response = await fetch(`${config.apiUrl}/properties/${propertyId}/images`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -57,7 +58,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
             const data = await response.json();
             setImages(sortImages(data, sortMode));
         } catch (err) {
-            console.error('Error fetching renovation images:', err);
+            console.error('Error fetching property images:', err);
             setError(err.message);
         } finally {
             setLoading(false);
@@ -75,6 +76,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
             image_name: image.image_name || '',
             description: image.description || ''
         });
+        // If lightbox is open, show inline panel; otherwise open modal
         if (showModal) {
             setShowEditPanel(true);
         } else {
@@ -89,7 +91,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
             setSaving(true);
             const token = localStorage.getItem('token');
 
-            const response = await fetch(`${config.apiUrl}/renovations/images/${editingImage.id}`, {
+            const response = await fetch(`${config.apiUrl}/properties/images/${editingImage.id}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -106,6 +108,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
             toast.success('Kuvan tiedot päivitetty');
             setShowEditModal(false);
             setShowEditPanel(false);
+            // Update selected image in lightbox if open
             if (showModal && editingImage) {
                 const updated = { ...editingImage, ...editFormData };
                 setSelectedImage(updated);
@@ -126,7 +129,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
             setDeleting(imageToDelete.id);
             const token = localStorage.getItem('token');
 
-            const response = await fetch(`${config.apiUrl}/renovations/images/${imageToDelete.id}`, {
+            const response = await fetch(`${config.apiUrl}/properties/images/${imageToDelete.id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -139,7 +142,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
 
             toast.success('Kuva poistettu onnistuneesti');
             setImages(images.filter(img => img.id !== imageToDelete.id));
-            if (onUpdate) onUpdate();
+            if (onDelete) onDelete();
         } catch (err) {
             console.error('Error deleting image:', err);
             toast.error(err.message);
@@ -220,6 +223,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
     };
 
     // Drag & drop handlers
+    // Auto-scroll: track mouse Y globally during drag
     const dragMouseY = { current: null };
 
     const startAutoScroll = () => {
@@ -342,7 +346,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
         try {
             setSavingOrder(true);
             const token = localStorage.getItem('token');
-            const response = await fetch(`${config.apiUrl}/renovations/${renovationId}/images/reorder`, {
+            const response = await fetch(`${config.apiUrl}/properties/${propertyId}/images/reorder`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -383,7 +387,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
                     <strong>Ei kuvia</strong>
                 </div>
                 <p className="mb-0">
-                    Klikkaa <strong>"Lisää kuvia"</strong> -nappia lisätäksesi ensimmäisen kuvan.
+                    Klikkaa <strong>"Lisää kuva"</strong> -nappia lisätäksesi ensimmäisen kuvan.
                 </p>
             </Alert>
         );
@@ -625,7 +629,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
                                     cursor: sortMode === 'custom' ? 'grab' : 'default'
                                 }}
                             >
-                                {/* Image + top and bottom bars overlaid */}
+                                {/* Kuva + ylä- ja alakaista päällä */}
                                 <div
                                     style={{
                                         cursor: 'pointer',
@@ -636,7 +640,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
                                     }}
                                     onClick={() => handleImageClick(image)}
                                 >
-                                    {/* Top bar — overlaid on image */}
+                                    {/* Yläkaista — kuvan päällä */}
                                     <div
                                         style={{
                                             position: 'absolute',
@@ -664,7 +668,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
                                     </div>
                                     <Card.Img
                                         src={image.image_url}
-                                        alt={image.image_name || 'Remonttikuva'}
+                                        alt={image.image_name || 'Kohteen kuva'}
                                         style={{
                                             width: '100%',
                                             height: '100%',
@@ -679,7 +683,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
                                             e.target.src = 'https://via.placeholder.com/400x300?text=Kuva+ei+saatavilla';
                                         }}
                                     />
-                                    {/* Bottom bar — overlaid on image */}
+                                    {/* Alakaista — kuvan päällä */}
                                     <div
                                         onClick={(e) => e.stopPropagation()}
                                         style={{
@@ -812,7 +816,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
                             {/* Image */}
                             <img
                                 src={selectedImage.image_url}
-                                alt={selectedImage.image_name || 'Remonttikuva'}
+                                alt={selectedImage.image_name || 'Kohteen kuva'}
                                 onClick={(e) => e.stopPropagation()}
                                 style={{
                                     maxHeight: '78vh', maxWidth: '90%', objectFit: 'contain',
@@ -908,7 +912,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
                                     type="text"
                                     value={editFormData.image_name}
                                     onChange={(e) => setEditFormData({ ...editFormData, image_name: e.target.value })}
-                                    placeholder="Esim. Keittiöremontti valmis"
+                                    placeholder="Esim. Talon julkisivu"
                                     style={{
                                         width: '100%', padding: '8px 10px', borderRadius: '6px',
                                         border: '1px solid rgba(255,255,255,0.15)', backgroundColor: 'rgba(255,255,255,0.08)',
@@ -1021,7 +1025,7 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
                             <Form.Label>Kuvan nimi</Form.Label>
                             <Form.Control
                                 type="text"
-                                placeholder="Esim. Keittiöremontti valmis"
+                                placeholder="Esim. Talon julkisivu"
                                 value={editFormData.image_name}
                                 onChange={(e) => setEditFormData({
                                     ...editFormData,
@@ -1075,4 +1079,4 @@ function RenovationImageGallery({ renovationId, onUpdate }) {
     );
 }
 
-export default RenovationImageGallery;
+export default PropertyImageGallery;

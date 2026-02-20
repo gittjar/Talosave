@@ -31,7 +31,7 @@ import colorMap from '../components/colorMap';
 import { toast } from 'react-toastify';
 import AddElectricityForm from '../forms/AddElectricityForm';
 import DeleteConfirmation from '../notifications/DeleteConfirmation';
-import { VictoryBar, VictoryChart, VictoryAxis, VictoryLabel, VictoryTooltip, VictoryGroup, VictoryArea, VictoryLine } from 'victory';
+import { VictoryBar, VictoryChart, VictoryAxis, VictoryLabel, VictoryTooltip, VictoryGroup, VictoryArea, VictoryLine, VictoryLegend } from 'victory';
 import { useConsumption } from '../hooks/useConsumption.js';
 import axios from 'axios';
 import config from '../configuration/config';
@@ -42,11 +42,33 @@ const ShowElectricityConsumption = () => {
   const [selectedYears, setSelectedYears] = useState([]); 
   const [years, setYears] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [viewMode, setViewMode] = useState('single'); // 'single' or 'comparison'
+  const [viewMode, setViewMode] = useState('comparison'); // 'single' or 'comparison'
   const [chartType, setChartType] = useState('bar'); // 'bar', 'line', 'area'
   const [activeTab, setActiveTab] = useState('overview');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
+  const [customColors, setCustomColors] = useState(() => {
+    // Load custom colors from localStorage
+    const saved = localStorage.getItem('electricityYearColors');
+    return saved ? JSON.parse(saved) : {};
+  });
+  
+  const getYearColor = (year) => {
+    return customColors[year] || colorMap.getColor(year);
+  };
+
+  const handleColorChange = (year, color) => {
+    const newColors = { ...customColors, [year]: color };
+    setCustomColors(newColors);
+    localStorage.setItem('electricityYearColors', JSON.stringify(newColors));
+  };
+
+  const resetYearColor = (year) => {
+    const newColors = { ...customColors };
+    delete newColors[year];
+    setCustomColors(newColors);
+    localStorage.setItem('electricityYearColors', JSON.stringify(newColors));
+  };
   
   const { 
     consumptions: electricityConsumptions, 
@@ -145,8 +167,8 @@ const ShowElectricityConsumption = () => {
     if (consumptions.length === 0) return null;
     
     const totals = consumptions.reduce((acc, curr) => ({
-      kwh: acc.kwh + curr.kwh,
-      euros: acc.euros + curr.euros
+      kwh: acc.kwh + (curr.kwh || 0),
+      euros: acc.euros + (curr.euros || 0)
     }), { kwh: 0, euros: 0 });
     
     const avgMonthly = {
@@ -154,7 +176,7 @@ const ShowElectricityConsumption = () => {
       euros: totals.euros / consumptions.length
     };
     
-    const pricePerKwh = totals.euros / totals.kwh;
+    const pricePerKwh = totals.kwh > 0 ? totals.euros / totals.kwh : 0;
     
     return { totals, avgMonthly, pricePerKwh, monthCount: consumptions.length };
   };
@@ -165,8 +187,8 @@ const ShowElectricityConsumption = () => {
         totals[consumption.year] = { kwh: 0, euros: 0 };
       }
 
-      totals[consumption.year].kwh += consumption.kwh;
-      totals[consumption.year].euros += consumption.euros;
+      totals[consumption.year].kwh += (consumption.kwh || 0);
+      totals[consumption.year].euros += (consumption.euros || 0);
 
       return totals;
     }, {});
@@ -255,23 +277,68 @@ const ShowElectricityConsumption = () => {
             <h6 className="mb-3">Valitse vuodet:</h6>
             <div className="d-flex flex-wrap gap-2">
               {years.map(year => (
-                <ToggleButton
-                  key={year}
-                  id={`year-${year}`}
-                  type="checkbox"
-                  variant={selectedYears.includes(year) ? 'primary' : 'outline-primary'}
-                  checked={selectedYears.includes(year)}
-                  value={year}
-                  onChange={() => handleYearToggle(year)}
-                  size="sm"
-                  style={{ 
-                    backgroundColor: selectedYears.includes(year) ? colorMap.getColor(year) : 'transparent',
-                    borderColor: colorMap.getColor(year),
-                    color: selectedYears.includes(year) ? 'white' : colorMap.getColor(year)
-                  }}
-                >
-                  {year}
-                </ToggleButton>
+                <ButtonGroup key={year}>
+                  <ToggleButton
+                    id={`year-${year}`}
+                    type="checkbox"
+                    variant={selectedYears.includes(year) ? 'primary' : 'outline-primary'}
+                    checked={selectedYears.includes(year)}
+                    value={year}
+                    onChange={() => handleYearToggle(year)}
+                    style={{ 
+                      backgroundColor: selectedYears.includes(year) ? getYearColor(year) : 'transparent',
+                      borderColor: getYearColor(year),
+                      color: selectedYears.includes(year) ? 'white' : getYearColor(year),
+                      minWidth: '60px',
+                      height: '38px'
+                    }}
+                  >
+                    {year}
+                  </ToggleButton>
+                  <Button
+                    variant="outline-secondary"
+                    style={{ 
+                      backgroundColor: getYearColor(year),
+                      borderColor: getYearColor(year),
+                      padding: '0',
+                      width: '38px',
+                      height: '38px',
+                      position: 'relative'
+                    }}
+                    title={`Muuta vuoden ${year} väriä`}
+                  >
+                    <Form.Control
+                      type="color"
+                      value={getYearColor(year)}
+                      onChange={(e) => handleColorChange(year, e.target.value)}
+                      style={{ 
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: '100%',
+                        opacity: 0,
+                        cursor: 'pointer'
+                      }}
+                    />
+                    🎨
+                  </Button>
+                  {customColors[year] && (
+                    <Button
+                      variant={selectedYears.includes(year) ? 'primary' : 'outline-primary'}
+                      onClick={() => resetYearColor(year)}
+                      style={{ 
+                        borderColor: getYearColor(year),
+                        color: selectedYears.includes(year) ? 'white' : getYearColor(year),
+                        width: '38px',
+                        height: '38px'
+                      }}
+                      title="Palauta oletusväri"
+                    >
+                      ↺
+                    </Button>
+                  )}
+                </ButtonGroup>
               ))}
             </div>
             {selectedYears.length === 0 && (
@@ -421,10 +488,24 @@ const ShowElectricityConsumption = () => {
               <Card.Body>
                 <VictoryChart 
                   domainPadding={30} 
-                  padding={{ top: 20, bottom: 80, left: 100, right: 100 }}
+                  padding={{ top: 60, bottom: 80, left: 100, right: 100 }}
                   style={{ parent: { marginBottom: '50px' } }}
                   width={850}
                 >
+                  <VictoryLegend 
+                    x={325} 
+                    y={10}
+                    orientation="horizontal"
+                    gutter={20}
+                    style={{ 
+                      border: { stroke: "#ccc" }, 
+                      labels: { fontSize: 12 }
+                    }}
+                    data={selectedYears.map(year => ({
+                      name: `${year}`,
+                      symbol: { fill: getYearColor(year) }
+                    }))}
+                  />
                   <VictoryAxis 
                     tickValues={monthNames} 
                     tickLabelComponent={<VictoryLabel angle={30} textAnchor="start" verticalAnchor="middle" />} 
@@ -443,7 +524,7 @@ const ShowElectricityConsumption = () => {
                           }))}
                         x="month"
                         y="kwh"
-                        style={{ data: { fill: colorMap.getColor(year) } }}
+                        style={{ data: { fill: getYearColor(year) } }}
                         labelComponent={<VictoryTooltip />}
                         labels={({ datum }) => `kWh: ${datum.kwh}\nEuros: ${datum.euros}`}
                       />
@@ -453,9 +534,24 @@ const ShowElectricityConsumption = () => {
 
                 <VictoryChart 
                   domainPadding={0} 
+                  padding={{ top: 60, bottom: 80, left: 100, right: 100 }}
                   style={{ parent: { marginBottom: '50px' } }}
                   width={550}
                 >
+                  <VictoryLegend 
+                    x={200} 
+                    y={10}
+                    orientation="horizontal"
+                    gutter={20}
+                    style={{ 
+                      border: { stroke: "#ccc" }, 
+                      labels: { fontSize: 12 }
+                    }}
+                    data={selectedYears.map(year => ({
+                      name: `${year}`,
+                      symbol: { fill: getYearColor(year) }
+                    }))}
+                  />
                   <VictoryAxis 
                     tickValues={monthNames} 
                     tickLabelComponent={<VictoryLabel angle={30} textAnchor="start" verticalAnchor="middle" />} 
@@ -472,7 +568,7 @@ const ShowElectricityConsumption = () => {
                         }))}
                       x="month"
                       y="euros"
-                      style={{ data: { fill: colorMap.getColor(year), stroke: colorMap.getColor(year) } }}
+                      style={{ data: { fill: getYearColor(year), stroke: getYearColor(year) } }}
                     />
                   ))}
                 </VictoryChart>
@@ -498,15 +594,15 @@ const ShowElectricityConsumption = () => {
                       <tr key={index}>
                         <td>
                           <Badge 
-                            style={{ backgroundColor: colorMap.getColor(consumption.year) }}
+                            style={{ backgroundColor: getYearColor(consumption.year) }}
                             className="text-white"
                           >
                             {consumption.year}
                           </Badge>
                         </td>
                         <td>{monthNames[consumption.month - 1]}</td>
-                        <td>{consumption.kwh.toFixed(2)} kWh</td>
-                        <td>{consumption.euros.toFixed(2)} €</td>
+                        <td>{consumption.kwh?.toFixed(2) ?? '-'} kWh</td>
+                        <td>{consumption.euros?.toFixed(2) ?? '-'} €</td>
                         <td>
                           <Button 
                             variant="outline-danger" 
@@ -522,7 +618,7 @@ const ShowElectricityConsumption = () => {
                       <tr key={`total-${year}`} className="table-info fw-bold">
                         <td>
                           <Badge 
-                            style={{ backgroundColor: colorMap.getColor(parseInt(year)) }}
+                            style={{ backgroundColor: getYearColor(parseInt(year)) }}
                             className="text-white"
                           >
                             {year}

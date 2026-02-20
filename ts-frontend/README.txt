@@ -104,11 +104,22 @@ Database
 │   ├── description (kuvan kuvaus/selite, max 500 merkkiä)
 │   ├── upload_date
 │   ├── file_size (bytes)
+│   ├── sort_order (kuvien järjestys, drag & drop)
 │
 ├── TS_Images
 │   ├── id (PK)
 │   ├── propertyid (FK -> TS_Properties)
 │   ├── image_url
+│
+├── TS_PropertyImages
+│   ├── id (PK)
+│   ├── property_id (FK -> TS_Properties, CASCADE DELETE)
+│   ├── image_url (Azure Blob Storage URL)
+│   ├── image_name
+│   ├── description (kuvan kuvaus/selite, max 500 merkkiä)
+│   ├── upload_date
+│   ├── file_size (bytes)
+│   ├── sort_order (kuvien järjestys, drag & drop)
 │
 ├── TS_Tutkimukset
 │   ├── id (PK)
@@ -140,7 +151,10 @@ Database
 │   ├── password
 │   ├── email
 │   ├── phone
-│   └── role
+│   ├── role
+│   ├── storageUsed (BIGINT, dokumenttien tallennustila tavuina, 50MB vapaa)
+│   ├── propertyImagesUsed (BIGINT, kiinteistökuvien tallennustila tavuina, 20MB vapaa)
+│   └── renovationImagesUsed (BIGINT, remonttikuvien tallennustila tavuina, 50MB vapaa)
 │
 ├── TS_UserProperties
 │   ├── userid (PK, FK -> TS_PropertyUsers)
@@ -169,3 +183,37 @@ Database
     ├── documenturl
     ├── createdat
     └── updatedat
+
+MongoDB Collections
+│
+├── Files (Document Storage)
+│   ├── _id (ObjectId, PK)
+│   ├── name (dokumentin nimi)
+│   ├── description (kuvaus)
+│   ├── propertyId (Number, viittaus TS_Properties)
+│   ├── folderId (ObjectId, viittaus Folder, null = juuressa)
+│   ├── url (Azure Blob URL tai linkki)
+│   ├── blobName (Azure Blob nimi poistoa varten)
+│   ├── fileType ('link' tai 'upload')
+│   ├── sortOrder (järjestys drag & drop)
+│   ├── uploadedAt (Date)
+│   ├── fileSize (bytes, käytetään kiintiölaskennassa)
+│   └── userId (Number, viittaus TS_PropertyUsers, tiedoston lataaja)
+│
+└── Folders (Document Organization)
+    ├── _id (ObjectId, PK)
+    ├── name (kansion nimi, max 50 merkkiä, ei erikoismerkkejä)
+    ├── propertyId (Number, viittaus TS_Properties)
+    ├── parentFolderId (ObjectId, viittaus Folder, null = juuressa)
+    ├── sortOrder (järjestys drag & drop)
+    └── createdAt (Date)
+
+Storage Quota
+- Free tier total: 120 MB per user
+  - Documents: 50 MB (tracked in TS_PropertyUsers.storageUsed)
+  - Property Images: 20 MB (tracked in TS_PropertyUsers.propertyImagesUsed)
+  - Renovation Images: 50 MB (tracked in TS_PropertyUsers.renovationImagesUsed)
+- Quota check on file upload via /api/storage-quota endpoint (returns all three quotas)
+- Usage updated automatically on upload/delete operations for each type
+- Frontend displays total usage bar + breakdown by category with color coding
+- Warning when total or individual quota approaching limit

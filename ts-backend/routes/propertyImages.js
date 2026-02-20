@@ -10,13 +10,13 @@ let sharp = null;
 try {
     sharp = require('sharp');
 } catch (error) {
-    console.warn('⚠️  Sharp module not available for renovation images:', error.message);
+    console.warn('⚠️  Sharp module not available for property images:', error.message);
 }
 
 const convert = require('heic-convert');
 const { uploadToAzure, deleteFromAzure, extractBlobName, isAzureConfigured } = require('../azureStorage');
 
-const RENOVATION_IMAGES_CONTAINER = 'renovation-images';
+const PROPERTY_IMAGES_CONTAINER = 'property-images';
 
 // Configure multer for memory storage
 const upload = multer({
@@ -40,25 +40,25 @@ const upload = multer({
     }
 });
 
-// GET - Hae remontin kuvat
-router.get('/:renovationId/images', async (req, res) => {
+// GET - Hae kohteen kuvat
+router.get('/:propertyId/images', async (req, res) => {
     try {
         const sqlRequest = new sql.Request();
         const result = await sqlRequest
-            .input('renovationId', sql.Int, req.params.renovationId)
-            .query('SELECT * FROM TS_RenovationImages WHERE renovation_id = @renovationId ORDER BY sort_order ASC, upload_date DESC');
+            .input('propertyId', sql.Int, req.params.propertyId)
+            .query('SELECT * FROM TS_PropertyImages WHERE property_id = @propertyId ORDER BY sort_order ASC, upload_date DESC');
 
         res.json(result.recordset);
     } catch (err) {
-        console.error('Error fetching renovation images:', err);
+        console.error('Error fetching property images:', err);
         res.status(500).json({ error: 'Kuvien haku epäonnistui' });
     }
 });
 
-// POST - Lisää kuvia remonttiin (tukee useaa tiedostoa kerralla)
-router.post('/:renovationId/images', getUserFromToken, upload.array('images', 20), async (req, res) => {
+// POST - Lisää kuvia kohteeseen (tukee useaa tiedostoa kerralla)
+router.post('/:propertyId/images', getUserFromToken, upload.array('images', 20), async (req, res) => {
     try {
-        const renovationId = req.params.renovationId;
+        const propertyId = req.params.propertyId;
         const userId = req.user.id;
 
         if (!req.files || req.files.length === 0) {
@@ -76,7 +76,7 @@ router.post('/:renovationId/images', getUserFromToken, upload.array('images', 20
         // Check storage quota for total size of all files
         const totalSize = req.files.reduce((sum, file) => sum + file.size, 0);
         try {
-            const quotaCheck = await checkStorageQuota(userId, totalSize, 'renovationImages');
+            const quotaCheck = await checkStorageQuota(userId, totalSize, 'propertyImages');
             if (!quotaCheck.allowed) {
                 return res.status(413).json({
                     error: quotaCheck.message,
@@ -142,22 +142,23 @@ router.post('/:renovationId/images', getUserFromToken, upload.array('images', 20
                     processedBuffer,
                     processedFilename,
                     processedMimetype,
-                    RENOVATION_IMAGES_CONTAINER
+                    PROPERTY_IMAGES_CONTAINER
                 );
 
                 // Save to database
                 const sqlRequest = new sql.Request();
                 const result = await sqlRequest
-                    .input('renovationId', sql.Int, renovationId)
+                    .input('propertyId', sql.Int, propertyId)
                     .input('imageUrl', sql.NVarChar(500), uploadResult.url)
                     .input('imageName', sql.NVarChar(255), processedFilename)
                     .input('description', sql.NVarChar(500), description)
                     .input('fileSize', sql.Int, processedBuffer.length)
+                    .input('sortOrder', sql.Int, i)
                     .query(`
-                        INSERT INTO TS_RenovationImages (renovation_id, image_url, image_name, description, file_size, sort_order)
+                        INSERT INTO TS_PropertyImages (property_id, image_url, image_name, description, file_size, sort_order)
                         OUTPUT INSERTED.*
-                        VALUES (@renovationId, @imageUrl, @imageName, @description, @fileSize,
-                            ISNULL((SELECT MAX(sort_order) FROM TS_RenovationImages WHERE renovation_id = @renovationId), -1) + 1)
+                        VALUES (@propertyId, @imageUrl, @imageName, @description, @fileSize,
+                            ISNULL((SELECT MAX(sort_order) FROM TS_PropertyImages WHERE property_id = @propertyId), -1) + 1)
                     `);
 
                 uploadedImages.push(result.recordset[0]);
@@ -178,7 +179,7 @@ router.post('/:renovationId/images', getUserFromToken, upload.array('images', 20
         const totalUploadedSize = uploadedImages.reduce((sum, img) => sum + (img.file_size || 0), 0);
         if (totalUploadedSize > 0) {
             try {
-                await addStorageUsage(userId, totalUploadedSize, 'renovationImages');
+                await addStorageUsage(userId, totalUploadedSize, 'propertyImages');
             } catch (quotaError) {
                 console.warn('⚠️  Failed to update storage quota:', quotaError.message);
             }
@@ -190,15 +191,15 @@ router.post('/:renovationId/images', getUserFromToken, upload.array('images', 20
             errors: errors.length > 0 ? errors : undefined
         });
     } catch (err) {
-        console.error('Error adding renovation images:', err);
+        console.error('Error adding property images:', err);
         res.status(500).json({ error: 'Kuvien lisäys epäonnistui' });
     }
 });
 
 // PUT - Päivitä kuvien järjestys (MUST be before /images/:imageId to avoid route conflict)
-router.put('/:renovationId/images/reorder', async (req, res) => {
+router.put('/:propertyId/images/reorder', async (req, res) => {
     try {
-        const { imageIds } = req.body;
+        const { imageIds } = req.body; // array of image ids in new order
         if (!Array.isArray(imageIds) || imageIds.length === 0) {
             return res.status(400).json({ error: 'imageIds array required' });
         }
@@ -211,8 +212,8 @@ router.put('/:renovationId/images/reorder', async (req, res) => {
                 await request
                     .input('id', sql.Int, imageIds[i])
                     .input('sortOrder', sql.Int, i)
-                    .input('renovationId', sql.Int, req.params.renovationId)
-                    .query('UPDATE TS_RenovationImages SET sort_order = @sortOrder WHERE id = @id AND renovation_id = @renovationId');
+                    .input('propertyId', sql.Int, req.params.propertyId)
+                    .query('UPDATE TS_PropertyImages SET sort_order = @sortOrder WHERE id = @id AND property_id = @propertyId');
             }
             await transaction.commit();
             res.json({ message: 'Järjestys päivitetty' });
@@ -221,12 +222,12 @@ router.put('/:renovationId/images/reorder', async (req, res) => {
             throw txErr;
         }
     } catch (err) {
-        console.error('Error reordering renovation images:', err);
+        console.error('Error reordering property images:', err);
         res.status(500).json({ error: 'Järjestyksen päivitys epäonnistui' });
     }
 });
 
-// PUT - Päivitä kuvan tiedot (nimi ja kuvaus)
+// PUT - Päivitä kuvan tiedot
 router.put('/images/:imageId', async (req, res) => {
     try {
         const { image_name, description } = req.body;
@@ -237,26 +238,26 @@ router.put('/images/:imageId', async (req, res) => {
             .input('imageId', sql.Int, imageId)
             .input('imageName', sql.NVarChar(255), image_name)
             .input('description', sql.NVarChar(500), description)
-            .query('UPDATE TS_RenovationImages SET image_name = @imageName, description = @description WHERE id = @imageId');
+            .query('UPDATE TS_PropertyImages SET image_name = @imageName, description = @description WHERE id = @imageId');
 
         res.json({ message: 'Kuvan tiedot päivitetty' });
     } catch (err) {
-        console.error('Error updating renovation image:', err);
+        console.error('Error updating property image:', err);
         res.status(500).json({ error: 'Kuvan päivitys epäonnistui' });
     }
 });
 
-// DELETE - Poista kuva (ja Azure Blob jos mahdollista)
+// DELETE - Poista kuva
 router.delete('/images/:imageId', async (req, res) => {
     try {
         const sqlRequest = new sql.Request();
         const imageResult = await sqlRequest
             .input('imageId', sql.Int, req.params.imageId)
             .query(`
-                SELECT ri.image_url, ri.file_size, r.userid 
-                FROM TS_RenovationImages ri
-                JOIN TS_Renovations r ON ri.renovation_id = r.id
-                WHERE ri.id = @imageId
+                SELECT pi.image_url, pi.file_size, p.userid 
+                FROM TS_PropertyImages pi
+                JOIN TS_Properties p ON pi.property_id = p.propertyid
+                WHERE pi.id = @imageId
             `);
 
         if (imageResult.recordset.length === 0) {
@@ -269,15 +270,15 @@ router.delete('/images/:imageId', async (req, res) => {
         const deleteRequest = new sql.Request();
         await deleteRequest
             .input('imageId', sql.Int, req.params.imageId)
-            .query('DELETE FROM TS_RenovationImages WHERE id = @imageId');
+            .query('DELETE FROM TS_PropertyImages WHERE id = @imageId');
 
         // Try to delete from Azure Blob Storage
         if (isAzureConfigured() && imageUrl.includes('.blob.core.windows.net')) {
             try {
                 const blobName = extractBlobName(imageUrl);
                 if (blobName) {
-                    await deleteFromAzure(blobName, RENOVATION_IMAGES_CONTAINER);
-                    console.log(`Deleted renovation image blob: ${blobName}`);
+                    await deleteFromAzure(blobName, PROPERTY_IMAGES_CONTAINER);
+                    console.log(`Deleted property image blob: ${blobName}`);
                 }
             } catch (blobErr) {
                 console.warn('Failed to delete blob from Azure:', blobErr.message);
@@ -287,7 +288,7 @@ router.delete('/images/:imageId', async (req, res) => {
         // Update storage quota
         if (fileSize && userId) {
             try {
-                await removeStorageUsage(userId, fileSize, 'renovationImages');
+                await removeStorageUsage(userId, fileSize, 'propertyImages');
             } catch (quotaError) {
                 console.warn('⚠️  Failed to update storage quota:', quotaError.message);
             }
@@ -295,7 +296,7 @@ router.delete('/images/:imageId', async (req, res) => {
 
         res.json({ message: 'Kuva poistettu onnistuneesti' });
     } catch (err) {
-        console.error('Error deleting renovation image:', err);
+        console.error('Error deleting property image:', err);
         res.status(500).json({ error: 'Kuvan poisto epäonnistui' });
     }
 });

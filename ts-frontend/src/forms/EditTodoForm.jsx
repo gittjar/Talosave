@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, ButtonGroup } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 
 const EditTodoForm = ({ todo, handleUpdateTodo, handleCloseForm }) => {
@@ -17,7 +17,6 @@ const EditTodoForm = ({ todo, handleUpdateTodo, handleCloseForm }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
     handleUpdateTodo(updatedTodo.id, updatedTodo);
-    toast.success('Tehtävä päivitetty : ' + updatedTodo.action);
     handleCloseForm();
   };
 

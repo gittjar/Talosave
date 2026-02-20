@@ -154,7 +154,10 @@ CREATE TABLE TS_PropertyUsers (
     password NVARCHAR(255),
     email NVARCHAR(255),
     phone NVARCHAR(255),
-    role NVARCHAR(255)
+    role NVARCHAR(255),
+    storageUsed BIGINT NOT NULL DEFAULT 0,  -- Documents storage in bytes (50MB free tier)
+    propertyImagesUsed BIGINT NOT NULL DEFAULT 0,  -- Property images storage in bytes (20MB free tier)
+    renovationImagesUsed BIGINT NOT NULL DEFAULT 0  -- Renovation images storage in bytes (50MB free tier)
 );
 
 CREATE TABLE TS_UserProperties (
@@ -217,5 +220,20 @@ CREATE TABLE TS_RenovationImages (
     description NVARCHAR(500),
     upload_date DATETIME DEFAULT GETDATE(),
     file_size INT,
+    sort_order INT DEFAULT 0,
     FOREIGN KEY (renovation_id) REFERENCES TS_Renovations(id) ON DELETE CASCADE
 );
+-- ALTER TABLE TS_RenovationImages ADD sort_order INT DEFAULT 0;
+
+CREATE TABLE TS_PropertyImages (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    property_id INT NOT NULL,
+    image_url NVARCHAR(500) NOT NULL,
+    image_name NVARCHAR(255),
+    description NVARCHAR(500),
+    upload_date DATETIME DEFAULT GETDATE(),
+    file_size INT,
+    sort_order INT DEFAULT 0,
+    FOREIGN KEY (property_id) REFERENCES TS_Properties(propertyid) ON DELETE CASCADE
+);
+-- ALTER TABLE TS_PropertyImages ADD sort_order INT DEFAULT 0;

@@ -1950,3 +1950,18 @@ th, td {
         padding: 2rem 1.5rem !important;
     }
 }
+
+/* Research Page - Document Cards */
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Property Renovations - Year Filter Buttons */
+.year-filter-btn.btn-outline-primary:hover .price-text {
+    color: white !important;
+}

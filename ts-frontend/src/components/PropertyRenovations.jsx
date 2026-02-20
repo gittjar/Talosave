@@ -10,6 +10,7 @@ import { XLg, PencilSquare, WrenchAdjustable, Calendar3, FunnelFill } from 'reac
 import Badge from 'react-bootstrap/Badge';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Button from 'react-bootstrap/Button';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 import { toast } from 'react-toastify';
 import AddRenovationForm from '../forms/AddRenovationForm.jsx';
 import RenovationImageUpload from '../forms/RenovationImageUpload.jsx';
@@ -27,6 +28,7 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
   const handleCloseForm = () => setShowFormId(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedYear, setSelectedYear] = useState('all');
+  const [storageQuota, setStorageQuota] = useState(null);
 
 
   useEffect(() => {
@@ -47,6 +49,31 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
       })
       .catch(error => console.error('Error:', error));
   }, [propertyId]);
+
+  // Fetch storage quota
+  const fetchStorageQuota = async () => {
+    try {
+      const token = localStorage.getItem('userToken');
+      const response = await fetch(`${config.baseURL}/api/storage-quota`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setStorageQuota(data);
+      } else {
+        console.error('Failed to fetch storage quota');
+      }
+    } catch (error) {
+      console.error('Error fetching storage quota:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchStorageQuota();
+  }, []);
 
   const fetchImageCount = async (renovationId) => {
     try {
@@ -237,12 +264,12 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
               <Button
                 variant={selectedYear === 'all' ? 'dark' : 'outline-primary'}
                 onClick={() => setSelectedYear('all')}
-                className={`d-flex flex-column align-items-center px-3 py-2 ${selectedYear === 'all' ? 'text-white' : 'text-dark'}`}
+                className={`d-flex flex-column align-items-center px-3 py-2 year-filter-btn ${selectedYear === 'all' ? 'text-white' : 'text-dark'}`}
               >
                 <div className="fw-bold">Kaikki</div>
                 <small className="d-flex flex-column align-items-center mt-1">
                   <span>{yearStats['all']?.count || 0} kpl</span>
-                  <span className={selectedYear === 'all' ? 'text-white' : 'text-primary'}>
+                  <span className={`price-text ${selectedYear === 'all' ? 'text-white' : 'text-primary'}`}>
                     {(yearStats['all']?.total || 0).toLocaleString('fi-FI')} €
                   </span>
                 </small>
@@ -253,7 +280,7 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                   key={year}
                   variant={selectedYear === year.toString() ? 'dark' : 'outline-primary'}
                   onClick={() => setSelectedYear(year.toString())}
-                  className={`d-flex flex-column align-items-center px-3 py-2 ${selectedYear === year.toString() ? 'text-white' : 'text-dark'}`}
+                  className={`d-flex flex-column align-items-center px-3 py-2 year-filter-btn ${selectedYear === year.toString() ? 'text-white' : 'text-dark'}`}
                 >
                   <div className="fw-bold">
                     <Calendar3 className="me-1" size={14} />
@@ -261,7 +288,7 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                   </div>
                   <small className="d-flex flex-column align-items-center mt-1">
                     <span>{yearStats[year]?.count || 0} kpl</span>
-                    <span className={selectedYear === year.toString() ? 'text-white' : 'text-primary'}>
+                    <span className={`price-text ${selectedYear === year.toString() ? 'text-white' : 'text-primary'}`}>
                       {(yearStats[year]?.total || 0).toLocaleString('fi-FI')} €
                     </span>
                   </small>
@@ -421,6 +448,59 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                                     </div>
                                   )}
                                   
+                                  {/* Storage Quota Display */}
+                                  {storageQuota && (
+                                    <div style={{ marginBottom: '30px', padding: '15px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+                                      <h6 style={{ marginBottom: '15px' }}>Tallennustilan käyttö</h6>
+                                      
+                                      {/* Renovation Images Quota */}
+                                      <div style={{ marginBottom: '15px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                          <span style={{ fontWeight: '500' }}>Remonttikuvat</span>
+                                          <span style={{ fontSize: '0.9rem', color: '#666' }}>
+                                            {storageQuota.renovationImages.usedMB.toFixed(1)} MB käytetty / {storageQuota.renovationImages.availableMB.toFixed(1)} MB jäljellä
+                                          </span>
+                                        </div>
+                                        <ProgressBar 
+                                          now={storageQuota.renovationImages.percentUsed} 
+                                          variant={
+                                            storageQuota.renovationImages.percentUsed >= 80 ? 'danger' : 
+                                            storageQuota.renovationImages.percentUsed >= 60 ? 'warning' : 
+                                            'success'
+                                          }
+                                          style={{ height: '20px' }}
+                                          label={`${storageQuota.renovationImages.percentUsed.toFixed(1)}%`}
+                                        />
+                                      </div>
+
+                                      {/* Total Quota */}
+                                      <div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                                          <span style={{ fontWeight: '500' }}>Yhteensä (kaikki tiedostot)</span>
+                                          <span style={{ fontSize: '0.9rem', color: '#666' }}>
+                                            {storageQuota.total.usedMB.toFixed(1)} MB käytetty / {storageQuota.total.availableMB.toFixed(1)} MB jäljellä
+                                          </span>
+                                        </div>
+                                        <ProgressBar 
+                                          now={storageQuota.total.percentUsed} 
+                                          variant={
+                                            storageQuota.total.percentUsed >= 80 ? 'danger' : 
+                                            storageQuota.total.percentUsed >= 60 ? 'warning' : 
+                                            'success'
+                                          }
+                                          style={{ height: '20px' }}
+                                          label={`${storageQuota.total.percentUsed.toFixed(1)}%`}
+                                        />
+                                      </div>
+
+                                      {storageQuota.total.percentUsed >= 80 && (
+                                        <div style={{ marginTop: '10px', padding: '8px', backgroundColor: '#fff3cd', borderRadius: '4px', fontSize: '0.9rem', color: '#856404' }}>
+                                          ⚠️ Tallennustilasi on melkein täynnä. Poista vanhoja tiedostoja vapauttaaksesi tilaa.
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+                                  
                                   {/* Image Upload and Gallery */}
                                   <div className="mb-4">
                                     <h6 className="mb-3">Kuvat</h6>
@@ -433,9 +513,11 @@ const PropertyRenovations = ({ propertyId, refreshData }) => {
                                         }));
                                         // Päivitä kuvamäärä
                                         fetchImageCount(renovation.id);
+                                        // Päivitä quota
+                                        fetchStorageQuota();
                                       }} 
                                     />
-                                    <RenovationImageGallery renovationId={renovation.id} />
+                                    <RenovationImageGallery renovationId={renovation.id} onUpdate={fetchStorageQuota} />
                                   </div>
                                   
                                   <hr />

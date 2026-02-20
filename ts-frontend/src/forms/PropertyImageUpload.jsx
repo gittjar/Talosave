@@ -4,7 +4,7 @@ import { CloudUpload, FileImage, XCircleFill, CheckCircleFill, ExclamationCircle
 import { toast } from 'react-toastify';
 import config from '../configuration/config';
 
-function RenovationImageUpload({ renovationId, onUploadSuccess }) {
+function PropertyImageUpload({ propertyId, onUploadSuccess }) {
     const [images, setImages] = useState([]); // Array of { id, file, name, description, previewUrl, status, progress }
     const [isUploading, setIsUploading] = useState(false);
     const [showForm, setShowForm] = useState(false);
@@ -125,7 +125,7 @@ function RenovationImageUpload({ renovationId, onUploadSuccess }) {
                     xhr.addEventListener('error', () => reject(new Error('Verkkovirhe')));
                     xhr.addEventListener('abort', () => reject(new Error('Lataus peruutettu')));
 
-                    xhr.open('POST', `${config.apiUrl}/renovations/${renovationId}/images`);
+                    xhr.open('POST', `${config.apiUrl}/properties/${propertyId}/images`);
                     xhr.setRequestHeader('Authorization', `Bearer ${token}`);
                     xhr.send(formData);
                 });
@@ -183,7 +183,7 @@ function RenovationImageUpload({ renovationId, onUploadSuccess }) {
         <div className="mb-4 p-3 border rounded bg-light">
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="mb-0">
-                    Lisää kuvia remonttiin
+                    Lisää kuvia kohteeseen
                     {images.length > 0 && (
                         <Badge bg="primary" className="ms-2">{images.length}</Badge>
                     )}
@@ -355,4 +355,4 @@ function RenovationImageUpload({ renovationId, onUploadSuccess }) {
     );
 }
 
-export default RenovationImageUpload;
+export default PropertyImageUpload;
