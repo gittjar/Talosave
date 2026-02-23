@@ -184,36 +184,23 @@ Database
     ├── createdat
     └── updatedat
 
-MongoDB Collections
-│
-├── Files (Document Storage)
-│   ├── _id (ObjectId, PK)
-│   ├── name (dokumentin nimi)
-│   ├── description (kuvaus)
-│   ├── propertyId (Number, viittaus TS_Properties)
-│   ├── folderId (ObjectId, viittaus Folder, null = juuressa)
-│   ├── url (Azure Blob URL tai linkki)
-│   ├── blobName (Azure Blob nimi poistoa varten)
-│   ├── fileType ('link' tai 'upload')
-│   ├── sortOrder (järjestys drag & drop)
-│   ├── uploadedAt (Date)
-│   ├── fileSize (bytes, käytetään kiintiölaskennassa)
-│   └── userId (Number, viittaus TS_PropertyUsers, tiedoston lataaja)
-│
-└── Folders (Document Organization)
-    ├── _id (ObjectId, PK)
-    ├── name (kansion nimi, max 50 merkkiä, ei erikoismerkkejä)
-    ├── propertyId (Number, viittaus TS_Properties)
-    ├── parentFolderId (ObjectId, viittaus Folder, null = juuressa)
-    ├── sortOrder (järjestys drag & drop)
-    └── createdAt (Date)
+Maintenance Tracking (Huoltokirja)
+└── TS_MaintenanceTasks
+    ├── id (PK)
+    ├── name (tehtävän nimi, esim. "Tarkista vesimittari")
+    ├── description (kuvaus, ohjeet)
+    ├── recommended_frequency (esim. "Kevät", "Syksy", "Vuosi", "Kuukausi")
+└── TS_MaintenanceChecks
+    ├── id (PK)
+    ├── task_id (FK -> TS_MaintenanceTasks)
+    ├── propertyid (FK -> TS_Properties)
+    ├── user_id (FK -> TS_PropertyUsers)
+    ├── check_date (Date)
+    ├── year (Number)
+    ├── period (esim. "Q1", "Q2", "Kevät", "Syksy")
+    ├── note (vapaa tekstikenttä)
 
-Storage Quota
-- Free tier total: 120 MB per user
-  - Documents: 50 MB (tracked in TS_PropertyUsers.storageUsed)
-  - Property Images: 20 MB (tracked in TS_PropertyUsers.propertyImagesUsed)
-  - Renovation Images: 50 MB (tracked in TS_PropertyUsers.renovationImagesUsed)
-- Quota check on file upload via /api/storage-quota endpoint (returns all three quotas)
-- Usage updated automatically on upload/delete operations for each type
-- Frontend displays total usage bar + breakdown by category with color coding
-- Warning when total or individual quota approaching limit
+- Huoltokirja tallentaa käyttäjän tekemät huoltotehtävät ja tarkastukset.
+- Tehtävät voidaan esittää checkbox-listana, ja käyttäjä voi merkitä ne tehdyksi.
+- Ylläpito voi lisätä uusia tehtäviä ja suositeltuja aikavälejä.
+- Käyttäjä voi lisätä huomioita ja tarkastuspäivän.

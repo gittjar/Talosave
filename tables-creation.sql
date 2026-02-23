@@ -236,4 +236,24 @@ CREATE TABLE TS_PropertyImages (
     sort_order INT DEFAULT 0,
     FOREIGN KEY (property_id) REFERENCES TS_Properties(propertyid) ON DELETE CASCADE
 );
--- ALTER TABLE TS_PropertyImages ADD sort_order INT DEFAULT 0;
+
+-- Maintenance tracking tables for Huoltokirja
+CREATE TABLE TS_MaintenanceTasks (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    name NVARCHAR(100) NOT NULL,
+    description NVARCHAR(255),
+    recommended_frequency NVARCHAR(50) -- e.g. 'Kevät', 'Syksy', 'Q1', 'Q2', 'Q3', 'Q4', 'Vuosi', 'Kuukausi'
+);
+
+CREATE TABLE TS_MaintenanceChecks (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    task_id INT NOT NULL,
+    propertyid INT NOT NULL,
+    user_id INT NOT NULL,
+    check_date DATE NOT NULL,
+    year INT NOT NULL,
+    period NVARCHAR(20), -- esim. 'Q1', 'Q2', 'Q3', 'Q4', 'Kevät', 'Syksy', 'Tammikuu'
+    note NVARCHAR(255),
+    FOREIGN KEY (task_id) REFERENCES TS_MaintenanceTasks(id),
+    FOREIGN KEY (propertyid) REFERENCES TS_Properties(propertyid)
+);

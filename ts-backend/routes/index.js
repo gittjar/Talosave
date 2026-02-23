@@ -52,6 +52,9 @@ const uploadRouter = require('../uploads/post');
 // Todo routes
 const todoRouter = require('../todoroutes/todocrud');
 
+// Maintenance routes
+const maintenanceRouter = require('./maintenance');
+
 // Services routes
 const getServices = require('../servicesroutes/get');
 const postServices = require('../servicesroutes/post');
@@ -128,6 +131,9 @@ function setupRoutes(app) {
     app.use('/api/services', postServices);
     app.use('/api/services', putServices);
     app.use('/api/services', deleteServices);
+
+        // Maintenance routes
+        app.use('/api/maintenance', maintenanceRouter);
 }
 
 module.exports = setupRoutes;
