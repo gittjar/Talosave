@@ -185,22 +185,24 @@ Database
     └── updatedat
 
 Maintenance Tracking (Huoltokirja)
-└── TS_MaintenanceTasks
+└── TS_PropertyMaintenanceBook
     ├── id (PK)
-    ├── name (tehtävän nimi, esim. "Tarkista vesimittari")
-    ├── description (kuvaus, ohjeet)
-    ├── recommended_frequency (esim. "Kevät", "Syksy", "Vuosi", "Kuukausi")
-└── TS_MaintenanceChecks
-    ├── id (PK)
-    ├── task_id (FK -> TS_MaintenanceTasks)
     ├── propertyid (FK -> TS_Properties)
+    ├── name (kirjan nimi)
+    ├── created_at (luontiaika)
+└── TS_MaintenanceEntry
+    ├── id (PK)
+    ├── maintenancebook_id (FK -> TS_PropertyMaintenanceBook)
+    ├── task_name (tehtävän nimi)
+    ├── description (kuvaus)
+    ├── recommended_frequency (esim. "Kevät", "Syksy", "Vuosi")
+    ├── done (tehty, boolean)
+    ├── done_date (päiväys)
+    ├── note (huomio)
     ├── user_id (FK -> TS_PropertyUsers)
-    ├── check_date (Date)
-    ├── year (Number)
-    ├── period (esim. "Q1", "Q2", "Kevät", "Syksy")
-    ├── note (vapaa tekstikenttä)
+    ├── created_at (luontiaika)
 
-- Huoltokirja tallentaa käyttäjän tekemät huoltotehtävät ja tarkastukset.
-- Tehtävät voidaan esittää checkbox-listana, ja käyttäjä voi merkitä ne tehdyksi.
+- Kaikki kiinteistön huoltoon liittyvät tehtävät, huollot, tarkastukset ja muistiinpanot tallennetaan samaan kirjaan.
+- Käyttäjä voi lisätä, muokata ja merkitä tehtäviä tehdyksi.
 - Ylläpito voi lisätä uusia tehtäviä ja suositeltuja aikavälejä.
-- Käyttäjä voi lisätä huomioita ja tarkastuspäivän.
+- Huoltokirja on aina kiinteistökohtainen.

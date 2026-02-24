@@ -82,17 +82,7 @@ const NavBar = () => {
               Huoltoaikataulu
             </Nav.Link>
 
-              {isLoggedIn && (
-                <Nav.Link 
-                  as={Link} 
-                  to="/huoltokirja" 
-                  onClick={closeNav}
-                  className={`nav-item-modern ${location.pathname === '/huoltokirja' ? 'active' : ''}`}
-                >
-                  <Calendar2Check size={16} className="me-2" />
-                  Huoltokirja
-                </Nav.Link>
-              )}
+              {/* Huoltokirja-linkki poistettu navbarista, siirretään kiinteistön alle */}
             
             {!isLoggedIn && (
               <Nav.Link 

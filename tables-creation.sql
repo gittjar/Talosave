@@ -257,3 +257,27 @@ CREATE TABLE TS_MaintenanceChecks (
     FOREIGN KEY (task_id) REFERENCES TS_MaintenanceTasks(id),
     FOREIGN KEY (propertyid) REFERENCES TS_Properties(propertyid)
 );
+
+-- Unified Huoltokirja tables
+CREATE TABLE TS_PropertyMaintenanceBook (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    propertyid INT NOT NULL,
+    name NVARCHAR(100) NOT NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (propertyid) REFERENCES TS_Properties(propertyid)
+);
+
+CREATE TABLE TS_MaintenanceEntry (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    maintenancebook_id INT NOT NULL,
+    task_name NVARCHAR(100) NOT NULL,
+    description NVARCHAR(255),
+    recommended_frequency NVARCHAR(50),
+    done BIT DEFAULT 0,
+    done_date DATE,
+    note NVARCHAR(255),
+    user_id INT,
+    created_at DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (maintenancebook_id) REFERENCES TS_PropertyMaintenanceBook(id),
+    FOREIGN KEY (user_id) REFERENCES TS_PropertyUsers(userid)
+);

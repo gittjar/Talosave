@@ -14,11 +14,13 @@ import { Tab, Nav, Navbar, Offcanvas, Button, Badge, ProgressBar } from 'react-b
 import ConsumptionDetails from './ConsumptionDetails.jsx';
 import { HouseDoor, Tools, CardChecklist, BarChartFill, Folder2Open, Gear, CurrencyExchange, Lightning, ImageFill } from 'react-bootstrap-icons';
 import DocumentsPage from './DocumentsPage.jsx';
+import { Calendar2Check } from 'react-bootstrap-icons'; // Added Calendar2Check import
 import ChangeOwnerForm from '../forms/ChangeOwnerForm.jsx';
 import ElectricityPrice from './ElectricityPrice.jsx';
 import Services from './Services.jsx';
 import PropertyImageUpload from '../forms/PropertyImageUpload.jsx';
 import PropertyImageGallery from './PropertyImageGallery.jsx';
+import PropertyMaintenanceBookTab from './PropertyMaintenanceBookTab.jsx';
 
 export const PropertyContext = createContext();
 
@@ -331,6 +333,13 @@ const PropertyDetails = () => {
       count: imagesCount
     },
     {
+      key: "10",
+      icon: <Calendar2Check />,
+      label: "Huoltokirja",
+      shortLabel: "Huoltokirja",
+      count: null
+    },
+    {
       key: "2", 
       icon: <Tools />,
       label: "Remontit",
@@ -621,6 +630,9 @@ const PropertyDetails = () => {
           {isChangeOwnerFormVisible && <ChangeOwnerForm propertyId={id} />}
           
         <HouseBasicInformation property={property} />
+      </Tab.Pane>
+      <Tab.Pane eventKey="10">
+        <PropertyMaintenanceBookTab propertyId={id} />
       </Tab.Pane>
       <Tab.Pane eventKey="2">
       <section className='renovations'>
