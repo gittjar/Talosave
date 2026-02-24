@@ -7,11 +7,15 @@ const Huoltokirja = ({ propertyId: propPropertyId }) => {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [noteInput, setNoteInput] = useState({});
+  const currentYear = new Date().getFullYear();
   const [newEntry, setNewEntry] = useState({
     task_name: '',
     description: '',
     recommended_frequency: '',
-    note: ''
+    note: '',
+    is_recurring: false,
+    recurring_months: [],
+    year: currentYear
   });
   const [adding, setAdding] = useState(false);
   const [editId, setEditId] = useState(null);
@@ -53,9 +57,12 @@ const Huoltokirja = ({ propertyId: propPropertyId }) => {
           description: newEntry.description,
           recommended_frequency: newEntry.recommended_frequency,
           note: newEntry.note,
-          user_id: user?.userid
+          user_id: user?.userid,
+          is_recurring: newEntry.is_recurring,
+          recurring_months: newEntry.recurring_months.join(','),
+          year: newEntry.year
         });
-        setNewEntry({ task_name: '', description: '', recommended_frequency: '', note: '' });
+        setNewEntry({ task_name: '', description: '', recommended_frequency: '', note: '', is_recurring: false, recurring_months: [], year: currentYear });
         const entriesRes = await axios.get(`${config.apiUrl}/maintenance/entries/${propertyId}`);
         setEntries(entriesRes.data);
       } catch (err) {
@@ -162,6 +169,45 @@ const Huoltokirja = ({ propertyId: propPropertyId }) => {
           onChange={e => setNewEntry({ ...newEntry, note: e.target.value })}
           style={{ marginBottom: '0.5em', width: '100%' }}
         />
+        <div style={{ marginBottom: '0.5em' }}>
+          <label>
+            <input
+              type="checkbox"
+              checked={newEntry.is_recurring}
+              onChange={e => setNewEntry({ ...newEntry, is_recurring: e.target.checked })}
+              style={{ marginRight: '0.5em' }}
+            />
+            Toistuva vuosittain
+          </label>
+        </div>
+        <div style={{ marginBottom: '0.5em' }}>
+          <span>Vuosi: </span>
+          <input
+            type="number"
+            min={currentYear}
+            value={newEntry.year}
+            onChange={e => setNewEntry({ ...newEntry, year: parseInt(e.target.value) })}
+            style={{ width: '90px', marginLeft: '0.5em' }}
+          />
+        </div>
+        <div style={{ marginBottom: '0.5em' }}>
+          <span>Kuukaudet: </span>
+          {[...Array(12)].map((_, i) => (
+            <label key={i} style={{ marginRight: '0.5em' }}>
+              <input
+                type="checkbox"
+                checked={newEntry.recurring_months.includes(i + 1)}
+                onChange={e => {
+                  const months = newEntry.recurring_months.includes(i + 1)
+                    ? newEntry.recurring_months.filter(m => m !== i + 1)
+                    : [...newEntry.recurring_months, i + 1];
+                  setNewEntry({ ...newEntry, recurring_months: months });
+                }}
+              />
+              {i + 1}
+            </label>
+          ))}
+        </div>
         <button type="submit" disabled={adding} style={{ marginTop: '0.5em' }}>Lisää huolto</button>
       </form>
       <ul>

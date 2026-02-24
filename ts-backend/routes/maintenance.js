@@ -48,7 +48,7 @@ router.get('/entries/:propertyid', async (req, res) => {
 
 // Add a maintenance entry
 router.post('/entries', async (req, res) => {
-    const { propertyid, task_name, description, recommended_frequency, user_id, note } = req.body;
+    const { propertyid, task_name, description, recommended_frequency, user_id, note, is_recurring, recurring_months, year } = req.body;
     try {
         const pool = await sql.connect();
         // Get or create book
@@ -73,9 +73,13 @@ router.post('/entries', async (req, res) => {
             .input('recommended_frequency', sql.NVarChar(50), recommended_frequency)
             .input('user_id', sql.Int, user_id)
             .input('note', sql.NVarChar(255), note)
-            .query('INSERT INTO TS_MaintenanceEntry (maintenancebook_id, task_name, description, recommended_frequency, user_id, note) VALUES (@maintenancebook_id, @task_name, @description, @recommended_frequency, @user_id, @note)');
+            .input('is_recurring', sql.Bit, is_recurring ? 1 : 0)
+            .input('recurring_months', sql.NVarChar(50), recurring_months)
+            .input('year', sql.Int, year)
+            .query('INSERT INTO TS_MaintenanceEntry (maintenancebook_id, task_name, description, recommended_frequency, user_id, note, is_recurring, recurring_months, year) VALUES (@maintenancebook_id, @task_name, @description, @recommended_frequency, @user_id, @note, @is_recurring, @recurring_months, @year)');
         res.status(201).json({ message: 'Entry added' });
     } catch (err) {
+        console.error('POST /api/maintenance/entries error:', err);
         res.status(500).json({ error: err.message });
     }
 });
@@ -83,7 +87,7 @@ router.post('/entries', async (req, res) => {
 // Update a maintenance entry (mark done, edit note, etc)
 router.put('/entries/:id', async (req, res) => {
     const { id } = req.params;
-    const { done, done_date, note, task_name, description, recommended_frequency } = req.body;
+    const { done, done_date, note, task_name, description, recommended_frequency, is_recurring, recurring_months, year } = req.body;
     try {
         const pool = await sql.connect();
         await pool.request()
@@ -94,13 +98,19 @@ router.put('/entries/:id', async (req, res) => {
             .input('task_name', sql.NVarChar(100), task_name)
             .input('description', sql.NVarChar(255), description)
             .input('recommended_frequency', sql.NVarChar(50), recommended_frequency)
+            .input('is_recurring', sql.Bit, is_recurring ? 1 : 0)
+            .input('recurring_months', sql.NVarChar(50), recurring_months)
+            .input('year', sql.Int, year)
             .query(`UPDATE TS_MaintenanceEntry SET 
                 done = @done, 
                 done_date = @done_date, 
                 note = @note,
                 task_name = ISNULL(@task_name, task_name),
                 description = ISNULL(@description, description),
-                recommended_frequency = ISNULL(@recommended_frequency, recommended_frequency)
+                recommended_frequency = ISNULL(@recommended_frequency, recommended_frequency),
+                is_recurring = @is_recurring,
+                recurring_months = @recurring_months,
+                year = @year
                 WHERE id = @id`);
         res.json({ message: 'Entry updated' });
     } catch (err) {

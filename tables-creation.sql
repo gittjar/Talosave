@@ -1,3 +1,5 @@
+-- Jos päivität olemassa olevaa tietokantaa, lisää seuraava:
+-- ALTER TABLE TS_MaintenanceEntry ADD is_recurring BIT DEFAULT 0, recurring_months NVARCHAR(50), year INT;
 CREATE TABLE TS_Properties (
     propertyid INT IDENTITY(1,1) PRIMARY KEY,
     propertyname NVARCHAR(255),
@@ -278,6 +280,10 @@ CREATE TABLE TS_MaintenanceEntry (
     note NVARCHAR(255),
     user_id INT,
     created_at DATETIME DEFAULT GETDATE(),
+    -- Recurring/periodic fields
+    is_recurring BIT DEFAULT 0, -- 1 = toistuva vuosittain
+    recurring_months NVARCHAR(50), -- esim. '1,2,3,4,5,6,7,8,9,10,11,12' (valitut kuukaudet)
+    year INT -- mille vuodelle tehtävä kuuluu
     FOREIGN KEY (maintenancebook_id) REFERENCES TS_PropertyMaintenanceBook(id),
     FOREIGN KEY (user_id) REFERENCES TS_PropertyUsers(userid)
 );

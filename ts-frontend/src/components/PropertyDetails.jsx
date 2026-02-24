@@ -148,33 +148,55 @@ const PropertyDetails = () => {
           Authorization: `Bearer ${token}`
         }
       });
-      
       if (response.ok) {
         const data = await response.json();
         setStorageQuota(data);
-      } else {
-        console.error('Failed to fetch storage quota');
       }
     } catch (error) {
       console.error('Error fetching storage quota:', error);
     }
   };
 
-  useEffect(() => {
-    fetchStorageQuota();
-  }, [refreshKey]);
+  // Navigation items configuration
 
-  if (!property) {
-    return <div>Loading...</div>;
-  }
-
-  const closeForm = () => {
-    setIsAddRenovationFormOpen(false);
-    setIsFormVisible(false); // Hide the form after it's submitted
-    setIsOpen(false); // Reset the state of the "Avaa tehtävän lisäys" button
-    setIsAddTodoFormVisible(false);
+  const handleUpdateProperty = async () => {
+    try {
+      const token = localStorage.getItem('userToken');
+      const propertyData = {
+        propertyname: newPropertyName,
+        street_address: newStreetAddress,
+        post_number: newPostNumber,
+        TV_system: newTVSystem,
+        drain: newDrain,
+        water: newWater,
+        electricity: newElectricity,
+        main_heat_system: newMainHeatSystem,
+        sauna: newSauna,
+        pipes: newPipes,
+        roof_type: newRoofType,
+        ground: newGround,
+        property_id: newPropertyId,
+        rasite: newRasite,
+        ranta: newRanta,
+        userid: newUserid,
+        latitude: newLatitude,
+        longitude: newLongitude
+      };
+      console.log('Token:', token); // Log the token
+      console.log('PUT request data:', propertyData);
+      await axios.put(`${config.baseURL}/api/properties/${newPropertyId}`, propertyData, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      fetchProperties(); // Fetch properties again after a property is updated
+      setIsEditing(false); // Switch back to the normal mode
+      setRefreshKey(oldKey => oldKey + 1); // Trigger a refresh of the property details
+      refreshData(); // Refresh the property details
+    } catch (error) {
+      console.error('Failed to update property:', error);
+    }
   };
-
 
   const handleDeleteProperty = async () => {
     try {
@@ -189,88 +211,6 @@ const PropertyDetails = () => {
       navigate('/mypage'); // Navigate to 'mypage'
     } catch (error) {
       console.error('Failed to delete property:', error);
-    }
-  };
-
-  // PUT
-  const handleUpdateProperty = async () => {
-    try {
-      const token = localStorage.getItem('userToken');
-      console.log('Token:', token); // Log the token
-      console.log('PUT request data:', {
-        propertyname: newPropertyName,
-        street_address: newStreetAddress,
-        post_number: newPostNumber,
-        city: newCity,
-        land: newLand,
-        house_type: newHouseType,
-        building_year: newBuildingYear,
-        total_sqm: newTotalSqm,
-        living_sqm: newLivingSqm,
-        created_at: newCreatedAt,
-        description: newDescription,
-        room_list: newRoomList,
-        floors: newFloors,
-        dataconnection: newDataconnection,
-        TV_system: newTVSystem,
-        drain: newDrain,
-        water: newWater,
-        electricity: newElectricity,
-        main_heat_system: newMainHeatSystem,
-        sauna: newSauna,
-        pipes: newPipes,
-        roof_type: newRoofType,
-        ground: newGround,
-        property_id: newPropertyId,
-        rasite: newRasite,
-        ranta: newRanta,
-        userid: newUserid,
-        latitude: newLatitude,
-        longitude: newLongitude,
-      });
-  
-      await axios.put(`${config.baseURL}/api/putProperty/${id}`, {
-        propertyname: newPropertyName,
-        street_address: newStreetAddress,
-        post_number: newPostNumber,
-        city: newCity,
-        land: newLand,
-        house_type: newHouseType,
-        building_year: newBuildingYear,
-        total_sqm: newTotalSqm,
-        living_sqm: newLivingSqm,
-        created_at: newCreatedAt,
-        description: newDescription,
-        room_list: newRoomList,
-        floors: newFloors,
-        dataconnection: newDataconnection,
-        TV_system: newTVSystem,
-        drain: newDrain,
-        water: newWater,
-        electricity: newElectricity,
-        main_heat_system: newMainHeatSystem,
-        sauna: newSauna,
-        pipes: newPipes,
-        roof_type: newRoofType,
-        ground: newGround,
-        property_id: newPropertyId,
-        rasite: newRasite,
-        ranta: newRanta,
-        userid: newUserid,
-        latitude: newLatitude,
-        longitude: newLongitude,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-  
-      fetchProperties(); // Fetch properties again after a property is updated
-      setIsEditing(false); // Switch back to the normal mode
-      setRefreshKey(oldKey => oldKey + 1); // Trigger a refresh of the property details
-      refreshData(); // Refresh the property details
-    } catch (error) {
-      console.error('Failed to update property:', error);
     }
   };
 
@@ -317,39 +257,11 @@ const PropertyDetails = () => {
       count: null
     },
     {
-      key: "9",
-      icon: <ImageFill />,
-      label: "Kuvat",
-      shortLabel: "Kuvat",
-      count: imagesCount
-    },
-    {
-      key: "10",
-      icon: <Calendar2Check />,
-      label: "Huoltokirja",
-      shortLabel: "Huoltokirja",
-      count: null
-    },
-    {
-      key: "2", 
+      key: "2",
       icon: <Tools />,
       label: "Remontit",
       shortLabel: "Remontit",
       count: renovationsCount
-    },
-    {
-      key: "3",
-      icon: <CardChecklist />,
-      label: "Tehtävät", 
-      shortLabel: "Tehtävät",
-      count: todosCount
-    },
-    {
-      key: "4",
-      icon: <Gear />,
-      label: "Huollot",
-      shortLabel: "Huollot",
-      // Huollot yhdistetään Huoltokirjaan, ei enää erillistä countia
     },
     {
       key: "5",
@@ -366,17 +278,17 @@ const PropertyDetails = () => {
       count: documentsCount
     },
     {
-      key: "7",
-      icon: <CurrencyExchange />,
-      label: "Verot ja muut maksut",
-      shortLabel: "Verot",
-      count: null
+      key: "9",
+      icon: <ImageFill />,
+      label: "Kuvat",
+      shortLabel: "Kuvat",
+      count: imagesCount
     },
     {
-      key: "8",
-      icon: <Lightning />,
-      label: "Pörssisähkö",
-      shortLabel: "Sähkö",
+      key: "10",
+      icon: <Calendar2Check />,
+      label: "Huoltokirja",
+      shortLabel: "Huoltokirja",
       count: null
     }
   ];
@@ -614,7 +526,7 @@ const PropertyDetails = () => {
           
           {isChangeOwnerFormVisible && <ChangeOwnerForm propertyId={id} />}
           
-        <HouseBasicInformation property={property} />
+        {property && <HouseBasicInformation property={property} />}
       </Tab.Pane>
       <Tab.Pane eventKey="10">
         <PropertyMaintenanceBookTab propertyId={id} />
@@ -628,7 +540,7 @@ const PropertyDetails = () => {
       <Tab.Pane eventKey="3">
       <section className=''>
 
-        <Todos propertyId={id} refreshData={refreshData} closeForm={closeForm}/>
+        <Todos propertyId={id} refreshData={refreshData} />
     </section>
       </Tab.Pane>
       {/* Huollot yhdistetty Huoltokirjaan, tämä välilehti poistettu */}
