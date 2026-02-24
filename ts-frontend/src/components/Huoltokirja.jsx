@@ -6,6 +6,8 @@ import { useAuth } from '../contexts/AuthContext.jsx';
 const Huoltokirja = ({ propertyId: propPropertyId }) => {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
+  // Per-entry: { [entryId]: { [month]: { done, note, done_date } } }
+  const [monthDone, setMonthDone] = useState({});
   const [noteInput, setNoteInput] = useState({});
   const currentYear = new Date().getFullYear();
   const [newEntry, setNewEntry] = useState({
@@ -91,6 +93,18 @@ const Huoltokirja = ({ propertyId: propPropertyId }) => {
       try {
         const entriesRes = await axios.get(`${config.apiUrl}/maintenance/entries/${propertyId}`);
         setEntries(entriesRes.data);
+        // Hae kuukausikohtaiset suoritukset kaikille entryille
+        const allMonthDone = {};
+        for (const entry of entriesRes.data) {
+          if (entry.is_recurring) {
+            const res = await axios.get(`${config.apiUrl}/maintenance/entries/${entry.id}/monthdone`, { params: { year: entry.year } });
+            allMonthDone[entry.id] = {};
+            for (const md of res.data) {
+              allMonthDone[entry.id][md.month] = { done: !!md.done, note: md.note, done_date: md.done_date };
+            }
+          }
+        }
+        setMonthDone(allMonthDone);
       } catch (err) {
         // handle error
       }
@@ -212,7 +226,33 @@ const Huoltokirja = ({ propertyId: propPropertyId }) => {
       </form>
       <ul>
         {entries.map(entry => {
-          const checked = isChecked(entry);
+          // Parse recurring_months as array of numbers
+          const recurringMonths = entry.recurring_months
+            ? entry.recurring_months.split(',').map(m => parseInt(m)).filter(Boolean)
+            : [];
+          // Kuukausikohtainen suoritusdata
+          const entryMonthDone = monthDone[entry.id] || {};
+          const handleMonthCheck = async (month, checked) => {
+            try {
+              await axios.post(`${config.apiUrl}/maintenance/entries/${entry.id}/monthdone`, {
+                year: entry.year,
+                month,
+                done: checked,
+                user_id: user?.userid || null,
+                note: ''
+              });
+              // Päivitä local state
+              setMonthDone(prev => ({
+                ...prev,
+                [entry.id]: {
+                  ...prev[entry.id],
+                  [month]: { ...prev[entry.id]?.[month], done: checked }
+                }
+              }));
+            } catch (err) {
+              // handle error
+            }
+          };
           return (
             <li key={entry.id} style={{ marginBottom: '1em', borderBottom: '1px solid #eee', paddingBottom: '1em' }}>
               {editId === entry.id ? (
@@ -240,31 +280,26 @@ const Huoltokirja = ({ propertyId: propPropertyId }) => {
                 </div>
               ) : (
                 <>
-                  <label>
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => checked ? handleUncheck(entry.id) : handleCheck(entry.id)}
-                    />
-                    {entry.task_name} <span style={{ color: '#888' }}>{entry.recommended_frequency}</span>
-                  </label>
+                  <div style={{ fontWeight: 500 }}>{entry.task_name} <span style={{ color: '#888' }}>{entry.recommended_frequency}</span></div>
                   <div style={{ fontSize: '0.9em', color: '#555' }}>{entry.description}</div>
+                  {recurringMonths.length > 0 && (
+                    <div style={{ margin: '0.5em 0' }}>
+                      <span>Kuukaudet: </span>
+                      {[...Array(12)].map((_, i) => (
+                        <label key={i} style={{ marginRight: '0.5em', opacity: recurringMonths.includes(i + 1) ? 1 : 0.3 }}>
+                          <input
+                            type="checkbox"
+                            disabled={!recurringMonths.includes(i + 1)}
+                            checked={recurringMonths.includes(i + 1) && !!entryMonthDone[i + 1]?.done}
+                            onChange={e => handleMonthCheck(i + 1, e.target.checked)}
+                          />
+                          {i + 1}
+                        </label>
+                      ))}
+                    </div>
+                  )}
                   <button onClick={() => handleEditClick(entry)} style={{ marginTop: '0.5em', marginRight: '0.5em' }}>Muokkaa</button>
                 </>
-              )}
-              {!checked && (
-                <input
-                  type="text"
-                  placeholder="Lisää huomio..."
-                  value={noteInput[entry.id] || ''}
-                  onChange={e => setNoteInput({ ...noteInput, [entry.id]: e.target.value })}
-                  style={{ marginTop: '0.5em', width: '100%' }}
-                />
-              )}
-              {checked && (
-                <div style={{ fontSize: '0.9em', color: '#007bff', marginTop: '0.5em' }}>
-                  Huomio: {entry.note || '-'}
-                </div>
               )}
               <button onClick={() => handleDeleteEntry(entry.id)} style={{ marginTop: '0.5em', background: '#f44336', color: 'white', border: 'none', borderRadius: '4px', padding: '0.3em 0.8em', cursor: 'pointer' }}>Poista</button>
             </li>

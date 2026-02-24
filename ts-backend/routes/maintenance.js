@@ -3,6 +3,65 @@ const express = require('express');
 const router = express.Router();
 const sql = require('mssql');
 
+
+// Mark a recurring maintenance entry as done for a specific month
+router.post('/entries/:id/monthdone', async (req, res) => {
+    // id = maintenanceentry_id
+    const { id } = req.params;
+    const { year, month, done, note, user_id } = req.body;
+    try {
+        const pool = await sql.connect();
+        // Check if already exists
+        const checkRes = await pool.request()
+            .input('maintenanceentry_id', sql.Int, id)
+            .input('year', sql.Int, year)
+            .input('month', sql.Int, month)
+            .query('SELECT * FROM TS_MaintenanceMonthDone WHERE maintenanceentry_id = @maintenanceentry_id AND year = @year AND month = @month');
+        if (checkRes.recordset.length > 0) {
+            // Update existing
+            await pool.request()
+                .input('id', sql.Int, checkRes.recordset[0].id)
+                .input('done', sql.Bit, done ? 1 : 0)
+                .input('done_date', sql.Date, done ? new Date() : null)
+                .input('note', sql.NVarChar(255), note || '')
+                .query('UPDATE TS_MaintenanceMonthDone SET done = @done, done_date = @done_date, note = @note WHERE id = @id');
+        } else {
+            // Insert new
+            await pool.request()
+                .input('maintenanceentry_id', sql.Int, id)
+                .input('year', sql.Int, year)
+                .input('month', sql.Int, month)
+                .input('done', sql.Bit, done ? 1 : 0)
+                .input('done_date', sql.Date, done ? new Date() : null)
+                .input('user_id', sql.Int, user_id)
+                .input('note', sql.NVarChar(255), note || '')
+                .query('INSERT INTO TS_MaintenanceMonthDone (maintenanceentry_id, year, month, done, done_date, user_id, note) VALUES (@maintenanceentry_id, @year, @month, @done, @done_date, @user_id, @note)');
+        }
+        res.json({ message: 'Month status updated' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Get all month done statuses for a maintenance entry (for a year)
+router.get('/entries/:id/monthdone', async (req, res) => {
+    const { id } = req.params;
+    const { year } = req.query;
+    try {
+        const pool = await sql.connect();
+        let query = 'SELECT * FROM TS_MaintenanceMonthDone WHERE maintenanceentry_id = @id';
+        if (year) query += ' AND year = @year';
+        const reqSql = pool.request().input('id', sql.Int, id);
+        if (year) reqSql.input('year', sql.Int, year);
+        const result = await reqSql.query(query);
+        res.json(result.recordset);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+
 // Get or create property maintenance book
 router.get('/book/:propertyid', async (req, res) => {
     const { propertyid } = req.params;

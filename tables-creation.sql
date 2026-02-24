@@ -287,3 +287,16 @@ CREATE TABLE TS_MaintenanceEntry (
     FOREIGN KEY (maintenancebook_id) REFERENCES TS_PropertyMaintenanceBook(id),
     FOREIGN KEY (user_id) REFERENCES TS_PropertyUsers(userid)
 );
+
+CREATE TABLE TS_MaintenanceMonthDone (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    maintenanceentry_id INT NOT NULL, -- FK to TS_MaintenanceEntry
+    year INT NOT NULL,
+    month INT NOT NULL, -- 1-12
+    done BIT DEFAULT 0,
+    done_date DATE,
+    user_id INT,
+    note NVARCHAR(255),
+    created_at DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (maintenanceentry_id) REFERENCES TS_MaintenanceEntry(id)
+);
