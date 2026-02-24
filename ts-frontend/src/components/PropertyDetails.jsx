@@ -17,7 +17,6 @@ import DocumentsPage from './DocumentsPage.jsx';
 import { Calendar2Check } from 'react-bootstrap-icons'; // Added Calendar2Check import
 import ChangeOwnerForm from '../forms/ChangeOwnerForm.jsx';
 import ElectricityPrice from './ElectricityPrice.jsx';
-import Services from './Services.jsx';
 import PropertyImageUpload from '../forms/PropertyImageUpload.jsx';
 import PropertyImageGallery from './PropertyImageGallery.jsx';
 import PropertyMaintenanceBookTab from './PropertyMaintenanceBookTab.jsx';
@@ -37,7 +36,6 @@ const PropertyDetails = () => {
   // Counts for navigation badges
   const [renovationsCount, setRenovationsCount] = useState(0);
   const [todosCount, setTodosCount] = useState(0);
-  const [servicesCount, setServicesCount] = useState(0);
   const [documentsCount, setDocumentsCount] = useState(0);
   const [imagesCount, setImagesCount] = useState(0);
   const [storageQuota, setStorageQuota] = useState(null);
@@ -119,13 +117,6 @@ const PropertyDetails = () => {
       .then(data => setTodosCount(data.length))
       .catch(error => console.error('Error fetching todos count:', error));
 
-    // Fetch services count
-    fetch(`${config.baseURL}/api/services/${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(response => response.json())
-      .then(data => setServicesCount(data.length))
-      .catch(error => console.error('Error fetching services count:', error));
 
     // Fetch documents count (files + folders)
     Promise.all([
@@ -358,7 +349,7 @@ const PropertyDetails = () => {
       icon: <Gear />,
       label: "Huollot",
       shortLabel: "Huollot",
-      count: servicesCount
+      // Huollot yhdistetään Huoltokirjaan, ei enää erillistä countia
     },
     {
       key: "5",
@@ -435,12 +426,6 @@ const PropertyDetails = () => {
       .then(data => setTodosCount(data.length))
       .catch(error => console.error('Error refreshing todos count:', error));
 
-    fetch(`${config.baseURL}/api/services/${id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(response => response.json())
-      .then(data => setServicesCount(data.length))
-      .catch(error => console.error('Error refreshing services count:', error));
 
     Promise.all([
       fetch(`${config.baseURL}/api/files?propertyId=${id}`, {
@@ -646,9 +631,7 @@ const PropertyDetails = () => {
         <Todos propertyId={id} refreshData={refreshData} closeForm={closeForm}/>
     </section>
       </Tab.Pane>
-      <Tab.Pane eventKey="4">
-        <Services propertyId={id} />
-      </Tab.Pane>
+      {/* Huollot yhdistetty Huoltokirjaan, tämä välilehti poistettu */}
       <Tab.Pane eventKey="5">
       <ConsumptionDetails property={property}>Kulutus</ ConsumptionDetails>
       </Tab.Pane>

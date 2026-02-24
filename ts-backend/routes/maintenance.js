@@ -83,7 +83,7 @@ router.post('/entries', async (req, res) => {
 // Update a maintenance entry (mark done, edit note, etc)
 router.put('/entries/:id', async (req, res) => {
     const { id } = req.params;
-    const { done, done_date, note } = req.body;
+    const { done, done_date, note, task_name, description, recommended_frequency } = req.body;
     try {
         const pool = await sql.connect();
         await pool.request()
@@ -91,7 +91,17 @@ router.put('/entries/:id', async (req, res) => {
             .input('done', sql.Bit, done)
             .input('done_date', sql.Date, done_date)
             .input('note', sql.NVarChar(255), note)
-            .query('UPDATE TS_MaintenanceEntry SET done = @done, done_date = @done_date, note = @note WHERE id = @id');
+            .input('task_name', sql.NVarChar(100), task_name)
+            .input('description', sql.NVarChar(255), description)
+            .input('recommended_frequency', sql.NVarChar(50), recommended_frequency)
+            .query(`UPDATE TS_MaintenanceEntry SET 
+                done = @done, 
+                done_date = @done_date, 
+                note = @note,
+                task_name = ISNULL(@task_name, task_name),
+                description = ISNULL(@description, description),
+                recommended_frequency = ISNULL(@recommended_frequency, recommended_frequency)
+                WHERE id = @id`);
         res.json({ message: 'Entry updated' });
     } catch (err) {
         res.status(500).json({ error: err.message });

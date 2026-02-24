@@ -1,3 +1,4 @@
+// Tämä komponentti on poistettu. Kaikki huoltotoiminnot löytyvät nyt Huoltokirja-välilehdeltä.
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Row, Col, Card, Badge, Button, Table, ButtonGroup, Accordion, Collapse, Alert } from 'react-bootstrap';

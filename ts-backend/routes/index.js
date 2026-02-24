@@ -55,11 +55,6 @@ const todoRouter = require('../todoroutes/todocrud');
 // Maintenance routes
 const maintenanceRouter = require('./maintenance');
 
-// Services routes
-const getServices = require('../servicesroutes/get');
-const postServices = require('../servicesroutes/post');
-const putServices = require('../servicesroutes/put');
-const deleteServices = require('../servicesroutes/delete');
 
 /**
  * Mount all routes to the Express app
@@ -126,11 +121,6 @@ function setupRoutes(app) {
     // External API routes
     app.use('/api/nordpool', nordpoolRouter);
 
-    // Services routes
-    app.use('/api/services', getServices);
-    app.use('/api/services', postServices);
-    app.use('/api/services', putServices);
-    app.use('/api/services', deleteServices);
 
         // Maintenance routes
         app.use('/api/maintenance', maintenanceRouter);
