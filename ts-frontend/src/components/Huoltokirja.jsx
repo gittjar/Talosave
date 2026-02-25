@@ -42,8 +42,9 @@ const Huoltokirja = ({ propertyId: propPropertyId }) => {
           const entriesRes = await axios.get(`${config.apiUrl}/maintenance/entries/${propertyId}`);
           setEntries(entriesRes.data);
           setEditId(null);
+          toast.success(`Huolto muokattu: ${editEntry.task_name}`);
         } catch (err) {
-          // handle error
+          toast.error(`Huollon muokkaus epäonnistui: ${editEntry.task_name}`);
         }
       };
 
@@ -72,9 +73,9 @@ const Huoltokirja = ({ propertyId: propPropertyId }) => {
         setNewEntry({ task_name: '', description: '', recommended_frequency: '', note: '', is_recurring: false, recurring_months: [], year: currentYear });
         const entriesRes = await axios.get(`${config.apiUrl}/maintenance/entries/${propertyId}`);
         setEntries(entriesRes.data);
-        toast.success('Huolto lisätty onnistuneesti!');
+        toast.success(`Huolto lisätty: ${newEntry.task_name}`);
       } catch (err) {
-        toast.error('Huollon lisäys epäonnistui!');
+        toast.error(`Huollon lisäys epäonnistui: ${newEntry.task_name || '-'}`);
       }
       setAdding(false);
     };
@@ -85,9 +86,11 @@ const Huoltokirja = ({ propertyId: propPropertyId }) => {
         await axios.delete(`${config.apiUrl}/maintenance/entries/${entryId}`);
         const entriesRes = await axios.get(`${config.apiUrl}/maintenance/entries/${propertyId}`);
         setEntries(entriesRes.data);
-        toast.success('Huolto poistettu onnistuneesti!');
+        const entry = entries.find(e => e.id === entryId);
+        toast.success(`Huolto poistettu: ${entry?.task_name || '-'}`);
       } catch (err) {
-        toast.error('Huollon poisto epäonnistui!');
+        const entry = entries.find(e => e.id === entryId);
+        toast.error(`Huollon poisto epäonnistui: ${entry?.task_name || '-'}`);
       }
     };
   const { user } = useAuth();
