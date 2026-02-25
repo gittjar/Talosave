@@ -54,7 +54,7 @@ const Huoltokirja = ({ propertyId: propPropertyId }) => {
     const handleAddEntry = async (e) => {
       e.preventDefault();
       if (!newEntry.task_name || typeof newEntry.task_name !== 'string' || newEntry.task_name.trim() === '') {
-        toast.error('Tehtävän nimi on pakollinen!');
+        toast.error('Täytä tehtävän nimi!');
         return;
       }
       setAdding(true);
@@ -172,7 +172,6 @@ const Huoltokirja = ({ propertyId: propPropertyId }) => {
               placeholder="Tehtävän nimi"
               value={newEntry.task_name}
               onChange={e => setNewEntry({ ...newEntry, task_name: e.target.value })}
-              required
               style={{ marginTop: '0.2em', width: '100%' }}
             />
           </label>
