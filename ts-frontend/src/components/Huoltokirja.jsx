@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import axios from 'axios';
 import config from '../configuration/config';
 import { useAuth } from '../contexts/AuthContext.jsx';
@@ -51,6 +52,10 @@ const Huoltokirja = ({ propertyId: propPropertyId }) => {
       };
     const handleAddEntry = async (e) => {
       e.preventDefault();
+      if (!newEntry.task_name || typeof newEntry.task_name !== 'string' || newEntry.task_name.trim() === '') {
+        toast.error('Tehtävän nimi on pakollinen!');
+        return;
+      }
       setAdding(true);
       try {
         await axios.post(`${config.apiUrl}/maintenance/entries`, {
@@ -67,8 +72,9 @@ const Huoltokirja = ({ propertyId: propPropertyId }) => {
         setNewEntry({ task_name: '', description: '', recommended_frequency: '', note: '', is_recurring: false, recurring_months: [], year: currentYear });
         const entriesRes = await axios.get(`${config.apiUrl}/maintenance/entries/${propertyId}`);
         setEntries(entriesRes.data);
+        toast.success('Huolto lisätty onnistuneesti!');
       } catch (err) {
-        // handle error
+        toast.error('Huollon lisäys epäonnistui!');
       }
       setAdding(false);
     };
@@ -79,8 +85,9 @@ const Huoltokirja = ({ propertyId: propPropertyId }) => {
         await axios.delete(`${config.apiUrl}/maintenance/entries/${entryId}`);
         const entriesRes = await axios.get(`${config.apiUrl}/maintenance/entries/${propertyId}`);
         setEntries(entriesRes.data);
+        toast.success('Huolto poistettu onnistuneesti!');
       } catch (err) {
-        // handle error
+        toast.error('Huollon poisto epäonnistui!');
       }
     };
   const { user } = useAuth();
@@ -154,14 +161,19 @@ const Huoltokirja = ({ propertyId: propPropertyId }) => {
       <h2>Huoltokirja</h2>
       <form onSubmit={handleAddEntry} style={{ marginBottom: '2em', background: '#f8f9fa', padding: '1em', borderRadius: '8px' }}>
         <h4>Lisää uusi huolto/tehtävä</h4>
-        <input
-          type="text"
-          placeholder="Tehtävän nimi"
-          value={newEntry.task_name}
-          onChange={e => setNewEntry({ ...newEntry, task_name: e.target.value })}
-          required
-          style={{ marginBottom: '0.5em', width: '100%' }}
-        />
+        <div style={{ marginBottom: '0.5em' }}>
+          <label style={{ fontWeight: 500 }}>
+            Tehtävän nimi <span style={{ color: 'red' }}>*</span>
+            <input
+              type="text"
+              placeholder="Tehtävän nimi"
+              value={newEntry.task_name}
+              onChange={e => setNewEntry({ ...newEntry, task_name: e.target.value })}
+              required
+              style={{ marginTop: '0.2em', width: '100%' }}
+            />
+          </label>
+        </div>
         <input
           type="text"
           placeholder="Kuvaus"
