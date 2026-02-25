@@ -108,6 +108,9 @@ router.get('/entries/:propertyid', async (req, res) => {
 // Add a maintenance entry
 router.post('/entries', async (req, res) => {
     const { propertyid, task_name, description, recommended_frequency, user_id, note, is_recurring, recurring_months, year } = req.body;
+    if (!task_name || typeof task_name !== 'string' || task_name.trim() === '') {
+        return res.status(400).json({ error: 'Tehtävän nimi (task_name) on pakollinen.' });
+    }
     try {
         const pool = await sql.connect();
         // Get or create book
