@@ -52,8 +52,10 @@ const uploadRouter = require('../uploads/post');
 // Todo routes
 const todoRouter = require('../todoroutes/todocrud');
 
+
 // Maintenance routes
 const maintenanceRouter = require('./maintenance');
+const maintenanceCalendarRouter = require('./maintenancecalendar');
 
 
 /**
@@ -122,8 +124,9 @@ function setupRoutes(app) {
     app.use('/api/nordpool', nordpoolRouter);
 
 
-        // Maintenance routes
-        app.use('/api/maintenance', maintenanceRouter);
+    // Maintenance routes
+    app.use('/api/maintenance', maintenanceRouter);
+    app.use('/api/maintenancecalendar', maintenanceCalendarRouter);
 }
 
 module.exports = setupRoutes;

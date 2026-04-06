@@ -120,6 +120,22 @@ CREATE TABLE TS_Images (
     FOREIGN KEY (propertyid) REFERENCES TS_Properties(propertyid)
 );
 
+-- Vuosihuoltokalenteri: tukee vakiotoimenpiteet ja käyttäjän omat rivit
+CREATE TABLE TS_MaintenanceCalendar (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    propertyid INT NOT NULL,
+    userid INT NOT NULL,
+    task NVARCHAR(255) NOT NULL,         -- Toimenpide (esim. "Vesikourujen puhdistus")
+    season NVARCHAR(50) NOT NULL,        -- Kausi (esim. "Kevät", "Syksy", "Talvi", "Kesä")
+    year INT NOT NULL,                   -- Vuosi (esim. 2026)
+    checked BIT NOT NULL DEFAULT 0,      -- Onko rasti ruudussa
+    is_custom BIT NOT NULL DEFAULT 0,    -- Onko käyttäjän oma rivi
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (propertyid) REFERENCES TS_Properties(propertyid)
+    -- FOREIGN KEY (userid) REFERENCES TS_Users(userid) -- lisää jos käyttäjätaulu on olemassa
+);
+
 CREATE TABLE TS_Tutkimukset (
     id INT IDENTITY(1,1) PRIMARY KEY,
     propertyid INT,

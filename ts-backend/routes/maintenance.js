@@ -185,6 +185,11 @@ router.delete('/entries/:id', async (req, res) => {
     const { id } = req.params;
     try {
         const pool = await sql.connect();
+        // Poista ensin kaikki kuukaudet (jos on)
+        await pool.request()
+            .input('maintenanceentry_id', sql.Int, id)
+            .query('DELETE FROM TS_MaintenanceMonthDone WHERE maintenanceentry_id = @maintenanceentry_id');
+        // Sitten itse huolto
         await pool.request()
             .input('id', sql.Int, id)
             .query('DELETE FROM TS_MaintenanceEntry WHERE id = @id');
