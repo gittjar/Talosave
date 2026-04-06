@@ -9,20 +9,20 @@ const DataProtection = () => {
             <section className='mb-4'>
                 <h2>1. Rekisterinpitäjä</h2>
                 <p>
-                    TaloSave / Talotieto<br />
+                    Talotieto<br />
                     Sähköposti: <a href="mailto:info@koodimaa.fi">info@koodimaa.fi</a>
                 </p>
             </section>
 
             <section className='mb-4'>
                 <h2>2. Rekisterin nimi</h2>
-                <p>TaloSave-sovelluksen käyttäjä- ja kiinteistörekisteri</p>
+                <p>Talotieto-sovelluksen käyttäjä- ja kiinteistörekisteri</p>
             </section>
 
             <section className='mb-4'>
                 <h2>3. Palvelun luonne ja vastuunrajoitukset</h2>
                 <p>
-                    <strong>TaloSave on ilmainen, ei-kaupallinen versio</strong> kiinteistönhallintasovelluksesta. 
+                    <strong>Talotieto on ilmainen, ei-kaupallinen versio</strong> kiinteistönhallintasovelluksesta. 
                     Palvelua tarjotaan "as is" -periaatteella ilman takuita tai vastuusitoumuksia.
                 </p>
                 <p className='mt-2'>

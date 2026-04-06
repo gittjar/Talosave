@@ -40,7 +40,7 @@ const NavBar = () => {
               <Buildings size={24} />
             </div>
             <div>
-              <span className="brand-name">TaloSave</span>
+              <span className="brand-name">Talotieto</span>
               <Badge bg="secondary" className="ms-2 brand-badge">Beta</Badge>
             </div>
           </div>
@@ -81,6 +81,8 @@ const NavBar = () => {
               <Calendar2Check size={16} className="me-2" />
               Huoltoaikataulu
             </Nav.Link>
+
+              {/* Huoltokirja-linkki poistettu navbarista, siirretään kiinteistön alle */}
             
             {!isLoggedIn && (
               <Nav.Link 

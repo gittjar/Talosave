@@ -1,4 +1,4 @@
-# 🏠 TaloSave
+# 🏠 Talotieto
 
 <div align="center">
 
@@ -16,7 +16,7 @@
 
 ## 📖 Kuvaus
 
-TaloSave on modernin teknologian hyödyntämä web-sovellus kiinteistöjen hallintaan. Se tarjoaa kattavan alustan kiinteistöjen tietojen, kulutusten ja huoltotöiden seurantaan.
+Talotieto on modernin teknologian hyödyntämä web-sovellus kiinteistöjen hallintaan. Se tarjoaa kattavan alustan kiinteistöjen tietojen, kulutusten ja huoltotöiden seurantaan.
 
 ### 🎯 Tavoite
 Keskittää kaikki kiinteistöön liittyvät tiedot yhteen helppokäyttöiseen sovellukseen, joka auttaa kiinteistönomistajia:
@@ -341,7 +341,7 @@ Kaupallinen käyttö ilman lupaa kielletty.
 
 <div align="center">
 
-**🏠 TaloSave - Älykkää kiinteistöhallintaa modernilla teknologialla**
+**🏠 Talotieto - Älykkää kiinteistöhallintaa modernilla teknologialla**
 
 *Kehitetty ❤️:llä Suomessa 🇫🇮*
 

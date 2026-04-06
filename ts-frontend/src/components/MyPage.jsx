@@ -120,7 +120,7 @@ const MyPage = () => {
                     </div>
                     <h4 className="text-muted mb-3">Ei kiinteistöjä vielä</h4>
                     <p className="text-muted mb-4">
-                      Lisää ensimmäinen kiinteistösi päästäksesi alkuun TaloSave-sovelluksen kanssa.
+                      Lisää ensimmäinen kiinteistösi päästäksesi alkuun Talotieto-sovelluksen kanssa.
                     </p>
                   </Card.Body>
                 </Card>

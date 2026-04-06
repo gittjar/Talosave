@@ -9,7 +9,7 @@ const ProgramInfoPage = () => {
       <section>
         <h2>1. Yleistä</h2>
         <p>
-          Tervetuloa <strong>TaloSave / Talotieto</strong> -sovellukseen, versio 2.0 (2026). Tämä on ilmainen, ei-kaupallinen 
+          Tervetuloa <strong>Talotieto</strong> -sovellukseen, versio 2.0 (2026). Tämä on ilmainen, ei-kaupallinen 
           kiinteistönhallintasovellus, joka auttaa sinua hallitsemaan kiinteistöjen tietoja, seuraamaan 
           kulutuksia (sähkö, vesi, lämpö) ja pitämään kirjaa remonteista sekä huoltotarpeista.
         </p>
@@ -27,7 +27,7 @@ const ProgramInfoPage = () => {
 
       <section>
         <h2>2. Ominaisuudet</h2>
-        <p>TaloSave tarjoaa seuraavat toiminnot:</p>
+        <p>Talotieto tarjoaa seuraavat toiminnot:</p>
         <ul>
           <li><strong>Kiinteistöhallinta:</strong> Useiden kiinteistöjen tiedot (osoite, rakennusvuosi, pinta-ala, lämmitystapa)</li>
           <li><strong>Kulutusseuranta:</strong> Sähkön, veden ja lämmön kulutustietojen kirjaus ja visualisointi</li>
@@ -43,7 +43,7 @@ const ProgramInfoPage = () => {
       <section>
         <h2>3. Palvelun luonne ja rajoitukset</h2>
         <p>
-          <strong>TaloSave on ilmainen, ei-kaupallinen beta-versio.</strong> Palvelua tarjotaan "as is" -periaatteella:
+          <strong>Talotieto on ilmainen, ei-kaupallinen beta-versio.</strong> Palvelua tarjotaan "as is" -periaatteella:
         </p>
         <ul>
           <li>Sovellus on <strong>kehitysvaiheessa</strong> ja uusia ominaisuuksia lisätään jatkuvasti</li>
@@ -65,7 +65,7 @@ const ProgramInfoPage = () => {
       <section>
         <h2>4. Yksityisyys ja tietosuoja</h2>
         <p>
-          TaloSave noudattaa EU:n GDPR-tietosuoja-asetusta. Tärkeimmät periaatteet:
+          Talotieto noudattaa EU:n GDPR-tietosuoja-asetusta. Tärkeimmät periaatteet:
         </p>
         <ul>
           <li>Tallennamme vain tarvittavat käyttäjätiedot (sähköposti, salasana, kiinteistötiedot)</li>
@@ -83,7 +83,7 @@ const ProgramInfoPage = () => {
       <section>
         <h2>5. Hinnoittelu</h2>
         <p>
-          <strong>TaloSave on tällä hetkellä täysin ilmainen</strong> kaikille käyttäjille. 
+          <strong>Talotieto on tällä hetkellä täysin ilmainen</strong> kaikille käyttäjille. 
           Kehittäjä pidättää oikeuden muuttaa hinnoittelua tulevaisuudessa, mutta ilmoittaa tällaisista 
           muutoksista etukäteen käyttäjille.
         </p>
@@ -158,7 +158,7 @@ const ProgramInfoPage = () => {
       <section>
         <h2>10. Kiitokset</h2>
         <p>
-          TaloSave hyödyntää seuraavia avoimen lähdekoodin projekteja ja julkisia palveluita:
+          Talotieto hyödyntää seuraavia avoimen lähdekoodin projekteja ja julkisia palveluita:
         </p>
         <ul>
           <li><strong>React</strong> (Meta) - Käyttöliittymäkirjasto</li>

@@ -1,3 +1,5 @@
+-- Jos päivität olemassa olevaa tietokantaa, lisää seuraava:
+-- ALTER TABLE TS_MaintenanceEntry ADD is_recurring BIT DEFAULT 0, recurring_months NVARCHAR(50), year INT;
 CREATE TABLE TS_Properties (
     propertyid INT IDENTITY(1,1) PRIMARY KEY,
     propertyname NVARCHAR(255),
@@ -236,4 +238,65 @@ CREATE TABLE TS_PropertyImages (
     sort_order INT DEFAULT 0,
     FOREIGN KEY (property_id) REFERENCES TS_Properties(propertyid) ON DELETE CASCADE
 );
--- ALTER TABLE TS_PropertyImages ADD sort_order INT DEFAULT 0;
+
+-- Maintenance tracking tables for Huoltokirja
+CREATE TABLE TS_MaintenanceTasks (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    name NVARCHAR(100) NOT NULL,
+    description NVARCHAR(255),
+    recommended_frequency NVARCHAR(50) -- e.g. 'Kevät', 'Syksy', 'Q1', 'Q2', 'Q3', 'Q4', 'Vuosi', 'Kuukausi'
+);
+
+CREATE TABLE TS_MaintenanceChecks (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    task_id INT NOT NULL,
+    propertyid INT NOT NULL,
+    user_id INT NOT NULL,
+    check_date DATE NOT NULL,
+    year INT NOT NULL,
+    period NVARCHAR(20), -- esim. 'Q1', 'Q2', 'Q3', 'Q4', 'Kevät', 'Syksy', 'Tammikuu'
+    note NVARCHAR(255),
+    FOREIGN KEY (task_id) REFERENCES TS_MaintenanceTasks(id),
+    FOREIGN KEY (propertyid) REFERENCES TS_Properties(propertyid)
+);
+
+-- Unified Huoltokirja tables
+CREATE TABLE TS_PropertyMaintenanceBook (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    propertyid INT NOT NULL,
+    name NVARCHAR(100) NOT NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (propertyid) REFERENCES TS_Properties(propertyid)
+);
+
+CREATE TABLE TS_MaintenanceEntry (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    maintenancebook_id INT NOT NULL,
+    task_name NVARCHAR(100) NOT NULL,
+    description NVARCHAR(255),
+    recommended_frequency NVARCHAR(50),
+    done BIT DEFAULT 0,
+    done_date DATE,
+    note NVARCHAR(255),
+    user_id INT,
+    created_at DATETIME DEFAULT GETDATE(),
+    -- Recurring/periodic fields
+    is_recurring BIT DEFAULT 0, -- 1 = toistuva vuosittain
+    recurring_months NVARCHAR(50), -- esim. '1,2,3,4,5,6,7,8,9,10,11,12' (valitut kuukaudet)
+    year INT -- mille vuodelle tehtävä kuuluu
+    FOREIGN KEY (maintenancebook_id) REFERENCES TS_PropertyMaintenanceBook(id),
+    FOREIGN KEY (user_id) REFERENCES TS_PropertyUsers(userid)
+);
+
+CREATE TABLE TS_MaintenanceMonthDone (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    maintenanceentry_id INT NOT NULL, -- FK to TS_MaintenanceEntry
+    year INT NOT NULL,
+    month INT NOT NULL, -- 1-12
+    done BIT DEFAULT 0,
+    done_date DATE,
+    user_id INT,
+    note NVARCHAR(255),
+    created_at DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (maintenanceentry_id) REFERENCES TS_MaintenanceEntry(id)
+);

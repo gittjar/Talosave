@@ -184,36 +184,41 @@ Database
     ├── createdat
     └── updatedat
 
-MongoDB Collections
-│
-├── Files (Document Storage)
-│   ├── _id (ObjectId, PK)
-│   ├── name (dokumentin nimi)
-│   ├── description (kuvaus)
-│   ├── propertyId (Number, viittaus TS_Properties)
-│   ├── folderId (ObjectId, viittaus Folder, null = juuressa)
-│   ├── url (Azure Blob URL tai linkki)
-│   ├── blobName (Azure Blob nimi poistoa varten)
-│   ├── fileType ('link' tai 'upload')
-│   ├── sortOrder (järjestys drag & drop)
-│   ├── uploadedAt (Date)
-│   ├── fileSize (bytes, käytetään kiintiölaskennassa)
-│   └── userId (Number, viittaus TS_PropertyUsers, tiedoston lataaja)
-│
-└── Folders (Document Organization)
-    ├── _id (ObjectId, PK)
-    ├── name (kansion nimi, max 50 merkkiä, ei erikoismerkkejä)
-    ├── propertyId (Number, viittaus TS_Properties)
-    ├── parentFolderId (ObjectId, viittaus Folder, null = juuressa)
-    ├── sortOrder (järjestys drag & drop)
-    └── createdAt (Date)
 
-Storage Quota
-- Free tier total: 120 MB per user
-  - Documents: 50 MB (tracked in TS_PropertyUsers.storageUsed)
-  - Property Images: 20 MB (tracked in TS_PropertyUsers.propertyImagesUsed)
-  - Renovation Images: 50 MB (tracked in TS_PropertyUsers.renovationImagesUsed)
-- Quota check on file upload via /api/storage-quota endpoint (returns all three quotas)
-- Usage updated automatically on upload/delete operations for each type
-- Frontend displays total usage bar + breakdown by category with color coding
-- Warning when total or individual quota approaching limit
+Maintenance Tracking (Huoltokirja)
+└── TS_PropertyMaintenanceBook
+    ├── id (PK)
+    ├── propertyid (FK -> TS_Properties)
+    ├── name (kirjan nimi)
+    ├── created_at (luontiaika)
+└── TS_MaintenanceEntry
+    ├── id (PK)
+    ├── maintenancebook_id (FK -> TS_PropertyMaintenanceBook)
+    ├── task_name (tehtävän nimi)
+    ├── description (kuvaus)
+    ├── recommended_frequency (esim. "Kevät", "Syksy", "Vuosi")
+    ├── done (tehty, boolean)
+    ├── done_date (päiväys)
+    ├── note (huomio)
+    ├── user_id (FK -> TS_PropertyUsers)
+    ├── created_at (luontiaika)
+    ├── is_recurring (toistuva, boolean)
+    ├── recurring_months (valitut kuukaudet, esim. "1,2,3,4,5,6,7,8,9,10,11,12")
+    └── year (vuosi, esim. 2026)
+└── TS_MaintenanceMonthDone
+    ├── id (PK)
+    ├── maintenanceentry_id (FK -> TS_MaintenanceEntry)
+    ├── year (vuosi)
+    ├── month (kuukausi, 1-12)
+    ├── done (tehty, boolean)
+    ├── done_date (päiväys)
+    ├── user_id (FK -> TS_PropertyUsers)
+    ├── note (huomio)
+    └── created_at (merkinnän luontiaika)
+
+- Kaikki kiinteistön huoltoon liittyvät tehtävät, huollot, tarkastukset ja muistiinpanot tallennetaan samaan kirjaan.
+- Käyttäjä voi lisätä, muokata ja merkitä tehtäviä tehdyksi.
+- Toistuville huolloille voidaan valita kuukaudet, jolloin tehtävä kuuluu tehdä (recurring_months).
+- Käyttäjä voi merkitä jokaisen kuukauden suoritetuksi erikseen (kuukausirasti, tallennus TS_MaintenanceMonthDone).
+- Ylläpito voi lisätä uusia tehtäviä ja suositeltuja aikavälejä.
+- Huoltokirja on aina kiinteistökohtainen.
