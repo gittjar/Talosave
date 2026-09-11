@@ -31,7 +31,7 @@
     "multer": "^2.0.1",
     "multer-gridfs-storage": "^5.0.2",
     "nodemailer": "^9.0.1",
-    "sharp": "^0.34.5"
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
     "jest": "^29.0.0"
