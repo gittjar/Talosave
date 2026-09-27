@@ -29,7 +29,7 @@
     "mongoose": "^8.9.3",
     "mssql": "^11.0.1",
     "multer": "^2.0.1",
-    "multer-gridfs-storage": "^5.0.2",
+    "multer-gridfs-storage": "^6.2.1",
     "nodemailer": "^9.0.1",
     "sharp": "^0.35.4"
   },
